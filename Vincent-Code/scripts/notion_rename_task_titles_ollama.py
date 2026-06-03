@@ -7,13 +7,13 @@ Fuentes de texto por fila:
   2) Sin eso → Notas / Notas (extra)
   3) Opcionalmente la nota Obsidian `slack-<ts>.md` si `OBSIDIAN_VAULT_PATH` está configurada
 
-Requiere servidor Ollama accesible (mismo comportamiento que el clasificador):
-  `$env:OLLAMA_URL` por defecto `http://127.0.0.1:11434`
-  así que debe estar corriendo `ollama serve` (o tener Ollama en segundo plano) con el modelo usado.
+Requiere LLM accesible (mismo comportamiento que el clasificador):
+  LLM_PROVIDER=auto|openai|groq|ollama
+  OPENAI_API_KEY / GROQ_API_KEY / Ollama local (OLLAMA_URL)
 
   NOTION_API_TOKEN
   Opcional NOTION_TASKS_DATABASE_ID (default igual que sync)
-  Opcional OLLAMA_MODEL, OLLAMA_URL, OBSIDIAN_VAULT_PATH
+  Opcional LLM_MODEL, OLLAMA_MODEL, OLLAMA_URL, OBSIDIAN_VAULT_PATH
 """
 
 from __future__ import annotations
@@ -37,6 +37,7 @@ sys.path.insert(0, SCRIPTS_DIR)
 sys.path.insert(0, PROJECT_ROOT)
 
 import classify_slack_input_with_ollama as clf  # noqa: E402
+from src.llm_client import build_llm_config, validate_llm_config  # noqa: E402
 from sync_productivity_obsidian_to_notion import (  # noqa: E402
     TASKS_DB_ID,
     TASKS_IDEAS_FOLDER,
@@ -157,15 +158,26 @@ def _patch_title_prop(title_prop_name: str, new_title: str) -> Dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Renombrar filas Notion usando Ollama (misma lógica que classify)")
+    parser = argparse.ArgumentParser(description="Renombrar filas Notion usando LLM (misma lógica que classify)")
     parser.add_argument("--dry-run", action="store_true", help="Calcular pero no PATCH en Notion")
     parser.add_argument("--limit", type=int, default=0, help="Máximo de filas a procesar (0 = todas)")
     parser.add_argument("--include-aprendizaje", action="store_true", help="Incluir tipo Aprendizaje")
     parser.add_argument("--sleep-s", type=float, default=0.15, help="Pausa entre requests Notion/update")
+    parser.add_argument(
+        "--llm-provider",
+        choices=("openai", "groq", "ollama", "auto"),
+        default=None,
+    )
+    parser.add_argument("--model", default=None)
     parser.add_argument("--ollama-url", default=os.getenv("OLLAMA_URL", "http://127.0.0.1:11434"))
-    parser.add_argument("--model", default=os.getenv("OLLAMA_MODEL", "llama3.1:8b"))
-    parser.add_argument("--timeout", type=int, default=120, help="Timeout por llamada Ollama (s)")
+    parser.add_argument("--timeout", type=int, default=120, help="Timeout por llamada LLM (s)")
     args = parser.parse_args()
+
+    llm = build_llm_config(args.llm_provider, args.model, args.ollama_url)
+    try:
+        validate_llm_config(llm)
+    except ValueError as e:
+        raise SystemExit(str(e)) from e
 
     _require_env("NOTION_API_TOKEN")
     db_raw = os.getenv("NOTION_TASKS_DATABASE_ID", TASKS_DB_ID)
@@ -217,8 +229,7 @@ def main() -> int:
 
         try:
             new_title = clf._resolve_titulo_corto(
-                args.ollama_url,
-                args.model,
+                llm,
                 blob,
                 tipo,
                 current,

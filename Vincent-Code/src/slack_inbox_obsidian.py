@@ -1,7 +1,7 @@
 """
 Persist Slack inbox captures as Markdown files under the Obsidian vault.
 
-Default folder (relative to vault root): 0_Diario_productividad/Input
+Default folder (relative to vault root): 0_Diario_Productividad/Input
 Override with env SLACK_INPUT_OBSIDIAN_REL (use forward slashes or OS separators).
 """
 
@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 
 def default_input_rel_dir() -> str:
-    return os.path.join("0_Diario_productividad", "Input")
+    return os.path.join("0_Diario_Productividad", "Input")
 
 
 def resolve_input_dir(vault_path: str, rel_dir: str) -> str:

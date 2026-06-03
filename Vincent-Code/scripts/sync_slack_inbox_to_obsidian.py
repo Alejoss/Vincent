@@ -1,12 +1,16 @@
 """
-Sync Slack DM messages (optional local Whisper on audio) into Obsidian notes.
+Sync Slack DM messages (audio → text → Obsidian) into Obsidian notes.
 
 Reads:
   - SLACK_BOT_TOKEN
   - SLACK_DM_CHANNEL_ID
   - SLACK_WORKSPACE_DOMAIN (optional; permalink in frontmatter)
   - OBSIDIAN_VAULT_PATH (required)
-  - SLACK_INPUT_OBSIDIAN_REL (optional; default 0_Diario_productividad/Input)
+  - SLACK_INPUT_OBSIDIAN_REL (optional; default 0_Diario_Productividad/Input)
+  - WHISPER_PROVIDER (optional; openai | local | auto — default auto)
+  - OPENAI_API_KEY (required when WHISPER_PROVIDER=openai, or auto with key set)
+  - WHISPER_MODEL (optional; default whisper-1)
+  - Transcription language: Spanish (es), hardcoded in src/whisper_client.py
 
 Writes:
   - One Markdown file per message under the vault subfolder (dedupe by slack_ts filename).
@@ -18,6 +22,7 @@ Behavior:
   - Imports only messages you send to the bot (never the bot's replies). Requires a bot token (xoxb-).
   - Optional SLACK_HUMAN_USER_ID: if set, only that user id is imported (strictest).
   - Skips messages that already have a note file for that slack_ts.
+  - Transcription: OpenAI Whisper API (cloud/GHA) or local whisper/faster-whisper fallback.
 """
 
 from __future__ import annotations
@@ -45,6 +50,7 @@ from src.slack_inbox_obsidian import (
     write_slack_message_note,
 )
 from src.slack_inbox_state import SlackInboxStateStore
+from src.whisper_client import resolve_whisper_provider, transcribe_openai
 
 load_dotenv(override=True)
 
@@ -186,6 +192,7 @@ def _download_slack_file(slack_token: str, url: str, out_path: str) -> None:
 
 
 def _transcribe_whisper_local(audio_path: str) -> str:
+    """Local fallback: whisper CLI, then faster-whisper."""
     """
     Try OpenAI whisper CLI first (if `whisper` is on PATH), then faster-whisper.
     Returns plain text or empty string.
@@ -222,6 +229,12 @@ def _transcribe_whisper_local(audio_path: str) -> str:
         pass
 
     return ""
+
+
+def _transcribe_audio(audio_path: str, provider: str) -> str:
+    if provider == "openai":
+        return transcribe_openai(audio_path)
+    return _transcribe_whisper_local(audio_path)
 
 
 def fetch_messages_incremental(
@@ -265,7 +278,25 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Sync Slack DM messages into Obsidian (0_Diario_productividad/Input)")
     parser.add_argument("--days", type=int, default=3, help="Import messages from last N days (default 3)")
     parser.add_argument("--dry-run", action="store_true", help="Do not write notes; only log actions")
-    parser.add_argument("--audio", action="store_true", default=True, help="Process audio attachments (default: true)")
+    parser.add_argument(
+        "--audio",
+        dest="audio",
+        action="store_true",
+        default=True,
+        help="Process audio attachments (default: true)",
+    )
+    parser.add_argument(
+        "--no-audio",
+        dest="audio",
+        action="store_false",
+        help="Skip audio transcription",
+    )
+    parser.add_argument(
+        "--whisper-provider",
+        choices=("openai", "local", "auto"),
+        default=None,
+        help="Transcription backend (default: WHISPER_PROVIDER env or auto)",
+    )
     parser.add_argument(
         "--full-refresh",
         action="store_true",
@@ -316,6 +347,14 @@ def main() -> int:
     log.info(f"Slack bot_user_id (messages from this user are skipped): {bot_user_id}")
     log.info(f"Slack channel: {channel_id}")
     log.info(f"Import window cap: last {args.days} day(s)")
+
+    whisper_provider = resolve_whisper_provider(args.whisper_provider)
+    if args.audio:
+        log.info(f"Audio transcription: {whisper_provider}")
+        if whisper_provider == "openai" and not (os.getenv("OPENAI_API_KEY") or "").strip():
+            raise SystemExit(
+                "WHISPER_PROVIDER=openai (or --whisper-provider openai) requires OPENAI_API_KEY"
+            )
 
     state_store = SlackInboxStateStore(PROJECT_ROOT)
     last_ts = None if args.full_refresh else state_store.load_last_ts(channel_id)
@@ -387,7 +426,11 @@ def main() -> int:
                         except Exception as e:
                             log.info(f"Audio download failed for file_id={file_id}: {e}")
                             continue
-                    transcript_text = _transcribe_whisper_local(audio_path).strip()
+                    try:
+                        transcript_text = _transcribe_audio(audio_path, whisper_provider).strip()
+                    except Exception as e:
+                        log.info(f"Transcription failed for file_id={file_id} ({whisper_provider}): {e}")
+                        transcript_text = ""
                     if transcript_text:
                         try:
                             os.makedirs(os.path.dirname(txt_path), exist_ok=True)
@@ -395,6 +438,10 @@ def main() -> int:
                                 wf.write(transcript_text)
                         except Exception:
                             pass
+                    elif whisper_provider == "openai":
+                        log.info(
+                            f"Empty transcript for file_id={file_id}; message ts={ts} will be skipped if no text"
+                        )
 
                 if transcript_text:
                     break

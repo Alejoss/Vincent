@@ -1,45 +1,18 @@
 """
-Classify Slack productivity notes in Obsidian with a local Ollama model.
+Classify Slack productivity notes in Obsidian with a local or cloud LLM.
 
 Purpose
 - Convert raw Slack captures into structured productivity entries.
 - Produce stable metadata used by the Notion sync script.
 
-Input
-- Reads `slack-*.md` from:
-  - `0_Diario_Productividad/Input`
-  - `0_Diario_Productividad/Tareas-Ideas`
-  - `0_Diario_Productividad/Aprendizajes`
-- Base path comes from:
-  - `OBSIDIAN_VAULT_PATH` (required)
-  - `SLACK_INPUT_OBSIDIAN_REL` (optional; default points to Input folder)
-
-Output (per note)
-- Frontmatter keys:
-  - `tipo`: `Tarea` | `Idea` | `Aprendizaje`
-  - `proyecto`: one of 4 canonical projects
-  - `titulo_corto`: concise title for Notion
-  - `recordatorio_slack`: pregunta corta en "tú" para pings de vencimiento en Slack (Tarea/Idea; vacío en Aprendizaje)
-  - `referencia_temporal`: original temporal phrase when present
-  - `fecha_objetivo`: `YYYY-MM-DD` (validated/clamped)
-  - `clasificacion_confianza`, `clasificacion_modelo`, `clasificacion_actualizada`
-- Body format:
-  - structured headers + `## Contenido completo (Slack)` section
-  - full Slack text is preserved in that section
-- File location:
-  - `Tarea`/`Idea` -> `Tareas-Ideas`
-  - `Aprendizaje` -> `Aprendizajes`
-
-Runtime notes
-- Uses Ollama `/api/generate` with `format=json` and `temperature=0`.
-- If Ollama temporal date is missing/invalid, local inference is applied.
-- Use `--reclassify` to recompute already-classified notes.
+LLM backend (env LLM_PROVIDER=openai|groq|ollama|auto):
+- auto: OPENAI_API_KEY -> OpenAI; GROQ_API_KEY -> Groq; else local Ollama
+- See src/llm_client.py
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import os
 import re
@@ -49,13 +22,13 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 import shutil
 
-import requests
 from dotenv import load_dotenv
 
 SCRIPTS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
+from src.llm_client import LLMConfig, build_llm_config, call_json, ollama_is_reachable, validate_llm_config
 from src.slack_inbox_obsidian import default_input_rel_dir, resolve_input_dir
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text
 
@@ -273,25 +246,8 @@ def _build_reminder_from_title_prompt(titulo_corto: str, tipo: str) -> str:
     )
 
 
-def _call_ollama(ollama_url: str, model: str, prompt: str, timeout_s: int) -> Dict[str, object]:
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "stream": False,
-        "format": "json",
-        "options": {"temperature": 0},
-    }
-    response = requests.post(
-        f"{ollama_url.rstrip('/')}/api/generate",
-        json=payload,
-        timeout=timeout_s,
-    )
-    response.raise_for_status()
-    data = response.json()
-    raw = (data.get("response") or "").strip()
-    if not raw:
-        raise ValueError("Ollama returned empty response")
-    return json.loads(raw)
+def _call_llm(config: LLMConfig, prompt: str, timeout_s: int) -> Dict[str, object]:
+    return call_json(prompt, config, timeout_s=timeout_s)
 
 
 def _normalize_title_line(raw: str) -> str:
@@ -368,29 +324,27 @@ def _title_retry_hint(title: str, slack_plain: str) -> str:
 
 
 def _generate_title_llm(
-    ollama_url: str,
-    model: str,
+    config: LLMConfig,
     slack_plain: str,
     timeout_s: int,
     hint: str = "",
 ) -> str:
     try:
-        obj = _call_ollama(ollama_url, model, _build_title_prompt(slack_plain, hint), timeout_s)
+        obj = _call_llm(config, _build_title_prompt(slack_plain, hint), timeout_s)
         return _strip_ellipsis(str(obj.get("titulo_corto", "")))
     except Exception:
         return ""
 
 
 def _resolve_titulo_corto(
-    ollama_url: str,
-    model: str,
+    config: LLMConfig,
     slack_plain: str,
     _tipo: str,
     llm_primary: str,
     timeout_s: int,
 ) -> str:
     """
-    titulo_corto for Notion: always from Ollama reading the full transcript.
+    titulo_corto for Notion: always from the LLM reading the full transcript.
     Never truncated in Python — if invalid or too long, retry with feedback.
     """
     primary = _strip_ellipsis(_normalize_title_line(llm_primary))
@@ -400,7 +354,7 @@ def _resolve_titulo_corto(
     hint = ""
     last = ""
     for _ in range(5):
-        candidate = _generate_title_llm(ollama_url, model, slack_plain, timeout_s, hint)
+        candidate = _generate_title_llm(config, slack_plain, timeout_s, hint)
         if not candidate:
             continue
         last = candidate
@@ -458,24 +412,23 @@ def _sanitize_reminder_line(raw: str, tipo: str) -> str:
     return s
 
 
-def _reminder_from_title_llm(ollama_url: str, model: str, titulo_corto: str, tipo: str, timeout_s: int) -> str:
+def _reminder_from_title_llm(config: LLMConfig, titulo_corto: str, tipo: str, timeout_s: int) -> str:
     if tipo not in {"Tarea", "Idea"} or not (titulo_corto or "").strip():
         return ""
     try:
-        obj = _call_ollama(ollama_url, model, _build_reminder_from_title_prompt(titulo_corto, tipo), timeout_s)
+        obj = _call_llm(config, _build_reminder_from_title_prompt(titulo_corto, tipo), timeout_s)
         return _sanitize_reminder_line(str(obj.get("recordatorio_slack", "")), tipo)
     except Exception:
         return ""
 
 
 def _classify_text(
-    ollama_url: str,
-    model: str,
+    config: LLMConfig,
     note_text: str,
     timeout_s: int,
 ) -> Tuple[str, str, str, str, str, str, float, str]:
     prompt = _build_prompt(note_text)
-    obj = _call_ollama(ollama_url, model, prompt, timeout_s)
+    obj = _call_llm(config, prompt, timeout_s)
 
     tipo = _normalize_type(str(obj.get("tipo", "")))
     if not tipo:
@@ -533,9 +486,23 @@ def _target_dir_for_type(diario_root: str, tipo: str) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Classify Slack Input notes with local Ollama")
-    parser.add_argument("--model", default=os.getenv("OLLAMA_MODEL", "llama3.1:8b"), help="Ollama model name")
-    parser.add_argument("--ollama-url", default=os.getenv("OLLAMA_URL", "http://127.0.0.1:11434"), help="Ollama base URL")
+    parser = argparse.ArgumentParser(description="Classify Slack Input notes with OpenAI, Groq, or Ollama")
+    parser.add_argument(
+        "--llm-provider",
+        choices=("openai", "groq", "ollama", "auto"),
+        default=None,
+        help="LLM backend (default: LLM_PROVIDER env or auto)",
+    )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Model name (default: LLM_MODEL / provider default)",
+    )
+    parser.add_argument(
+        "--ollama-url",
+        default=os.getenv("OLLAMA_URL", "http://127.0.0.1:11434"),
+        help="Ollama base URL (only when provider=ollama)",
+    )
     parser.add_argument("--timeout", type=int, default=90, help="Request timeout in seconds")
     parser.add_argument("--limit", type=int, default=0, help="Only process first N notes (0 = all)")
     parser.add_argument(
@@ -545,6 +512,18 @@ def main() -> int:
     )
     parser.add_argument("--dry-run", action="store_true", help="Do not modify files")
     args = parser.parse_args()
+
+    llm = build_llm_config(args.llm_provider, args.model, args.ollama_url)
+    try:
+        validate_llm_config(llm)
+    except ValueError as e:
+        raise SystemExit(str(e)) from e
+
+    if llm.provider == "ollama" and not ollama_is_reachable(llm.ollama_url):
+        raise SystemExit(
+            f"Ollama not reachable at {llm.ollama_url}. "
+            "Start `ollama serve` or set OPENAI_API_KEY / LLM_PROVIDER=openai for cloud."
+        )
 
     vault = _require_env("OBSIDIAN_VAULT_PATH")
     rel = (os.getenv("SLACK_INPUT_OBSIDIAN_REL") or "").strip() or default_input_rel_dir()
@@ -561,7 +540,7 @@ def main() -> int:
 
     log.info(f"Input dir: {input_dir}")
     log.info(f"Diario root: {diario_root}")
-    log.info(f"Model: {args.model} ({args.ollama_url})")
+    log.info(f"LLM: {llm.label}")
     log.info(f"Found {len(notes)} note(s)")
 
     processed = 0
@@ -585,7 +564,7 @@ def main() -> int:
 
         try:
             tipo, proyecto, titulo_corto, referencia_temporal, fecha_objetivo, recordatorio_slack, conf, razon = _classify_text(
-                args.ollama_url, args.model, slack_plain, args.timeout
+                llm, slack_plain, args.timeout
             )
         except Exception as e:
             failed += 1
@@ -601,8 +580,7 @@ def main() -> int:
             fecha_objetivo = infer_due_from_text(slack_plain, anchor)
         fm["fecha_objetivo"] = _quote_yaml(fecha_objetivo)
         titulo_corto = _resolve_titulo_corto(
-            args.ollama_url,
-            args.model,
+            llm,
             slack_plain,
             tipo,
             titulo_corto,
@@ -610,14 +588,12 @@ def main() -> int:
         )
         fm["titulo_corto"] = _quote_yaml(titulo_corto)
         if tipo in {"Tarea", "Idea"} and not (recordatorio_slack or "").strip():
-            recordatorio_slack = _reminder_from_title_llm(
-                args.ollama_url, args.model, titulo_corto, tipo, args.timeout
-            )
+            recordatorio_slack = _reminder_from_title_llm(llm, titulo_corto, tipo, args.timeout)
         if tipo == "Aprendizaje":
             recordatorio_slack = ""
         fm["recordatorio_slack"] = _quote_yaml(recordatorio_slack)
         fm["clasificacion_confianza"] = f"{conf:.2f}"
-        fm["clasificacion_modelo"] = _quote_yaml(args.model)
+        fm["clasificacion_modelo"] = _quote_yaml(llm.label)
         fm["clasificacion_actualizada"] = _quote_yaml(datetime.now(tz=timezone.utc).isoformat())
         if razon:
             fm["clasificacion_razon"] = _quote_yaml(razon[:500])

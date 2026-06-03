@@ -61,9 +61,10 @@ scripts\run_slack_inbox_sync.bat
 
 - `NOTION_TASKS_DATABASE_ID` — si no coincide con el default del código
 - `SLACK_WORKSPACE_DOMAIN` — permalink en frontmatter
-- `SLACK_INPUT_OBSIDIAN_REL` — subcarpeta de Input (default `0_Diario_productividad/Input`)
+- `SLACK_INPUT_OBSIDIAN_REL` — subcarpeta de Input (default `0_Diario_Productividad/Input`)
 - `SLACK_HUMAN_USER_ID` — filtrar solo tus mensajes en el DM
-- `OLLAMA_MODEL`, `OLLAMA_URL`
+- **Audio Slack → texto:** `WHISPER_PROVIDER` (`openai` | `local` | `auto`), **`OPENAI_API_KEY`** (misma key que el clasificador; idioma `es` fijo en código)
+- **Clasificador LLM:** `LLM_PROVIDER` (`openai` | `groq` | `ollama` | `auto`), `LLM_MODEL`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `OLLAMA_MODEL`, `OLLAMA_URL`
 
 ## Qué se guarda en Notion
 
@@ -113,7 +114,9 @@ python scripts/notion_rename_task_titles_ollama.py
 
 | Problema | Qué revisar |
 |----------|-------------|
-| Ollama `404` / conexión rechazada | `ollama serve` o dejar que el `.bat` lo levante; mismo modelo en `.env` |
+| Mensajes de voz sin texto en Obsidian | `OPENAI_API_KEY` + `WHISPER_PROVIDER=openai` (cloud) o whisper local; log `Transcription failed` |
+| Clasificador falla en GHA | `OPENAI_API_KEY` + `LLM_PROVIDER=openai`; local sin key usa Ollama |
+| Ollama `404` / conexión rechazada | Solo si `LLM_PROVIDER=ollama`: `ollama serve` o el `.bat` lo levanta |
 | No aparecen mensajes nuevos | Ventana `--days 3`; cursor en `cache/slack_inbox/`; mensajes deben ser **tuyos hacia el bot** |
 | Notion sin filas nuevas | Token + integración conectada a la base; log paso 4 del pipeline |
 | Fechas vacías en columna “Fin” | Normal si el mensaje no menciona plazo; usar columna **Fecha Slack** |

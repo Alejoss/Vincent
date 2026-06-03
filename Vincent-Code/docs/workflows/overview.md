@@ -6,7 +6,7 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 ┌─────────────────────────────────────────────────────────────────┐
 │  PIPELINE 1 — Entrada (Slack → Notion)                          │
 │                                                                 │
-│  Slack DM  →  Obsidian  →  Ollama (clasificar)  →  Notion       │
+│  Slack DM  →  Obsidian  →  LLM (clasificar)  →  Notion       │
 │                                                                 │
 │  Script: run_productivity_pipeline.bat                          │
 └─────────────────────────────────────────────────────────────────┘
@@ -40,7 +40,8 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 | `OBSIDIAN_VAULT_PATH` | Sí | Recomendado |
 | `NOTION_API_TOKEN` | Sí | Sí |
 | `NOTION_TASKS_DATABASE_ID` | Opcional | Opcional |
-| `OLLAMA_MODEL` / `OLLAMA_URL` | Sí (pipeline 1) | No |
+| `OPENAI_API_KEY` + `WHISPER_PROVIDER` / `LLM_PROVIDER` | Cloud/GHA | Opcional |
+| `OLLAMA_MODEL` / `OLLAMA_URL` | Local sin OpenAI | No |
 
 ## Documentación detallada
 
