@@ -1,0 +1,22 @@
+# Theme – change
+
+## Quotes
+- [[Quote – Chantal Mouffe – 6-1]]
+- [[Quote – Cornelius Castoriadis – 20-1]]
+- [[Quote – Dahlia Lithwick – 5-1]]
+- [[Quote – David Graeber – 14-1]]
+- [[Quote – David Hume – 18-1]]
+- [[Quote – Derrick Bell – 18-1]]
+- [[Quote – Edward Said – 20-1]]
+- [[Quote – Emma Goldman – 14-1]]
+- [[Quote – Gustav Landauer – 18-1]]
+- [[Quote – Hannah Arendt – 5-1]]
+- [[Quote – Henry David Thoreau – 8-1]]
+- [[Quote – Isaiah Berlin – 8-1]]
+- [[Quote – John Maynard Keynes – 1-1]]
+- [[Quote – John Maynard Keynes – 7-1]]
+- [[Quote – Julian Paul Assange – 1-1]]
+- [[Quote – Mary Wollstonecraft – 2-1]]
+- [[Quote – Peter Kropotkin – 13-1]]
+- [[Quote – Peter Kropotkin – 18-1]]
+- [[Quote – Richard Rorty – 19-1]]

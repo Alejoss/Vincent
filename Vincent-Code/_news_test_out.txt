@@ -1,0 +1,12 @@
+﻿e:\Vincent\Vincent-Code\venv\Scripts\python.exe : ERROR Error HTTP 
+https://needtoknow.news/2026/01/james-okeefe-infiltrates-davos-world-economic-forum-and-talks-chemtrails/: 403 Client 
+Error: Forbidden for url: 
+https://needtoknow.news/2026/01/james-okeefe-infiltrates-davos-world-economic-forum-and-talks-chemtrails/
+En C:\Users\Alejandro\AppData\Local\Temp\ps-script-c58c0e4f-2e6a-47fa-95c5-b16cfe58a42b.ps1: 7 Carácter: 1
++ e:\Vincent\Vincent-Code\venv\Scripts\python.exe e:\Vincent\Vincent-Co ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR Error HTT...lks-chemtrails/:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO [dry-run] https://needtoknow.news/2026/01/james-okeefe-infiltrates-davos-world-eco \u2192 
+james-okeefe-infiltrates-davos-world-economic-forum-and-talks-chemtrails.md | temas: ['Tecnocracia']

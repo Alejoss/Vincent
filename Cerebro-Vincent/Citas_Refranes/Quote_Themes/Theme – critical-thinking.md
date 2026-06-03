@@ -1,0 +1,21 @@
+# Theme – critical-thinking
+
+## Quotes
+- [[Quote – Bertrand Russell – 13-1]]
+- [[Quote – Bertrand Russell – 18-1]]
+- [[Quote – Bertrand Russell – 20-1]]
+- [[Quote – Bertrand Russell – 8-1]]
+- [[Quote – Bruce Schneier – 8-1]]
+- [[Quote – David Graeber – 6-1]]
+- [[Quote – Derrick Bell – 5-1]]
+- [[Quote – Edward Said – 7-1]]
+- [[Quote – Hannah Arendt – 16-1]]
+- [[Quote – Immanuel Kant – 17-1]]
+- [[Quote – John Maynard Keynes – 5-1]]
+- [[Quote – John Stuart Mill – 3-1]]
+- [[Quote – Karl Popper – 17-1]]
+- [[Quote – Karl Popper – 3-1]]
+- [[Quote – Martha Nussbaum – 12-1]]
+- [[Quote – Richard Rorty – 10-1]]
+- [[Quote – Thomas Paine – 6-1]]
+- [[Quote – Wilhelm von Humboldt – 20-1]]

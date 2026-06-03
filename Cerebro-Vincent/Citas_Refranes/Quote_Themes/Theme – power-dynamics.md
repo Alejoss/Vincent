@@ -1,0 +1,21 @@
+# Theme – power-dynamics
+
+## Quotes
+- [[Quote – Chantal Mouffe – 1-1]]
+- [[Quote – Edward Said – 12-1]]
+- [[Quote – Edward Said – 16-1]]
+- [[Quote – Edward Said – 4-1]]
+- [[Quote – Edward Said – 7-1]]
+- [[Quote – Gustav Landauer – 18-1]]
+- [[Quote – Howard Zinn – 3-1]]
+- [[Quote – Howard Zinn – 5-1]]
+- [[Quote – Isaiah Berlin – 2-1]]
+- [[Quote – Lucy Parsons – 4-1]]
+- [[Quote – Mary Wollstonecraft – 19-1]]
+- [[Quote – Nancy Fraser – 1-1]]
+- [[Quote – Noam Chomsky – 13-1]]
+- [[Quote – Noam Chomsky – 6-1]]
+- [[Quote – Rudolf Rocker – 4-1]]
+- [[Quote – Shoshana Zuboff – 17-1]]
+- [[Quote – Susan Moller Okin – 8-1]]
+- [[Quote – Thomas Jefferson – 5-1]]

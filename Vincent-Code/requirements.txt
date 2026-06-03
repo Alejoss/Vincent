@@ -1,0 +1,17 @@
+# Notion API (sources and transcript tracking)
+notion-client>=2.7.0
+
+# YouTube APIs
+youtube-transcript-api>=0.6.1
+google-api-python-client>=2.100.0
+
+# Blog scraping
+trafilatura>=1.6.3
+feedparser>=6.0.10
+requests>=2.31.0
+
+# Text processing
+spacy>=3.7.0
+
+# Configuration
+python-dotenv>=1.0.0

@@ -1,0 +1,22 @@
+# Theme – activism
+
+## Quotes
+- [[Quote – Derrick Bell – 14-1]]
+- [[Quote – Derrick Bell – 18-1]]
+- [[Quote – Derrick Bell – 19-1]]
+- [[Quote – Derrick Bell – 3-1]]
+- [[Quote – Emma Goldman – 1-1]]
+- [[Quote – Errico Malatesta – 10-1]]
+- [[Quote – Errico Malatesta – 4-1]]
+- [[Quote – Errico Malatesta – 5-1]]
+- [[Quote – Howard Zinn – 1-1]]
+- [[Quote – Howard Zinn – 19-1]]
+- [[Quote – Julian Paul Assange – 16-1]]
+- [[Quote – Julian Paul Assange – 4-1]]
+- [[Quote – Nancy Fraser – 7-1]]
+- [[Quote – Noam Chomsky – 19-1]]
+- [[Quote – Noam Chomsky – 9-1]]
+- [[Quote – Patricia Hill Collins – 9-1]]
+- [[Quote – Peter Kropotkin – 13-1]]
+- [[Quote – Peter Kropotkin – 5-1]]
+- [[Quote – Rosa Luxemburg – 2-1]]

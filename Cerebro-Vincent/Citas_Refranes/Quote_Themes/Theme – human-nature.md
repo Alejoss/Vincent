@@ -1,0 +1,20 @@
+# Theme – human-nature
+
+## Quotes
+- [[Quote – Adam Smith – 3-1]]
+- [[Quote – Adam Smith – 9-1]]
+- [[Quote – Alexis de Tocqueville – 5-1]]
+- [[Quote – Alexis de Tocqueville – 9-1]]
+- [[Quote – Benedict de Spinoza – 15-1]]
+- [[Quote – David Hume – 16-1]]
+- [[Quote – Frédéric Bastiat – 17-1]]
+- [[Quote – Hannah Arendt – 10-1]]
+- [[Quote – Hannah Arendt – 13-1]]
+- [[Quote – Immanuel Kant – 6-1]]
+- [[Quote – Jean-Jacques Rousseau – 13-1]]
+- [[Quote – Jean-Jacques Rousseau – 15-1]]
+- [[Quote – Jean-Jacques Rousseau – 16-1]]
+- [[Quote – John Locke – 7-1]]
+- [[Quote – Robert Nozick – 8-1]]
+- [[Quote – Thomas Jefferson – 18-1]]
+- [[Quote – William Graham Sumner – 4-1]]

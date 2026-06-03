@@ -1,0 +1,226 @@
+{
+  "main": {
+    "id": "e8256abd8a2722ec",
+    "type": "split",
+    "children": [
+      {
+        "id": "1db04cc0e5e116a3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d9a14900cc19abd7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "30_News/Noticias/wef-israeli-philosopher-yuval-harari-says-if-religion-is-built-from-words-then-ai-will-take-over-religion.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "wef-israeli-philosopher-yuval-harari-says-if-religion-is-built-from-words-then-ai-will-take-over-religion"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "40e7e042f553c314",
+    "type": "split",
+    "children": [
+      {
+        "id": "9d044524a643331d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0d9e0cd755e3c3a5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "f0277022dbca2252",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "010d82c7e16939f7",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 310.5
+  },
+  "right": {
+    "id": "095b437adf28ff65",
+    "type": "split",
+    "children": [
+      {
+        "id": "9cf2247770c184f9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "823cbadd432d0ab5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Welcome.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Welcome"
+            }
+          },
+          {
+            "id": "9d12770de6204975",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Welcome.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Welcome"
+            }
+          },
+          {
+            "id": "0a1b5d8bf70df88a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "2bb66eff5aa485e6",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "59fd6b641dcec53d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Welcome.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Welcome"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false
+    }
+  },
+  "active": "d9a14900cc19abd7",
+  "lastOpenFiles": [
+    "Temas/Tecnocracia.md",
+    "Temas/Guerra.md",
+    "Temas/Control Climático.md",
+    "Temas/Blockchain.md",
+    "Temas/Alimentos.md",
+    "30_News/News_URLS.md",
+    "30_News/Noticias/the-whole-model-is-broken-tech-mafia-wife-admits-we-were-klaus-schwabs-useful-idiots.md",
+    "30_News/Noticias/catherine-austin-fitts-reveals-planned-wealth-takeover-beware-of-this-trap.md",
+    "30_News/Noticias/project-artichoke-cia-project-proposed-covertly-drugging-subjects-in-food-water-and-vaccines.md",
+    "Investigaciones/Talmud/El rabino y el jesuita (Eibeschütz y Haselbauer) - Pawel Maciejko.md",
+    "Investigaciones/Sidonia/Guía de los perplejos - Maimónides.md",
+    "Investigaciones/Sidonia/Tancred - Benjamin Disraeli.md",
+    "Investigaciones/Sidonia/Sidonia the Sorceress - Wilhelm Meinhold.md",
+    "Investigaciones/Sidonia/La Ilustre degeneración - Luisa Isabel Álvarez de Toledo.md",
+    "Investigaciones/Sidonia/El Judío Internacional - Henry Ford.md",
+    "Investigaciones/Sidonia/Roma y Jerusalén - Moisés Hess.md",
+    "Investigaciones/Sidonia/Coningsby - Benjamin Disraeli.md",
+    "30_News/Noticias/james-okeefe-infiltrates-davos-world-economic-forum-and-talks-chemtrails.md",
+    "Investigaciones/Sidonia",
+    "Investigaciones/Cypherpunks/Obras cyberpunk esenciales 1970s-1990s.md",
+    "Investigaciones/Cypherpunks/Mirrorshades Neuromancer Androids - resúmenes y temas.md",
+    "Investigaciones/Cypherpunks/Línea de tiempo 1980s - Cyberpunk y Cypherpunks.md",
+    "Investigaciones/Cypherpunks/Gilmore Hughes May - línea de tiempo.md",
+    "Investigaciones/Cypherpunks/Cypherpunks.md",
+    "Investigaciones/Cypherpunks",
+    "0_Diario_Productividad/Tareas-Ideas/slack-1777060252.953069.md",
+    "0_Diario_Productividad/Tareas-Ideas/slack-1777048180.357029.md",
+    "0_Diario_Productividad/Tareas-Ideas/slack-1777041447.531659.md",
+    "0_Diario_Productividad/Projects",
+    "0_Diario_Productividad/Aprendizajes",
+    "0_Diario_Productividad/Tareas-Ideas",
+    "Investigaciones",
+    "Temas/Untitled.base",
+    "Untitled 1.base",
+    "Untitled.base",
+    "Temas",
+    "Untitled.canvas"
+  ]
+}

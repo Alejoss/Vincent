@@ -1,0 +1,23 @@
+# Theme – diversity
+
+## Quotes
+- [[Quote – Amartya Sen – 14-1]]
+- [[Quote – Chantal Mouffe – 3-1]]
+- [[Quote – Charles Taylor – 2-1]]
+- [[Quote – Charles Taylor – 8-1]]
+- [[Quote – Dahlia Lithwick – 20-1]]
+- [[Quote – Daniel Bell – 10-1]]
+- [[Quote – Daniel Bell – 7-1]]
+- [[Quote – David Hume – 16-1]]
+- [[Quote – Isaiah Berlin – 12-1]]
+- [[Quote – Isaiah Berlin – 15-1]]
+- [[Quote – Isaiah Berlin – 6-1]]
+- [[Quote – John Rawls – 12-1]]
+- [[Quote – Martha Nussbaum – 16-1]]
+- [[Quote – Martha Nussbaum – 5-1]]
+- [[Quote – Nancy Fraser – 18-1]]
+- [[Quote – Patricia Hill Collins – 11-1]]
+- [[Quote – Patricia Hill Collins – 5-1]]
+- [[Quote – Richard Rorty – 12-1]]
+- [[Quote – Richard Rorty – 9-1]]
+- [[Quote – Wilhelm von Humboldt – 12-1]]

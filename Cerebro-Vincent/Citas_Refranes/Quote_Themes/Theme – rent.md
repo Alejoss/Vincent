@@ -1,0 +1,4 @@
+# Theme – rent
+
+## Quotes
+- [[Quote – David Ricardo – 6-1]]

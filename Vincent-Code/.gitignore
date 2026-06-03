@@ -1,0 +1,28 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+
+# Project specific
+raw_transcripts/
+processed_transcripts/
+cache/
+logs/
+*.log
+.last_sent_date
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+

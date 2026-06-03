@@ -1,0 +1,22 @@
+# Theme – education
+
+## Quotes
+- [[Quote – Alexander Sutherland Neill – 1-1]]
+- [[Quote – Alexander Sutherland Neill – 14-1]]
+- [[Quote – Amartya Sen – 13-1]]
+- [[Quote – Clive Staples Lewis – 7-1]]
+- [[Quote – Derrick Bell – 5-1]]
+- [[Quote – Emma Goldman – 2-1]]
+- [[Quote – François Guizot – 8-1]]
+- [[Quote – Herbert Spencer – 1-1]]
+- [[Quote – Howard Zinn – 14-1]]
+- [[Quote – Howard Zinn – 5-1]]
+- [[Quote – Martha Nussbaum – 6-1]]
+- [[Quote – Mary Wollstonecraft – 10-1]]
+- [[Quote – Mary Wollstonecraft – 3-1]]
+- [[Quote – Mary Wollstonecraft – 4-1]]
+- [[Quote – Patricia Hill Collins – 9-1]]
+- [[Quote – Richard Cobden – 5-1]]
+- [[Quote – Thomas Jefferson – 19-1]]
+- [[Quote – Voltairine de Cleyre – 16-1]]
+- [[Quote – William Godwin – 10-1]]

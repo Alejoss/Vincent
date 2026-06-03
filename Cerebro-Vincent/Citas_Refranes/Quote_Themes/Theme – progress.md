@@ -1,0 +1,22 @@
+# Theme – progress
+
+## Quotes
+- [[Quote – Bertrand Russell – 14-1]]
+- [[Quote – Daniel Bell – 16-1]]
+- [[Quote – David Ricardo – 1-1]]
+- [[Quote – Emma Goldman – 14-1]]
+- [[Quote – François Guizot – 8-1]]
+- [[Quote – Herbert Spencer – 4-1]]
+- [[Quote – Herbert Spencer – 7-1]]
+- [[Quote – Isabel Paterson – 13-1]]
+- [[Quote – Isaiah Berlin – 19-1]]
+- [[Quote – John Maynard Keynes – 8-1]]
+- [[Quote – John Stuart Mill – 6-1]]
+- [[Quote – Karl Popper – 14-1]]
+- [[Quote – Karl Popper – 17-1]]
+- [[Quote – Lawrence Lessig – 14-1]]
+- [[Quote – Peter Bauer – 10-1]]
+- [[Quote – Richard Cobden – 3-1]]
+- [[Quote – Ronald Wilson Reagan – 8-1]]
+- [[Quote – Thomas Jefferson – 10-1]]
+- [[Quote – William Godwin – 10-1]]
