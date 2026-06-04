@@ -24,13 +24,16 @@ export SLACK_INPUT_OBSIDIAN_REL="${SLACK_INPUT_OBSIDIAN_REL:-0_Diario_Productivi
   echo "=================================================="
 } >>"$LOG"
 
-echo "[1/3] Sync Slack -> Obsidian..." | tee -a "$LOG"
+echo "[1/4] Sync Slack -> Obsidian..." | tee -a "$LOG"
 python scripts/sync_slack_inbox_to_obsidian.py --days "$DAYS" >>"$LOG" 2>&1
 
-echo "[2/3] Classify notes..." | tee -a "$LOG"
+echo "[2/4] Apply Slack task updates..." | tee -a "$LOG"
+python scripts/update_notion_tasks_from_slack_messages.py --days "$DAYS" >>"$LOG" 2>&1
+
+echo "[3/4] Classify notes..." | tee -a "$LOG"
 python scripts/classify_slack_input_with_ollama.py --reclassify >>"$LOG" 2>&1
 
-echo "[3/3] Sync Obsidian -> Notion..." | tee -a "$LOG"
+echo "[4/4] Sync Obsidian -> Notion..." | tee -a "$LOG"
 python scripts/sync_productivity_obsidian_to_notion.py >>"$LOG" 2>&1
 
 echo "[OK] Pipeline completed." | tee -a "$LOG"

@@ -3,8 +3,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 REM One-click pipeline:
 REM 1) Slack -> Obsidian (Whisper API or local)
-REM 2) Classify (OpenAI/Groq or local Ollama)
-REM 3) Obsidian -> Notion
+REM 2) Apply Slack task updates directly in Notion
+REM 3) Classify (OpenAI/Groq or local Ollama)
+REM 4) Obsidian -> Notion
 REM Starts Ollama only when LLM_PROVIDER resolves to ollama (no OPENAI/GROQ keys).
 
 cd /d "%~dp0.."
@@ -28,11 +29,11 @@ if not exist "%PY%" (
 
 "%PY%" -c "import sys; sys.path.insert(0,'.'); from src.llm_client import needs_local_ollama; sys.exit(1 if needs_local_ollama() else 0)"
 if errorlevel 1 goto :ensure_ollama
-echo [1/4] LLM provider is cloud/API — skipping Ollama startup.>>"%LOG%"
+echo [1/5] LLM provider is cloud/API — skipping Ollama startup.>>"%LOG%"
 goto :llm_ready
 
 :ensure_ollama
-echo [1/4] Checking Ollama server...>>"%LOG%"
+echo [1/5] Checking Ollama server...>>"%LOG%"
 "%PY%" -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:11434/api/tags', timeout=2).status==200 else 1)" >nul 2>&1
 if errorlevel 1 goto :need_ollama
 goto :llm_ready
@@ -60,8 +61,8 @@ goto :wait_ollama
 :llm_ready
 echo [OK] LLM backend ready.>>"%LOG%"
 
-echo [2/4] Sync Slack -^> Obsidian...
-echo [2/4] Sync Slack -^> Obsidian...>>"%LOG%"
+echo [2/5] Sync Slack -^> Obsidian...
+echo [2/5] Sync Slack -^> Obsidian...>>"%LOG%"
 "%PY%" "%~dp0sync_slack_inbox_to_obsidian.py" --days 3 >>"%LOG%" 2>&1
 if errorlevel 1 (
   echo [ERROR] Step 2 failed. See log: %LOG%
@@ -70,9 +71,9 @@ if errorlevel 1 (
   goto :cleanup
 )
 
-echo [3/4] Classify notes...
-echo [3/4] Classify notes...>>"%LOG%"
-"%PY%" "%~dp0classify_slack_input_with_ollama.py" --reclassify >>"%LOG%" 2>&1
+echo [3/5] Apply Slack task updates...
+echo [3/5] Apply Slack task updates...>>"%LOG%"
+"%PY%" "%~dp0update_notion_tasks_from_slack_messages.py" --days 3 >>"%LOG%" 2>&1
 if errorlevel 1 (
   echo [ERROR] Step 3 failed. See log: %LOG%
   echo [ERROR] Step 3 failed.>>"%LOG%"
@@ -80,12 +81,22 @@ if errorlevel 1 (
   goto :cleanup
 )
 
-echo [4/4] Sync Obsidian -^> Notion...
-echo [4/4] Sync Obsidian -^> Notion...>>"%LOG%"
-"%PY%" "%~dp0sync_productivity_obsidian_to_notion.py" >>"%LOG%" 2>&1
+echo [4/5] Classify notes...
+echo [4/5] Classify notes...>>"%LOG%"
+"%PY%" "%~dp0classify_slack_input_with_ollama.py" --reclassify >>"%LOG%" 2>&1
 if errorlevel 1 (
   echo [ERROR] Step 4 failed. See log: %LOG%
   echo [ERROR] Step 4 failed.>>"%LOG%"
+  set "EXITCODE=1"
+  goto :cleanup
+)
+
+echo [5/5] Sync Obsidian -^> Notion...
+echo [5/5] Sync Obsidian -^> Notion...>>"%LOG%"
+"%PY%" "%~dp0sync_productivity_obsidian_to_notion.py" >>"%LOG%" 2>&1
+if errorlevel 1 (
+  echo [ERROR] Step 5 failed. See log: %LOG%
+  echo [ERROR] Step 5 failed.>>"%LOG%"
   set "EXITCODE=1"
   goto :cleanup
 )
