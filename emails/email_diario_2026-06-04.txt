@@ -1,0 +1,15 @@
+Subject: [Jue] Fricción y cuellos de botella — 2026-06-04
+
+Fricción y cuellos de botella
+
+**Bloqueado**
+🚧 Solicitar a Ricardo su dirección para realizar la transferencia pendiente. — (Bloqueado) https://app.notion.com/p/Pedir-direcci-n-de-transferencia-a-Ricardo-7b592a9f6154421d99ad594d54cfff4e
+🚧 Esperar el corte de Luis del video sobre el celular ANOM y la privacidad en internet. — (Bloqueado) https://app.notion.com/p/Esperar-corte-de-Luis-ANOM-privacidad-9f41274567af451ab07d7a8c18f07a11
+
+**Problemas activos**
+⚠ Problema: la funcionalidad de — (Inbox/Todo) https://app.notion.com/p/Problema-CleanAudioDefeat-io-no-funciona-bien-97e7b74de8df4724b0bc94d3ed109ed7
+⚠ Progreso lento por problemas de carga de videos; cambio a carga directa vía S3 requiere descargar videos y consume ancho de banda. — (Inbox/Todo) https://app.notion.com/p/Carga-de-videos-lenta-en-Academia-Blockchain-b6b881b7c1b04378ac5032d4532a1a39
+
+**Inbox viejo**
+📥 Configurar sistema de automatización con Zapier y Notion para desencadenar acciones. — (Inbox/Todo) https://app.notion.com/p/Configurar-automatizaci-n-Zapier-Notion-para-publicaciones-0611bf8df37d4ef599f4b35f4c62f44e
+📥 Añadir plantillas específicas con checkboxes por red social en el template de calendario. — (Inbox/Todo) https://app.notion.com/p/A-adir-plantillas-espec-ficas-con-checkboxes-por-red-social-39261a7a9f1f45479456e25309a410b0
