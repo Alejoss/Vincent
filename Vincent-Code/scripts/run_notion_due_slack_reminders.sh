@@ -6,9 +6,6 @@ cd "$ROOT"
 mkdir -p logs
 LOG="${ROOT}/logs/notion_due_slack_reminders.log"
 
-{
-  echo "=== $(date -Iseconds) ==="
-  python scripts/notion_tasks_due_slack_reminders.py "$@"
-} >>"$LOG" 2>&1
-
+echo "=== $(date -Iseconds) ===" | tee -a "$LOG"
+python scripts/notion_tasks_due_slack_reminders.py "$@" 2>&1 | tee -a "$LOG"
 echo "Done. Log: $LOG"
