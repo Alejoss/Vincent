@@ -112,6 +112,10 @@ def _quote_yaml(value: str) -> str:
     return f'"{escaped}"'
 
 
+def _frontmatter_flag(value: str) -> str:
+    return (value or "").strip().strip('"').strip("'").lower()
+
+
 def _compose_note(frontmatter: Dict[str, str], body: str) -> str:
     lines: List[str] = ["---"]
     for key, value in frontmatter.items():
@@ -550,6 +554,10 @@ def main() -> int:
     for path in notes:
         raw = path.read_text(encoding="utf-8")
         fm, body = _split_frontmatter(raw)
+
+        if _frontmatter_flag(fm.get("task_update_processed", "")) in {"true", "yes", "1", "unmatched"}:
+            skipped += 1
+            continue
 
         if (not args.reclassify) and fm.get("tipo") and fm.get("proyecto") and path.parent.name in {TASKS_IDEAS_FOLDER, LEARNINGS_FOLDER}:
             skipped += 1
