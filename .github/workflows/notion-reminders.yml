@@ -8,6 +8,7 @@ on:
 jobs:
   reminders:
     runs-on: ubuntu-latest
+    environment: Ramdau
     defaults:
       run:
         working-directory: Vincent-Code
