@@ -43,12 +43,12 @@ sys.path.insert(0, SCRIPTS_DIR)
 sys.path.insert(0, PROJECT_ROOT)
 
 from sync_productivity_obsidian_to_notion import (  # noqa: E402
-    TASKS_DB_ID,
     TASKS_IDEAS_FOLDER,
     get_ds_and_props,
     parse_frontmatter,
     pick_prop,
     normalize_id,
+    resolve_tasks_db_id,
 )
 
 
@@ -325,8 +325,7 @@ def main() -> int:
     slack_token = _require_env("SLACK_BOT_TOKEN")
     slack_channel = _require_env("SLACK_DM_CHANNEL_ID")
 
-    db_raw = os.getenv("NOTION_TASKS_DATABASE_ID", TASKS_DB_ID)
-    database_id = normalize_id(db_raw)
+    database_id = resolve_tasks_db_id()
 
     today = _local_today()
     window_end = today + timedelta(days=args.within_days)

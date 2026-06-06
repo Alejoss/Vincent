@@ -68,6 +68,11 @@ def normalize_id(block_id: str) -> str:
     return block_id or ""
 
 
+def resolve_tasks_db_id() -> str:
+    """NOTION_TASKS_DATABASE_ID env override, or TASKS_DB_ID when unset/empty."""
+    return normalize_id((os.getenv("NOTION_TASKS_DATABASE_ID") or "").strip() or TASKS_DB_ID)
+
+
 def parse_frontmatter(content: str) -> Tuple[Dict[str, str], str]:
     text = content or ""
     if not text.startswith("---\n"):

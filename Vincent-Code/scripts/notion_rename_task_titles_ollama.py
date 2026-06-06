@@ -39,13 +39,13 @@ sys.path.insert(0, PROJECT_ROOT)
 import classify_slack_input_with_ollama as clf  # noqa: E402
 from src.llm_client import build_llm_config, validate_llm_config  # noqa: E402
 from sync_productivity_obsidian_to_notion import (  # noqa: E402
-    TASKS_DB_ID,
     TASKS_IDEAS_FOLDER,
     _extract_slack_completo,
     build_prop_map,
     get_ds_and_props,
     normalize_id,
     parse_frontmatter,
+    resolve_tasks_db_id,
 )
 
 
@@ -180,8 +180,7 @@ def main() -> int:
         raise SystemExit(str(e)) from e
 
     _require_env("NOTION_API_TOKEN")
-    db_raw = os.getenv("NOTION_TASKS_DATABASE_ID", TASKS_DB_ID)
-    database_id = normalize_id(db_raw)
+    database_id = resolve_tasks_db_id()
     vault = (os.getenv("OBSIDIAN_VAULT_PATH") or "").strip()
 
     client = Client(auth=os.getenv("NOTION_API_TOKEN"), notion_version="2025-09-03")

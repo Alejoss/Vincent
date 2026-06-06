@@ -31,9 +31,9 @@ sys.path.insert(0, SCRIPTS_DIR)
 
 from sync_productivity_obsidian_to_notion import (  # noqa: E402
     LEARNINGS_DB_ID,
-    TASKS_DB_ID,
     get_ds_and_props,
     normalize_id,
+    resolve_tasks_db_id,
 )
 
 
@@ -130,7 +130,7 @@ def main() -> int:
 
     total = 0
     if args.database in ("tasks", "both"):
-        db = os.getenv("NOTION_TASKS_DATABASE_ID", TASKS_DB_ID)
+        db = resolve_tasks_db_id()
         total += _purge_db(client, db, "tasks", args.dry_run, args.sleep_s)
     if args.database in ("learnings", "both"):
         total += _purge_db(client, LEARNINGS_DB_ID, "learnings", args.dry_run, args.sleep_s)
