@@ -2,7 +2,8 @@ name: Notion due Slack reminders
 
 on:
   schedule:
-    - cron: "0 9,18 * * *"
+    # 30 min after productivity pipeline (8/14/20 UTC) so Notion is up to date
+    - cron: "30 8,14,20 * * *"
   workflow_dispatch:
 
 jobs:
