@@ -22,7 +22,15 @@ fi
 } >>"$LOG"
 
 echo "[1/1] Update Notion tasks from Slack..." | tee -a "$LOG"
+set +e
 python scripts/update_notion_tasks_from_slack_messages.py --days "$DAYS" "$@" 2>&1 | tee -a "$LOG"
+update_rc=${PIPESTATUS[0]}
+set -e
+if [[ $update_rc -eq 2 ]]; then
+  echo "[WARN] Task updates had partial failures (exit $update_rc). See log above." | tee -a "$LOG"
+elif [[ $update_rc -ne 0 ]]; then
+  exit "$update_rc"
+fi
 
 echo "[OK] Slack task updates completed." | tee -a "$LOG"
 echo "Full log: $LOG"

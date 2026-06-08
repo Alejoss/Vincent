@@ -22,6 +22,8 @@ jobs:
       WHISPER_PROVIDER: openai
       LLM_PROVIDER: openai
       LLM_MODEL: gpt-4o-mini
+      # Cron: classify only new notes (no --reclassify). Set to 1 for full reclassify.
+      PIPELINE_RECLASSIFY: "0"
     steps:
       - uses: actions/checkout@v4
 
