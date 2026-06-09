@@ -18,6 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore reminder dedup cache
+        uses: actions/cache@v4
+        with:
+          path: Vincent-Code/cache/notion_slack_reminders
+          key: notion-slack-reminders-${{ runner.os }}
+          restore-keys: |
+            notion-slack-reminders-${{ runner.os }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -32,4 +40,4 @@ jobs:
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_DM_CHANNEL_ID: ${{ secrets.SLACK_DM_CHANNEL_ID }}
-        run: bash scripts/run_notion_due_slack_reminders.sh --within-days 3
+        run: bash scripts/run_notion_due_slack_reminders.sh

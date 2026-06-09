@@ -8,13 +8,12 @@ No confundir con el Pipeline 1: este flujo **no** importa mensajes; solo **avisa
 
 Una fila entra en la ventana si:
 
-- Tiene fecha de vencimiento entre **hoy** y **hoy + N días** (`--within-days`, default **3**).
+- **Próximas:** fecha objetivo entre **hoy** y **hoy + 5 días** (`--within-days`, default **5**).
+- **Atrasadas:** fecha objetivo entre **hoy − 7** y **ayer** (`--overdue-max-days`, default **7**). Mensaje distinto: *"Ya deberías haber terminado con: …"*. Más antiguas no se avisan.
 - `tipo` es **Tarea** o **Idea** (si existe la propiedad).
 - `Estado` no está en la lista excluida (default: Hecho, Terminado, Listo, Done).
 
-Opcional: `--include-overdue` para incluir vencidas.
-
-Si el script dice *"No tasks to remind"*, suele significar que **ninguna fila tiene Fecha de vencimiento** en los próximos días (común tras mensajes sin plazos explícitos). Para probar: `--dry-run --within-days 30 --include-overdue`.
+Si el script dice *"No tasks to remind"*, suele significar que **ninguna fila tiene fecha objetivo** en esas ventanas. Para depurar: `--dry-run --force`.
 
 ## Ejecución recomendada
 
@@ -26,7 +25,7 @@ scripts\run_notion_due_slack_reminders.bat
 Equivalente manual:
 
 ```powershell
-python scripts/notion_tasks_due_slack_reminders.py --within-days 3
+python scripts/notion_tasks_due_slack_reminders.py
 ```
 
 Log: `logs\notion_due_slack_reminders.log`
@@ -34,13 +33,13 @@ Log: `logs\notion_due_slack_reminders.log`
 ## Probar sin enviar a Slack
 
 ```powershell
-python scripts/notion_tasks_due_slack_reminders.py --dry-run --within-days 3
+python scripts/notion_tasks_due_slack_reminders.py --dry-run
 ```
 
-Prueba amplia (muestra más filas; no usar en producción sin `--dry-run`):
+Prueba amplia (todas las vencidas; solo depuración):
 
 ```powershell
-python scripts/notion_tasks_due_slack_reminders.py --dry-run --within-days 30 --include-overdue --force
+python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue --force
 ```
 
 ## Variables de entorno
@@ -59,16 +58,17 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --within-days 30 --
 
 ## Texto del mensaje
 
-- Formato: lista con viñetas bajo `Recordatorios`.
-- Cada línea usa `recordatorio_slack` de la nota Obsidian (generado al clasificar), o un fallback breve desde el título / cuerpo en Notion.
-- **No** envía el título truncado de la tabla como mensaje principal (salvo fallback).
+- Formato: lista con viñetas bajo `Recordatorios`, en dos bloques si aplica: **Próximas** y **Atrasadas**.
+- Próximas: usa `recordatorio_slack` de la nota Obsidian (generado al clasificar), o fallback desde título / cuerpo en Notion.
+- Atrasadas (≤7 días): *"Ya deberías haber terminado con: …"* a partir del resumen de la tarea.
 
 ## Flags útiles
 
 | Flag | Efecto |
 |------|--------|
-| `--within-days N` | Ventana hoy … hoy+N (default 3) |
-| `--include-overdue` | Incluye vencidas |
+| `--within-days N` | Ventana hoy … hoy+N (default 5) |
+| `--overdue-max-days N` | Vencidas hasta N días atrás (default 7; 0 = ninguna) |
+| `--include-overdue` | Legacy: todas las vencidas (ignora límite de 7 días) |
 | `--dry-run` | Imprime el mensaje; no envía ni guarda dedup |
 | `--force` | Ignora dedup diario (solo pruebas) |
 
@@ -76,13 +76,14 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --within-days 30 --
 
 - Archivo: `cache/notion_slack_reminders/sent_state.json`
 - Regla: como máximo **un aviso por página y día de vencimiento por día natural** (zona horaria local).
+- En **GitHub Actions** el workflow corre **3 veces al día** (`:30` de 8, 14 y 20 UTC ≈ 3:30, 9:30 y 15:30 Ecuador), pero el caché evita repetir la misma tarea el mismo día aunque haya varios runs.
 - Tras un reset de Notion, conviene borrar este caché (`--clear-reminder-cache` en el script de purge).
 
 ## Relación con Pipeline 1
 
 ```text
-Pipeline 1 (mañana/tarde)     →  llena Notion + fecha objetivo si el audio lo dice
-Pipeline 2 (1–2×/día)       →  avisa en Slack lo que vence pronto
+Pipeline 1 (3×/día)         →  llena Notion + fecha objetivo si el audio lo dice
+Pipeline 2 (3×/día)         →  avisa en Slack (máx. 1 vez por tarea/día)
 ```
 
 Si nunca llegan recordatorios, revisa en Notion que las tareas tengan **Fin** o **fecha objetivo** rellenados (el clasificador infiere fechas de frases como “el viernes”, “esta semana”).
@@ -95,7 +96,7 @@ Ver [windows-scheduler.md](../operations/windows-scheduler.md): tarea separada d
 
 | Problema | Qué hacer |
 |----------|-----------|
-| Siempre “No tasks to remind” | Ampliar `--within-days`; comprobar fechas en Notion; probar `--include-overdue` |
+| Siempre “No tasks to remind” | Comprobar fechas en Notion; `--dry-run --force` para ver candidatos |
 | Mensaje vacío / error Slack | `SLACK_BOT_TOKEN`, bot en el canal, `SLACK_DM_CHANNEL_ID` |
-| Repite el mismo aviso | Normal sin `--force`; dedup por día |
+| Repite el mismo aviso | Dedup por día; en GHA verificar que `actions/cache` restaura `sent_state.json` |
 | Texto genérico | Asegurar `OBSIDIAN_VAULT_PATH` y nota `slack-<ts>.md` con `recordatorio_slack` |

@@ -4,8 +4,10 @@ Notion (base de tareas) -> Slack: recordatorios por fecha de vencimiento cercana
 Lee la misma base de tareas que `sync_productivity_obsidian_to_notion.py`, detecta filas con
 `Fin` / `fecha objetivo` (fecha) en ventana configurable y envía un mensaje a Slack.
 
+Ventana por defecto: fecha objetivo entre hoy y hoy+5; vencidas hasta 7 días atrás con texto distinto.
+
 Dedup: como máximo un aviso por (página Notion, día de vencimiento) por día natural local,
-guardado en `cache/notion_slack_reminders/sent_state.json`.
+guardado en `cache/notion_slack_reminders/sent_state.json` (en GHA se persiste con actions/cache).
 
 Con `OBSIDIAN_VAULT_PATH`, busca la nota `slack-<ts>.md` (Tareas-Ideas o Input) y usa el frontmatter
 `recordatorio_slack` generado al clasificar. Si no hay vault, nota o campo, fallback a partir del título en Notion.
@@ -194,19 +196,12 @@ def _truncate_words(s: str, max_len: int = 180) -> str:
     return cut + "..."
 
 
-def _best_description(
+def _task_summary(
     pprops: Dict[str, Any],
     title: str,
-    due_d: date,
     prop_map: Dict[str, Optional[str]],
 ) -> str:
-    """
-    Build a descriptive reminder line from the richest available text.
-    Priority:
-      1) Slack Procesado (origen)
-      2) Notas / Notas (extra)
-      3) Titulo de la tarea
-    """
+    """Short label from Slack Procesado, notas o título."""
     raw_candidates: List[str] = []
     for key in ("slack_procesado", "notas"):
         pn = prop_map.get(key)
@@ -217,18 +212,30 @@ def _best_description(
     if title:
         raw_candidates.append(title)
 
-    base = ""
     for c in raw_candidates:
         cleaned = _compact_text(c)
         if cleaned:
-            base = cleaned
-            break
-    if not base:
-        base = "esta tarea"
+            return _truncate_words(cleaned, max_len=190)
+    return "esta tarea"
 
-    # Prefer a conversational and concise line in second person.
-    summary = _truncate_words(base, max_len=190)
+
+def _best_description(
+    pprops: Dict[str, Any],
+    title: str,
+    due_d: date,
+    prop_map: Dict[str, Optional[str]],
+) -> str:
+    summary = _task_summary(pprops, title, prop_map)
     return f"Para {due_d.isoformat()}: {summary}"
+
+
+def _overdue_reminder_line(
+    pprops: Dict[str, Any],
+    title: str,
+    prop_map: Dict[str, Optional[str]],
+) -> str:
+    summary = _task_summary(pprops, title, prop_map)
+    return f"Ya deberías haber terminado con: {summary}"
 
 
 def _load_sent_state(path: Path) -> Dict[str, str]:
@@ -291,24 +298,49 @@ def _exclude_statuses() -> Set[str]:
     return out
 
 
-def _build_message(reminder_lines: List[str], _within_days: int) -> str:
-    """Short conversational digest: one bullet per precomputed reminder line."""
+def _build_message(candidates: List[Tuple[date, str, bool]], overdue_max_days: int) -> str:
+    """Digest grouped by upcoming vs recently overdue."""
+    upcoming = [(d, line) for d, line, is_overdue in candidates if not is_overdue]
+    overdue = [(d, line) for d, line, is_overdue in candidates if is_overdue]
     lines = [":speech_balloon: *Recordatorios*", ""]
-    for line in reminder_lines:
-        q = (line or "").strip()
-        if not q:
-            continue
-        lines.append(f"• {q}")
-    return "\n".join(lines)
+    if upcoming:
+        lines.append("*Próximas:*")
+        for _d, line in upcoming:
+            q = (line or "").strip()
+            if q:
+                lines.append(f"• {q}")
+        lines.append("")
+    if overdue:
+        header = "*Atrasadas*"
+        if overdue_max_days > 0:
+            header += f" (últimos {overdue_max_days} días)"
+        header += ":"
+        lines.append(header)
+        for _d, line in overdue:
+            q = (line or "").strip()
+            if q:
+                lines.append(f"• {q}")
+    return "\n".join(lines).rstrip()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Send Slack reminders for Notion tasks due soon")
-    parser.add_argument("--within-days", type=int, default=3, help="Include due dates from today through today+N days")
+    parser.add_argument(
+        "--within-days",
+        type=int,
+        default=5,
+        help="Include due dates from today through today+N days (default: 5)",
+    )
+    parser.add_argument(
+        "--overdue-max-days",
+        type=int,
+        default=7,
+        help="Include overdue tasks up to N days before today; 0 disables overdue (default: 7)",
+    )
     parser.add_argument(
         "--include-overdue",
         action="store_true",
-        help="Also include tasks whose due date is before today (still not in a terminal status)",
+        help="Legacy: include all overdue tasks (overrides --overdue-max-days to 3650)",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print actions without Slack or state writes")
     parser.add_argument(
@@ -320,6 +352,10 @@ def main() -> int:
 
     if args.within_days < 0:
         raise SystemExit("--within-days must be >= 0")
+    if args.overdue_max_days < 0:
+        raise SystemExit("--overdue-max-days must be >= 0")
+
+    overdue_max_days = 3650 if args.include_overdue else args.overdue_max_days
 
     notion_token = _require_env("NOTION_API_TOKEN")
     slack_token = _require_env("SLACK_BOT_TOKEN")
@@ -329,7 +365,7 @@ def main() -> int:
 
     today = _local_today()
     window_end = today + timedelta(days=args.within_days)
-    window_start = today if not args.include_overdue else today - timedelta(days=3650)
+    window_start = today - timedelta(days=overdue_max_days) if overdue_max_days > 0 else today
 
     state_path = Path(PROJECT_ROOT) / "cache" / "notion_slack_reminders" / "sent_state.json"
     sent_state = {} if args.force else _load_sent_state(state_path)
@@ -359,8 +395,9 @@ def main() -> int:
     exclude = _exclude_statuses()
     pages = _query_pages_due_window(client, database_id, ds_id, due_prop, window_start, window_end)
 
-    candidates: List[Tuple[str, str, date, str]] = []
-    # tuple: page_id, state_key, due_date, reminder_line (pregunta o fallback)
+    prop_map = {"notas": notas_prop, "slack_procesado": slack_procesado_prop}
+    candidates: List[Tuple[str, str, date, str, bool]] = []
+    # tuple: page_id, state_key, due_date, reminder_line, is_overdue
     for page in pages:
         pid = page.get("id") or ""
         pprops = page.get("properties") or {}
@@ -375,34 +412,36 @@ def main() -> int:
         due_d = _parse_iso_date(due_s)
         if not due_d:
             continue
-        if not args.include_overdue and due_d < today:
+        is_overdue = due_d < today
+        if is_overdue:
+            if overdue_max_days <= 0 or due_d < today - timedelta(days=overdue_max_days):
+                continue
+        elif due_d > window_end:
             continue
         title = _title_plain(pprops, title_prop)
         slack_ts_val = _rich_text_plain(pprops, slack_ts_prop) if slack_ts_prop else ""
-        from_obs = _read_recordatorio_from_vault(vault_path, slack_ts_val) if vault_path and slack_ts_val else ""
-        reminder_line = (from_obs or "").strip()
-        if not reminder_line:
-            reminder_line = _best_description(
-                pprops,
-                title,
-                due_d,
-                {"notas": notas_prop, "slack_procesado": slack_procesado_prop},
-            )
-        if not reminder_line:
-            reminder_line = _fallback_reminder_line(title)
+        if is_overdue:
+            reminder_line = _overdue_reminder_line(pprops, title, prop_map)
+        else:
+            from_obs = _read_recordatorio_from_vault(vault_path, slack_ts_val) if vault_path and slack_ts_val else ""
+            reminder_line = (from_obs or "").strip()
+            if not reminder_line:
+                reminder_line = _best_description(pprops, title, due_d, prop_map)
+            if not reminder_line:
+                reminder_line = _fallback_reminder_line(title)
         state_key = f"{pid}|{due_d.isoformat()}"
         if not args.force and sent_state.get(state_key) == today_str:
             continue
-        candidates.append((pid, state_key, due_d, reminder_line))
+        candidates.append((pid, state_key, due_d, reminder_line, is_overdue))
 
-    candidates.sort(key=lambda x: (x[2], x[3].lower()))
+    candidates.sort(key=lambda x: (x[4], x[2], x[3].lower()))
 
     if not candidates:
         print("No tasks to remind (window empty, all excluded, or already notified today).")
         return 0
 
-    reminder_lines = [line for (_pid, _sk, _d, line) in candidates]
-    text = _build_message(reminder_lines, args.within_days)
+    message_rows = [(d, line, is_overdue) for (_pid, _sk, d, line, is_overdue) in candidates]
+    text = _build_message(message_rows, overdue_max_days)
 
     if args.dry_run:
         print(f"[dry-run] Would post to Slack channel {slack_channel}:")
@@ -416,7 +455,7 @@ def main() -> int:
         {"channel": slack_channel, "text": text, "mrkdwn": True, "link_names": True},
     )
 
-    for _pid, sk, _d, _line in candidates:
+    for _pid, sk, _d, _line, _overdue in candidates:
         sent_state[sk] = today_str
     _save_sent_state(state_path, sent_state)
 
