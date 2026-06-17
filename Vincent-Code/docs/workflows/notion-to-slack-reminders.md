@@ -47,12 +47,11 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
 **Obligatorias**
 
 - `NOTION_API_TOKEN`
+- `NOTION_TASKS_DATABASE_ID` — base **Tareas Ideas**
 - `SLACK_BOT_TOKEN`
 - `SLACK_DM_CHANNEL_ID` — mismo canal/DM que Pipeline 1
 
 **Opcionales**
-
-- `NOTION_TASKS_DATABASE_ID` — default = misma base que el sync de tareas
 - `SLACK_REMINDER_EXCLUDE_STATUS` — estados a ignorar (coma-separados)
 - `OBSIDIAN_VAULT_PATH` — para leer `recordatorio_slack` de `slack-<ts>.md` (mejor texto que el título de la fila)
 
@@ -69,21 +68,22 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
 | `--within-days N` | Ventana hoy … hoy+N (default 5) |
 | `--overdue-max-days N` | Vencidas hasta N días atrás (default 7; 0 = ninguna) |
 | `--include-overdue` | Legacy: todas las vencidas (ignora límite de 7 días) |
+| `--dedup-days N` | No reenviar si ya se avisó en los últimos N días (default 3) |
 | `--dry-run` | Imprime el mensaje; no envía ni guarda dedup |
-| `--force` | Ignora dedup diario (solo pruebas) |
+| `--force` | Ignora ventana de dedup (solo pruebas) |
 
 ## Deduplicación
 
-- Archivo: `cache/notion_slack_reminders/sent_state.json`
-- Regla: como máximo **un aviso por página y día de vencimiento por día natural** (zona horaria local).
-- En **GitHub Actions** el workflow corre **3 veces al día** (`:30` de 8, 14 y 20 UTC ≈ 3:30, 9:30 y 15:30 Ecuador), pero el caché evita repetir la misma tarea el mismo día aunque haya varios runs.
-- Tras un reset de Notion, conviene borrar este caché (`--clear-reminder-cache` en el script de purge).
+- Archivo: `state/notion_slack_reminders_sent.json` (versionado en git; GHA hace commit tras cada envío).
+- Regla: como máximo **un aviso por página y día de vencimiento cada 3 días naturales** (zona horaria local). Configurable con `--dedup-days N`.
+- En **GitHub Actions** el workflow corre **3 veces al día** (`:30` de 8, 14 y 20 UTC ≈ 3:30, 9:30 y 15:30 Ecuador); el estado en git evita repetir la misma tarea en esos runs.
+- Tras un reset de Notion, conviene borrar este estado (`--clear-reminder-cache` en el script de purge).
 
 ## Relación con Pipeline 1
 
 ```text
 Pipeline 1 (3×/día)         →  llena Notion + fecha objetivo si el audio lo dice
-Pipeline 2 (3×/día)         →  avisa en Slack (máx. 1 vez por tarea/día)
+Pipeline 2 (3×/día)         →  avisa en Slack (máx. 1 vez por tarea cada 3 días)
 ```
 
 Si nunca llegan recordatorios, revisa en Notion que las tareas tengan **Fin** o **fecha objetivo** rellenados (el clasificador infiere fechas de frases como “el viernes”, “esta semana”).
@@ -98,5 +98,5 @@ Ver [windows-scheduler.md](../operations/windows-scheduler.md): tarea separada d
 |----------|-----------|
 | Siempre “No tasks to remind” | Comprobar fechas en Notion; `--dry-run --force` para ver candidatos |
 | Mensaje vacío / error Slack | `SLACK_BOT_TOKEN`, bot en el canal, `SLACK_DM_CHANNEL_ID` |
-| Repite el mismo aviso | Dedup por día; en GHA verificar que `actions/cache` restaura `sent_state.json` |
+| Repite el mismo aviso | Verificar que `state/notion_slack_reminders_sent.json` se commitea en GHA; probar con `--dry-run` sin `--force` |
 | Texto genérico | Asegurar `OBSIDIAN_VAULT_PATH` y nota `slack-<ts>.md` con `recordatorio_slack` |

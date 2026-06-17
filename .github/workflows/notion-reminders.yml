@@ -6,6 +6,9 @@ on:
     - cron: "30 8,14,20 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   reminders:
     runs-on: ubuntu-latest
@@ -17,14 +20,6 @@ jobs:
       OBSIDIAN_VAULT_PATH: ${{ github.workspace }}/Cerebro-Vincent
     steps:
       - uses: actions/checkout@v4
-
-      - name: Restore reminder dedup cache
-        uses: actions/cache@v4
-        with:
-          path: Vincent-Code/cache/notion_slack_reminders
-          key: notion-slack-reminders-${{ runner.os }}
-          restore-keys: |
-            notion-slack-reminders-${{ runner.os }}
 
       - uses: actions/setup-python@v5
         with:
@@ -38,6 +33,20 @@ jobs:
       - name: Send reminders
         env:
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+          NOTION_TASKS_DATABASE_ID: ${{ vars.NOTION_TASKS_DATABASE_ID }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_DM_CHANNEL_ID: ${{ secrets.SLACK_DM_CHANNEL_ID }}
         run: bash scripts/run_notion_due_slack_reminders.sh
+
+      - name: Persist reminder dedup state
+        working-directory: ${{ github.workspace }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Vincent-Code/state/notion_slack_reminders_sent.json
+          if git diff --staged --quiet; then
+            echo "No reminder dedup state changes."
+          else
+            git commit -m "chore: update slack reminder dedup state"
+            git push
+          fi

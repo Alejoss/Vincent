@@ -6,8 +6,8 @@ Lee la misma base de tareas que `sync_productivity_obsidian_to_notion.py`, detec
 
 Ventana por defecto: fecha objetivo entre hoy y hoy+5; vencidas hasta 7 días atrás con texto distinto.
 
-Dedup: como máximo un aviso por (página Notion, día de vencimiento) por día natural local,
-guardado en `cache/notion_slack_reminders/sent_state.json` (en GHA se persiste con actions/cache).
+Dedup: como máximo un aviso por (página Notion, día de vencimiento) cada N días naturales locales
+(default 3), guardado en `state/notion_slack_reminders_sent.json` (versionado; GHA hace commit tras cada run).
 
 Con `OBSIDIAN_VAULT_PATH`, busca la nota `slack-<ts>.md` (Tareas-Ideas o Input) y usa el frontmatter
 `recordatorio_slack` generado al clasificar. Si no hay vault, nota o campo, fallback a partir del título en Notion.
@@ -17,7 +17,7 @@ Env:
   SLACK_BOT_TOKEN
   SLACK_DM_CHANNEL_ID   (mismo canal/DM que la ingesta Slack -> Obsidian)
   Opcional: OBSIDIAN_VAULT_PATH — para enlazar filas Notion (slack_ts) con la nota Obsidian
-  Opcional: NOTION_TASKS_DATABASE_ID (por defecto la misma constante que el sync de tareas)
+  NOTION_TASKS_DATABASE_ID (required; set in .env)
   Opcional: SLACK_REMINDER_EXCLUDE_STATUS — nombres de estado a ignorar, separados por coma
             (por defecto: Hecho,Terminado,Listo,Done)
 """
@@ -238,13 +238,23 @@ def _overdue_reminder_line(
     return f"Ya deberías haber terminado con: {summary}"
 
 
+LEGACY_STATE_PATH = Path(PROJECT_ROOT) / "cache" / "notion_slack_reminders" / "sent_state.json"
+STATE_PATH = Path(PROJECT_ROOT) / "state" / "notion_slack_reminders_sent.json"
+
+
 def _load_sent_state(path: Path) -> Dict[str, str]:
-    if not path.is_file():
+    src = path
+    if not src.is_file() and LEGACY_STATE_PATH.is_file():
+        src = LEGACY_STATE_PATH
+    if not src.is_file():
         return {}
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(src.read_text(encoding="utf-8"))
         if isinstance(data, dict):
-            return {str(k): str(v) for k, v in data.items()}
+            state = {str(k): str(v) for k, v in data.items()}
+            if src != path and state:
+                _save_sent_state(path, state)
+            return state
     except Exception:
         pass
     return {}
@@ -253,6 +263,35 @@ def _load_sent_state(path: Path) -> Dict[str, str]:
 def _save_sent_state(path: Path, state: Dict[str, str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _was_sent_within_dedup_window(
+    sent_state: Dict[str, str],
+    state_key: str,
+    today: date,
+    dedup_days: int,
+) -> bool:
+    if dedup_days <= 0:
+        return False
+    last_s = sent_state.get(state_key)
+    if not last_s:
+        return False
+    last_d = _parse_iso_date(last_s)
+    if not last_d:
+        return False
+    return (today - last_d).days < dedup_days
+
+
+def _prune_sent_state(state: Dict[str, str], today: date, keep_days: int = 30) -> Dict[str, str]:
+    if keep_days <= 0:
+        return state
+    cutoff = today - timedelta(days=keep_days)
+    pruned: Dict[str, str] = {}
+    for key, sent_on in state.items():
+        sent_d = _parse_iso_date(sent_on)
+        if sent_d is not None and sent_d >= cutoff:
+            pruned[key] = sent_on
+    return pruned
 
 
 def _query_pages_due_window(
@@ -344,9 +383,15 @@ def main() -> int:
     )
     parser.add_argument("--dry-run", action="store_true", help="Print actions without Slack or state writes")
     parser.add_argument(
+        "--dedup-days",
+        type=int,
+        default=3,
+        help="Skip if the same task was already reminded within N calendar days (default: 3)",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
-        help="Ignore per-day dedup (still useful with --dry-run for debugging)",
+        help="Ignore dedup window (still useful with --dry-run for debugging)",
     )
     args = parser.parse_args()
 
@@ -354,6 +399,8 @@ def main() -> int:
         raise SystemExit("--within-days must be >= 0")
     if args.overdue_max_days < 0:
         raise SystemExit("--overdue-max-days must be >= 0")
+    if args.dedup_days < 0:
+        raise SystemExit("--dedup-days must be >= 0")
 
     overdue_max_days = 3650 if args.include_overdue else args.overdue_max_days
 
@@ -367,7 +414,7 @@ def main() -> int:
     window_end = today + timedelta(days=args.within_days)
     window_start = today - timedelta(days=overdue_max_days) if overdue_max_days > 0 else today
 
-    state_path = Path(PROJECT_ROOT) / "cache" / "notion_slack_reminders" / "sent_state.json"
+    state_path = STATE_PATH
     sent_state = {} if args.force else _load_sent_state(state_path)
     today_str = today.isoformat()
 
@@ -430,14 +477,18 @@ def main() -> int:
             if not reminder_line:
                 reminder_line = _fallback_reminder_line(title)
         state_key = f"{pid}|{due_d.isoformat()}"
-        if not args.force and sent_state.get(state_key) == today_str:
+        if not args.force and _was_sent_within_dedup_window(
+            sent_state, state_key, today, args.dedup_days
+        ):
             continue
         candidates.append((pid, state_key, due_d, reminder_line, is_overdue))
 
     candidates.sort(key=lambda x: (x[4], x[2], x[3].lower()))
 
     if not candidates:
-        print("No tasks to remind (window empty, all excluded, or already notified today).")
+        print(
+            "No tasks to remind (window empty, all excluded, or already notified within dedup window)."
+        )
         return 0
 
     message_rows = [(d, line, is_overdue) for (_pid, _sk, d, line, is_overdue) in candidates]
@@ -457,6 +508,7 @@ def main() -> int:
 
     for _pid, sk, _d, _line, _overdue in candidates:
         sent_state[sk] = today_str
+    sent_state = _prune_sent_state(sent_state, today)
     _save_sent_state(state_path, sent_state)
 
     print(f"Posted Slack reminder for {len(candidates)} task(s). State updated at {state_path}")

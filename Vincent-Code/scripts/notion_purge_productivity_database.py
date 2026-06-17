@@ -90,14 +90,17 @@ def _purge_db(client: Client, database_id: str, label: str, dry_run: bool, sleep
 
 
 def _clear_reminder_cache(dry_run: bool) -> None:
-    cache = Path(PROJECT_ROOT) / "cache" / "notion_slack_reminders" / "sent_state.json"
-    if not cache.is_file():
-        return
-    if dry_run:
-        print(f"[dry-run] would delete {cache}")
-        return
-    cache.unlink()
-    print(f"Deleted reminder dedup cache: {cache}")
+    for cache in (
+        Path(PROJECT_ROOT) / "state" / "notion_slack_reminders_sent.json",
+        Path(PROJECT_ROOT) / "cache" / "notion_slack_reminders" / "sent_state.json",
+    ):
+        if not cache.is_file():
+            continue
+        if dry_run:
+            print(f"[dry-run] would delete {cache}")
+            continue
+        cache.unlink()
+        print(f"Deleted reminder dedup cache: {cache}")
 
 
 def main() -> int:
@@ -118,7 +121,7 @@ def main() -> int:
     parser.add_argument(
         "--clear-reminder-cache",
         action="store_true",
-        help="Also delete cache/notion_slack_reminders/sent_state.json",
+        help="Also delete state/notion_slack_reminders_sent.json (and legacy cache if present)",
     )
     args = parser.parse_args()
 
