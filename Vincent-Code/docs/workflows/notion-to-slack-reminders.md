@@ -13,7 +13,9 @@ Una fila entra en la ventana si:
 - `tipo` es **Tarea** o **Idea** (si existe la propiedad).
 - `Estado` no está en la lista excluida (default: Hecho, Terminado, Listo, Done).
 
-Si el script dice *"No tasks to remind"*, suele significar que **ninguna fila tiene fecha objetivo** en esas ventanas. Para depurar: `--dry-run --force`.
+**Cloudflare (prioridad):** tareas cuyo título empieza por `Cloudflare` y no están terminadas generan el aviso *«Tienes un error importante en Cloudflare»* aunque no tengan fecha `Fin`. No se duplican en la sección de vencimientos.
+
+Si el script dice *"No tasks to remind"*, suele significar que **ninguna fila tiene fecha objetivo** en esas ventanas (y tampoco hay tareas Cloudflare pendientes). Para depurar: `--dry-run --force`.
 
 ## Ejecución recomendada
 
@@ -57,7 +59,8 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
 
 ## Texto del mensaje
 
-- Formato: lista con viñetas bajo `Recordatorios`, en dos bloques si aplica: **Próximas** y **Atrasadas**.
+- **Cloudflare:** bloque `:warning: *Cloudflare*` con *«Tienes un error importante en Cloudflare»* (sin depender de `Fin`).
+- Formato habitual: lista con viñetas bajo `Recordatorios`, en dos bloques si aplica: **Próximas** y **Atrasadas**.
 - Próximas: usa `recordatorio_slack` de la nota Obsidian (generado al clasificar), o fallback desde título / cuerpo en Notion.
 - Atrasadas (≤7 días): *"Ya deberías haber terminado con: …"* a partir del resumen de la tarea.
 
@@ -68,29 +71,35 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
 | `--within-days N` | Ventana hoy … hoy+N (default 5) |
 | `--overdue-max-days N` | Vencidas hasta N días atrás (default 7; 0 = ninguna) |
 | `--include-overdue` | Legacy: todas las vencidas (ignora límite de 7 días) |
-| `--dedup-days N` | No reenviar si ya se avisó en los últimos N días (default 3) |
+| `--dedup-days N` | Ventana dedup para **próximas** (default 3) |
+| `--dedup-days-overdue N` | Ventana dedup para **atrasadas pendientes** (default 2) |
 | `--dry-run` | Imprime el mensaje; no envía ni guarda dedup |
 | `--force` | Ignora ventana de dedup (solo pruebas) |
 
 ## Deduplicación
 
 - Archivo: `state/notion_slack_reminders_sent.json` (versionado en git; GHA hace commit tras cada envío).
-- Regla: como máximo **un aviso por página y día de vencimiento cada 3 días naturales** (zona horaria local). Configurable con `--dedup-days N`.
-- En **GitHub Actions** el workflow corre **3 veces al día** (`:30` de 8, 14 y 20 UTC ≈ 3:30, 9:30 y 15:30 Ecuador); el estado en git evita repetir la misma tarea en esos runs.
+- Reglas (zona horaria local):
+  - **Próximas:** como máximo un aviso por página y día de vencimiento cada **3** días (`--dedup-days`, default 3).
+  - **Atrasadas pendientes** (`Por hacer`, vencimiento ≤ ayer): cada **2** días (`--dedup-days-overdue`, default 2).
+  - **Hecho / terminal:** no se avisa (excluidas por estado; no entra en dedup).
+- En **GitHub Actions** el workflow corre **3 veces al día** (`:45` UTC ≈ 3:45, 9:45, 15:45 Ecuador); el estado en git evita repetir la misma tarea en runs consecutivos del mismo día.
 - Tras un reset de Notion, conviene borrar este estado (`--clear-reminder-cache` en el script de purge).
 
 ## Relación con Pipeline 1
 
 ```text
 Pipeline 1 (3×/día)         →  llena Notion + fecha objetivo si el audio lo dice
-Pipeline 2 (3×/día)         →  avisa en Slack (máx. 1 vez por tarea cada 3 días)
+Pipeline 2 (3×/día)         →  avisa en Slack (próximas: cada 3 días; atrasadas: cada 2 días)
 ```
 
 Si nunca llegan recordatorios, revisa en Notion que las tareas tengan **Fin** o **fecha objetivo** rellenados (el clasificador infiere fechas de frases como “el viernes”, “esta semana”).
 
 ## Programación
 
-Ver [windows-scheduler.md](../operations/windows-scheduler.md): tarea separada del pipeline de ingesta, 1–2 veces al día.
+En **GitHub Actions** (3×/día, UTC): ingesta `:00` → completadas `:40` → clasificar+Notion `:42` → recordatorios `:45`. Ver [overview](overview.md).
+
+Local / Windows: tarea separada del pipeline de ingesta, 1–2 veces al día.
 
 ## Troubleshooting
 

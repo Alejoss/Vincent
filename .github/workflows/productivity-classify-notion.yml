@@ -1,16 +1,16 @@
-name: Slack task updates
+name: Productivity classify and Notion sync
 
 on:
   schedule:
-    # After inbox (:00); before classify (:42) and reminders (:45)
-    - cron: "40 8,14,20 * * *"
+    # After task updates (:40); before reminders (:45)
+    - cron: "42 8,14,20 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  task-updates:
+  classify-notion:
     runs-on: ubuntu-latest
     environment: Ramdau
     defaults:
@@ -18,9 +18,10 @@ jobs:
         working-directory: Vincent-Code
     env:
       OBSIDIAN_VAULT_PATH: ${{ github.workspace }}/Cerebro-Vincent
-      WHISPER_PROVIDER: openai
+      SLACK_INPUT_OBSIDIAN_REL: 0_Diario_Productividad/Input
       LLM_PROVIDER: openai
       LLM_MODEL: gpt-4o-mini
+      PIPELINE_RECLASSIFY: "0"
     steps:
       - uses: actions/checkout@v4
 
@@ -33,33 +34,30 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Apply Slack task updates
+      - name: Classify and sync to Notion
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_DM_CHANNEL_ID: ${{ secrets.SLACK_DM_CHANNEL_ID }}
-          SLACK_WORKSPACE_DOMAIN: ${{ secrets.SLACK_WORKSPACE_DOMAIN }}
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
           NOTION_TASKS_DATABASE_ID: ${{ vars.NOTION_TASKS_DATABASE_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: bash scripts/run_slack_task_updates.sh
+        run: bash scripts/run_productivity_classify_notion.sh
 
       - name: Upload run log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: slack-task-updates-log-${{ github.run_id }}
-          path: Vincent-Code/logs/slack_task_updates.log
+          name: productivity-classify-notion-log-${{ github.run_id }}
+          path: Vincent-Code/logs/productivity_classify_notion.log
           if-no-files-found: ignore
 
-      - name: Persist vault and audit
+      - name: Persist vault changes
         working-directory: ${{ github.workspace }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Cerebro-Vincent/ Vincent-Code/state/slack_task_updates_audit.jsonl
+          git add Cerebro-Vincent/
           if git diff --staged --quiet; then
-            echo "No vault or audit changes to commit."
+            echo "No vault changes to commit."
           else
-            git commit -m "chore: slack task updates run ${{ github.run_id }}"
+            git commit -m "chore: productivity classify+notion run ${{ github.run_id }}"
             git push
           fi

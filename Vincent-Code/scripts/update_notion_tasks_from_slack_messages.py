@@ -13,11 +13,15 @@ Messages that are classified as task updates are marked in the matching Obsidian
 Input note so the normal classifier does not create a new task from text like
 "ya envie el mail".
 
+Completion (Hecho) only runs when the message contains an explicit phrase such as
+"marcar como completada" or "marca como completado" (see src/slack_task_completion_gate.py).
+Other messages are ignored by this script; reschedule/delete are not auto-detected yet.
+
 Env:
   SLACK_BOT_TOKEN
   SLACK_DM_CHANNEL_ID
   NOTION_API_TOKEN
-  NOTION_TASKS_DATABASE_ID (optional; defaults to the productivity tasks DB)
+  NOTION_TASKS_DATABASE_ID (required; set in .env)
   OBSIDIAN_VAULT_PATH (optional; used to mark matching Input notes)
   LLM_PROVIDER / LLM_MODEL / OPENAI_API_KEY / GROQ_API_KEY / OLLAMA_URL
 """
@@ -55,11 +59,26 @@ from src.llm_client import (  # noqa: E402
     validate_llm_config,
 )
 from src.productivity_dates import clamp_due_iso, infer_due_from_text, safe_date_from_slack_ts  # noqa: E402
-from src.slack_inbox_obsidian import default_input_rel_dir, note_path, resolve_input_dir  # noqa: E402
+from src.slack_task_completion_gate import GATE_SKIP_REASON, message_requests_complete  # noqa: E402
+from src.slack_inbox_obsidian import default_input_rel_dir  # noqa: E402
+from src.slack_task_update_obsidian import mark_task_update_note  # noqa: E402
+from src.slack_task_updates_audit import (  # noqa: E402
+    GATE_NO_PHRASE,
+    GATE_PHRASE_MATCH,
+    OUTCOME_APPLIED,
+    OUTCOME_EMPTY,
+    OUTCOME_FAILED,
+    OUTCOME_GATE_SKIP,
+    OUTCOME_IGNORED,
+    OUTCOME_UNMATCHED,
+    append_audit_entry,
+    build_audit_entry,
+    default_audit_path,
+    should_advance_cursor,
+)
 from sync_productivity_obsidian_to_notion import (  # noqa: E402
     get_ds_and_props,
     normalize_id,
-    parse_frontmatter,
     pick_prop,
     resolve_tasks_db_id,
 )
@@ -210,53 +229,44 @@ def _strip_quotes(value: str) -> str:
     return (value or "").strip().strip('"').strip("'")
 
 
-def _quote_yaml(value: str) -> str:
-    escaped = (value or "").replace("\\", "\\\\").replace('"', '\\"')
-    return f'"{escaped}"'
+def _permalink_for_message(workspace_domain: str, channel_id: str, slack_ts: str) -> str:
+    return slack_sync.build_message_permalink(workspace_domain, channel_id, slack_ts)
 
 
-def _compose_note(frontmatter: Dict[str, str], body: str) -> str:
-    lines = ["---"]
-    for key, value in frontmatter.items():
-        lines.append(f"{key}: {value}")
-    lines.extend(["---", "", (body or "").strip(), ""])
-    return "\n".join(lines)
-
-
-def _mark_obsidian_note(
+def _record_task_update_note(
     *,
     vault_path: str,
     input_rel: str,
     slack_ts: str,
+    message_text: str,
+    source_url: str,
+    transcribed: bool,
     status: str,
     action: str,
     page_id: str,
     model_label: str,
     reason: str,
     dry_run: bool,
-) -> bool:
-    if not vault_path:
-        return False
-    input_dir = resolve_input_dir(vault_path, input_rel or default_input_rel_dir())
-    path = Path(note_path(input_dir, slack_ts))
-    if not path.is_file():
-        return False
-    if dry_run:
-        log.info(f"[dry-run] would mark Obsidian note as task update: {path}")
-        return True
-
-    raw = path.read_text(encoding="utf-8")
-    fm, body = parse_frontmatter(raw)
-    fm["task_update_processed"] = _quote_yaml(status)
-    fm["task_update_action"] = _quote_yaml(action)
-    if page_id:
-        fm["task_update_notion_page"] = _quote_yaml(page_id)
-    fm["task_update_model"] = _quote_yaml(model_label)
-    fm["task_update_actualizada"] = _quote_yaml(datetime.now(tz=timezone.utc).isoformat())
-    if reason:
-        fm["task_update_razon"] = _quote_yaml(reason[:500])
-    path.write_text(_compose_note(fm, body), encoding="utf-8", newline="\n")
-    return True
+    enabled: bool,
+) -> None:
+    if not enabled:
+        return
+    ok = mark_task_update_note(
+        vault_path=vault_path,
+        input_rel=input_rel,
+        slack_ts=slack_ts,
+        message_text=message_text,
+        source_url=source_url,
+        transcribed=transcribed,
+        status=status,
+        action=action,
+        page_id=page_id,
+        model_label=model_label,
+        reason=reason,
+        dry_run=dry_run,
+    )
+    if dry_run and ok:
+        log.info(f"[dry-run] would mark Input note for ts={slack_ts} status={status}")
 
 
 def _normalize_text(value: str) -> str:
@@ -518,6 +528,33 @@ def _candidate_prompt_block(candidates: Sequence[TaskCandidate]) -> str:
     return "\n".join(lines)
 
 
+def _build_complete_candidate_prompt(
+    *,
+    message_text: str,
+    slack_context: str,
+    candidates: Sequence[TaskCandidate],
+    anchor_iso: str,
+) -> str:
+    return (
+        "Eres un asistente que elige UNA tarea existente de Notion para marcar como completada.\n"
+        "El usuario ya pidió explícitamente marcar como completada/completado algo.\n"
+        "No decidas si completar: eso ya está confirmado. Solo elige la tarea candidata correcta.\n"
+        "Reglas:\n"
+        "- Responde candidate_id de la lista (p. ej. c1) o vacío si ninguna encaja.\n"
+        "- Usa el contexto del bot si el mensaje dice 'esto', 'esa tarea', etc.\n"
+        "- No crees tareas nuevas.\n"
+        "Responde SOLO JSON valido con esta forma exacta:\n"
+        '{"candidate_id":"c1|","confidence":0.0,"reason":"..."}\n'
+        f"Fecha ancla: {anchor_iso}\n"
+        "Mensaje humano:\n"
+        f"{message_text.strip()}\n"
+        "Contexto reciente del bot (puede estar vacio):\n"
+        f"{slack_context.strip() or 'N/A'}\n"
+        "Tareas candidatas:\n"
+        f"{_candidate_prompt_block(candidates)}\n"
+    )
+
+
 def _build_decision_prompt(
     *,
     message_text: str,
@@ -570,6 +607,36 @@ def _normalize_action(raw: str) -> str:
         "cancelled": ACTION_DELETE,
     }
     return aliases.get(value, ACTION_IGNORE)
+
+
+def _decision_complete_from_llm(
+    llm: LLMConfig,
+    message_text: str,
+    slack_context: str,
+    candidates: Sequence[TaskCandidate],
+    anchor_iso: str,
+    timeout_s: int,
+) -> UpdateDecision:
+    prompt = _build_complete_candidate_prompt(
+        message_text=message_text,
+        slack_context=slack_context,
+        candidates=candidates,
+        anchor_iso=anchor_iso,
+    )
+    obj = call_json(prompt, llm, timeout_s=timeout_s)
+    candidate_id = str(obj.get("candidate_id", "") or "").strip()
+    try:
+        confidence = float(obj.get("confidence", 0.0))
+    except Exception:
+        confidence = 0.0
+    confidence = max(0.0, min(1.0, confidence))
+    return UpdateDecision(
+        action=ACTION_COMPLETE,
+        candidate_id=candidate_id,
+        due_date="",
+        confidence=confidence,
+        reason=str(obj.get("reason", "") or "").strip(),
+    )
 
 
 def _decision_from_llm(
@@ -779,7 +846,7 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="Print intended updates without modifying Notion or notes")
     parser.add_argument("--limit", type=int, default=0, help="Process at most N human messages (0 = all)")
     parser.add_argument("--candidate-limit", type=int, default=25, help="Max Notion candidates sent to the LLM")
-    parser.add_argument("--confidence", type=float, default=0.55, help="Minimum confidence to apply an update")
+    parser.add_argument("--confidence", type=float, default=0.75, help="Minimum confidence to apply complete (default: 0.75)")
     parser.add_argument("--timeout", type=int, default=90, help="LLM timeout in seconds")
     parser.add_argument("--llm-provider", choices=("openai", "groq", "ollama", "auto"), default=None)
     parser.add_argument("--model", default=None)
@@ -864,21 +931,33 @@ def main() -> int:
 
     vault_path = _strip_quotes(os.getenv("OBSIDIAN_VAULT_PATH") or "")
     input_rel = (os.getenv("SLACK_INPUT_OBSIDIAN_REL") or "").strip() or default_input_rel_dir()
+    workspace_domain = (os.getenv("SLACK_WORKSPACE_DOMAIN") or "").strip().strip('"').strip("'")
 
     applied = 0
     ignored = 0
     unmatched = 0
     failed = 0
-    max_seen_ts = ""
-    max_seen_epoch = 0.0
+    audit_path = default_audit_path(PROJECT_ROOT)
+    cursor_advance_ts = ""
+    cursor_advance_epoch = 0.0
+
+    def _audit(slack_ts: str, outcome: str, **fields: Any) -> None:
+        append_audit_entry(
+            audit_path,
+            build_audit_entry(slack_ts=slack_ts, outcome=outcome, dry_run=args.dry_run, **fields),
+            dry_run=args.dry_run,
+        )
+
+    def _note_cursor(slack_ts: str, ts_epoch: float, outcome: str) -> None:
+        nonlocal cursor_advance_ts, cursor_advance_epoch
+        if should_advance_cursor(outcome) and ts_epoch >= cursor_advance_epoch:
+            cursor_advance_epoch = ts_epoch
+            cursor_advance_ts = slack_ts
 
     for idx in human_indexes:
         message = raw_messages[idx]
         slack_ts = (message.get("ts") or "").strip()
         ts_epoch = slack_sync.ts_to_epoch_seconds(slack_ts)
-        if ts_epoch >= max_seen_epoch:
-            max_seen_epoch = ts_epoch
-            max_seen_ts = slack_ts
 
         try:
             message_text, transcribed = _extract_message_text(
@@ -891,10 +970,18 @@ def main() -> int:
         except Exception as e:
             failed += 1
             log.info(f"[error] ts={slack_ts}: could not read message/audio: {e}")
+            _audit(slack_ts, OUTCOME_FAILED, reason=str(e))
             continue
 
         if not message_text.strip():
-            ignored += 1
+            _audit(slack_ts, OUTCOME_EMPTY, gate=GATE_NO_PHRASE)
+            _note_cursor(slack_ts, ts_epoch, OUTCOME_EMPTY)
+            continue
+
+        if not message_requests_complete(message_text):
+            log.info(f"ts={slack_ts}: skip — {GATE_SKIP_REASON}")
+            _audit(slack_ts, OUTCOME_GATE_SKIP, gate=GATE_NO_PHRASE, reason=GATE_SKIP_REASON)
+            _note_cursor(slack_ts, ts_epoch, OUTCOME_GATE_SKIP)
             continue
 
         context = _recent_bot_context(
@@ -913,32 +1000,74 @@ def main() -> int:
             limit=args.candidate_limit,
         )
         anchor_iso = _message_anchor_iso(slack_ts)
+        permalink = _permalink_for_message(workspace_domain, slack_channel, slack_ts)
 
         try:
-            decision = _decision_from_llm(llm, message_text, context, candidates, anchor_iso, args.timeout)
+            decision = _decision_complete_from_llm(
+                llm, message_text, context, candidates, anchor_iso, args.timeout
+            )
         except Exception as e:
             failed += 1
             log.info(f"[error] ts={slack_ts}: LLM failed: {e}")
-            continue
-
-        if decision.action == ACTION_RESCHEDULE:
-            due = _resolve_due_date(decision, message_text, context, slack_ts)
-            decision = UpdateDecision(
-                action=decision.action,
-                candidate_id=decision.candidate_id,
-                due_date=due,
-                confidence=decision.confidence,
-                reason=decision.reason,
+            _audit(
+                slack_ts,
+                OUTCOME_FAILED,
+                gate=GATE_PHRASE_MATCH,
+                action=ACTION_COMPLETE,
+                model=llm.label,
+                reason=str(e),
+                transcribed=transcribed,
             )
+            _record_task_update_note(
+                vault_path=vault_path,
+                input_rel=input_rel,
+                slack_ts=slack_ts,
+                message_text=message_text,
+                source_url=permalink,
+                transcribed=transcribed,
+                status="failed",
+                action=ACTION_COMPLETE,
+                page_id="",
+                model_label=llm.label,
+                reason=str(e),
+                dry_run=args.dry_run,
+                enabled=args.mark_obsidian_notes,
+            )
+            continue
 
         prefix = "[audio] " if transcribed else ""
         log.info(
             f"{prefix}ts={slack_ts}: action={decision.action} candidate={decision.candidate_id or '-'} "
-            f"due={decision.due_date or '-'} confidence={decision.confidence:.2f}"
+            f"confidence={decision.confidence:.2f}"
         )
 
-        if decision.action == ACTION_IGNORE or decision.confidence < args.confidence:
+        if decision.confidence < args.confidence:
             ignored += 1
+            _audit(
+                slack_ts,
+                OUTCOME_IGNORED,
+                gate=GATE_PHRASE_MATCH,
+                action=decision.action,
+                confidence=decision.confidence,
+                model=llm.label,
+                reason=decision.reason or "Below confidence threshold.",
+                transcribed=transcribed,
+            )
+            _record_task_update_note(
+                vault_path=vault_path,
+                input_rel=input_rel,
+                slack_ts=slack_ts,
+                message_text=message_text,
+                source_url=permalink,
+                transcribed=transcribed,
+                status="ignored",
+                action=decision.action,
+                page_id="",
+                model_label=llm.label,
+                reason=decision.reason or "Below confidence threshold.",
+                dry_run=args.dry_run,
+                enabled=args.mark_obsidian_notes,
+            )
             continue
 
         task = _find_candidate(candidates, decision.candidate_id)
@@ -946,23 +1075,31 @@ def main() -> int:
             unmatched += 1
             reason = decision.reason or "No clear Notion task candidate."
             log.info(f"[unmatched] ts={slack_ts}: {reason}")
-            if args.mark_obsidian_notes:
-                _mark_obsidian_note(
-                    vault_path=vault_path,
-                    input_rel=input_rel,
-                    slack_ts=slack_ts,
-                    status="unmatched",
-                    action=decision.action,
-                    page_id="",
-                    model_label=llm.label,
-                    reason=reason,
-                    dry_run=args.dry_run,
-                )
-            continue
-
-        if decision.action == ACTION_RESCHEDULE and not decision.due_date:
-            failed += 1
-            log.info(f"[error] ts={slack_ts}: reschedule action without due date.")
+            _audit(
+                slack_ts,
+                OUTCOME_UNMATCHED,
+                gate=GATE_PHRASE_MATCH,
+                action=decision.action,
+                confidence=decision.confidence,
+                model=llm.label,
+                reason=reason,
+                transcribed=transcribed,
+            )
+            _record_task_update_note(
+                vault_path=vault_path,
+                input_rel=input_rel,
+                slack_ts=slack_ts,
+                message_text=message_text,
+                source_url=permalink,
+                transcribed=transcribed,
+                status="unmatched",
+                action=decision.action,
+                page_id="",
+                model_label=llm.label,
+                reason=reason,
+                dry_run=args.dry_run,
+                enabled=args.mark_obsidian_notes,
+            )
             continue
 
         try:
@@ -976,31 +1113,101 @@ def main() -> int:
         except Exception as e:
             failed += 1
             log.info(f"[error] ts={slack_ts}: Notion update failed for {task.title!r}: {e}")
+            _audit(
+                slack_ts,
+                OUTCOME_FAILED,
+                gate=GATE_PHRASE_MATCH,
+                action=decision.action,
+                page_id=task.page_id,
+                title=task.title,
+                confidence=decision.confidence,
+                model=llm.label,
+                reason=str(e),
+                transcribed=transcribed,
+            )
+            _record_task_update_note(
+                vault_path=vault_path,
+                input_rel=input_rel,
+                slack_ts=slack_ts,
+                message_text=message_text,
+                source_url=permalink,
+                transcribed=transcribed,
+                status="failed",
+                action=decision.action,
+                page_id=task.page_id,
+                model_label=llm.label,
+                reason=str(e),
+                dry_run=args.dry_run,
+                enabled=args.mark_obsidian_notes,
+            )
             continue
 
         if not ok:
             failed += 1
             log.info(f"[error] ts={slack_ts}: {detail}")
+            _audit(
+                slack_ts,
+                OUTCOME_FAILED,
+                gate=GATE_PHRASE_MATCH,
+                action=decision.action,
+                page_id=task.page_id,
+                title=task.title,
+                confidence=decision.confidence,
+                model=llm.label,
+                reason=detail,
+                transcribed=transcribed,
+            )
+            _record_task_update_note(
+                vault_path=vault_path,
+                input_rel=input_rel,
+                slack_ts=slack_ts,
+                message_text=message_text,
+                source_url=permalink,
+                transcribed=transcribed,
+                status="failed",
+                action=decision.action,
+                page_id=task.page_id,
+                model_label=llm.label,
+                reason=detail,
+                dry_run=args.dry_run,
+                enabled=args.mark_obsidian_notes,
+            )
             continue
 
         applied += 1
         log.info(f"[ok] {decision.action}: {task.title!r} ({task.page_id}) — {detail}")
-        if args.mark_obsidian_notes:
-            _mark_obsidian_note(
-                vault_path=vault_path,
-                input_rel=input_rel,
-                slack_ts=slack_ts,
-                status="true",
-                action=decision.action,
-                page_id=task.page_id,
-                model_label=llm.label,
-                reason=decision.reason,
-                dry_run=args.dry_run,
-            )
+        _audit(
+            slack_ts,
+            OUTCOME_APPLIED,
+            gate=GATE_PHRASE_MATCH,
+            action=decision.action,
+            page_id=task.page_id,
+            title=task.title,
+            confidence=decision.confidence,
+            model=llm.label,
+            reason=decision.reason,
+            transcribed=transcribed,
+        )
+        _note_cursor(slack_ts, ts_epoch, OUTCOME_APPLIED)
+        _record_task_update_note(
+            vault_path=vault_path,
+            input_rel=input_rel,
+            slack_ts=slack_ts,
+            message_text=message_text,
+            source_url=permalink,
+            transcribed=transcribed,
+            status="true",
+            action=decision.action,
+            page_id=task.page_id,
+            model_label=llm.label,
+            reason=decision.reason,
+            dry_run=args.dry_run,
+            enabled=args.mark_obsidian_notes,
+        )
 
-    if max_seen_ts and not args.dry_run:
-        state.save_last_ts(slack_channel, max_seen_ts)
-        log.info(f"Saved task-update Slack cursor last_ts={max_seen_ts}")
+    if cursor_advance_ts and not args.dry_run:
+        state.save_last_ts(slack_channel, cursor_advance_ts)
+        log.info(f"Saved task-update Slack cursor last_ts={cursor_advance_ts}")
 
     log.info(f"Done. applied={applied} unmatched={unmatched} ignored={ignored} failed={failed}")
     return 0 if failed == 0 else 2

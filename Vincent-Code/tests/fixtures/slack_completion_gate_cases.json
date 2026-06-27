@@ -1,0 +1,74 @@
+[
+  {
+    "slack_ts": "1782355437.156429",
+    "label": "club_lectura_pendiente",
+    "text": "Debo anunciar el club de lectura del secuestro de Bitcoin esta semana.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "1782484198.653939",
+    "label": "podcast_ya_termine_sin_frase",
+    "text": "Ya terminé de publicar el primer podcast de Academia Blockchain esta semana.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "1782355472.316599",
+    "label": "timeline_bitcoin_debo_terminar",
+    "text": "Debo terminar el primer esqueleto de la linea de tiempo de la historia de Bitcoin esta semana.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "1782355322.926319",
+    "label": "podcast_debo_procesar",
+    "text": "Debo terminar de procesar los podcasts, publicar el podcast y compartir la existencia del podcast a mis seguidores.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "1781279531.296569",
+    "label": "script_audio_ya_cree",
+    "text": "Ya creé el script que extrae audio de videos y también ya procesé el tema de los impuestos.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "1780723952.365989",
+    "label": "newsletter_marca_completada",
+    "text": "Marca como completada la tarea de redactar la newsletter. Ya la redacté.",
+    "expect_gate": true
+  },
+  {
+    "slack_ts": "example_infinitive",
+    "label": "infinitive_marcar",
+    "text": "Por favor marcar como completada la tarea del club de lectura.",
+    "expect_gate": true
+  },
+  {
+    "slack_ts": "example_masculine",
+    "label": "marcar_como_completado",
+    "text": "Marcar como completado el envío del newsletter.",
+    "expect_gate": true
+  },
+  {
+    "slack_ts": "example_imperative_accent",
+    "label": "marca_accent",
+    "text": "Marca como completada la métrica de Academia Blockchain.",
+    "expect_gate": true
+  },
+  {
+    "slack_ts": "example_passive",
+    "label": "marcado_como_completada",
+    "text": "Quedó marcado como completada la tarea de impuestos.",
+    "expect_gate": true
+  },
+  {
+    "slack_ts": "example_hecho_synonym",
+    "label": "ya_hecho_no_gate",
+    "text": "Ya está hecho lo del podcast, no hace falta recordarme.",
+    "expect_gate": false
+  },
+  {
+    "slack_ts": "example_dry_run",
+    "label": "dry_run_placeholder",
+    "text": "[transcript dry-run]",
+    "expect_gate": false
+  }
+]

@@ -56,10 +56,12 @@ scripts\run_slack_inbox_sync.bat
 - `SLACK_DM_CHANNEL_ID` — ID del DM/canal donde envías mensajes al bot
 - `OBSIDIAN_VAULT_PATH` — p. ej. `E:\Vincent\Cerebro-Vincent`
 - `NOTION_API_TOKEN`
+- `NOTION_TASKS_DATABASE_ID` — base **Tareas Ideas** (obligatoria)
+
+En **GitHub Actions** (environment `Ramdau`), configura la variable de repositorio/entorno `NOTION_TASKS_DATABASE_ID` con el mismo valor que en `.env`.
 
 **Opcionales**
 
-- `NOTION_TASKS_DATABASE_ID` — si no coincide con el default del código
 - `SLACK_WORKSPACE_DOMAIN` — permalink en frontmatter
 - `SLACK_INPUT_OBSIDIAN_REL` — subcarpeta de Input (default `0_Diario_Productividad/Input`)
 - `SLACK_HUMAN_USER_ID` — filtrar solo tus mensajes en el DM

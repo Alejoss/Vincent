@@ -30,6 +30,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from src.llm_client import LLMConfig, build_llm_config, call_json, ollama_is_reachable, validate_llm_config
 from src.slack_inbox_obsidian import default_input_rel_dir, resolve_input_dir
+from src.slack_task_update_obsidian import is_task_update_processed, should_skip_productivity_classify
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text
 
 load_dotenv(override=True)
@@ -555,7 +556,11 @@ def main() -> int:
         raw = path.read_text(encoding="utf-8")
         fm, body = _split_frontmatter(raw)
 
-        if _frontmatter_flag(fm.get("task_update_processed", "")) in {"true", "yes", "1", "unmatched"}:
+        if is_task_update_processed(fm.get("task_update_processed", "")):
+            skipped += 1
+            continue
+
+        if should_skip_productivity_classify(fm, body or ""):
             skipped += 1
             continue
 

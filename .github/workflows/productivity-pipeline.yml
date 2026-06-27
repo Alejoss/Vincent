@@ -1,16 +1,22 @@
-name: Productivity pipeline
+name: Slack inbox sync
 
 on:
   schedule:
-    # 08:00, 14:00, 20:00 UTC
+    # Step 1 of daily cycle: ingest Slack -> Obsidian (8/14/20 UTC)
     - cron: "0 8,14,20 * * *"
   workflow_dispatch:
+    inputs:
+      run_full_pipeline:
+        description: "Run full pipeline (inbox + classify + Notion) instead of inbox only"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
 
 jobs:
-  pipeline:
+  inbox-sync:
     runs-on: ubuntu-latest
     environment: Ramdau
     defaults:
@@ -22,7 +28,6 @@ jobs:
       WHISPER_PROVIDER: openai
       LLM_PROVIDER: openai
       LLM_MODEL: gpt-4o-mini
-      # Cron: classify only new notes (no --reclassify). Set to 1 for full reclassify.
       PIPELINE_RECLASSIFY: "0"
     steps:
       - uses: actions/checkout@v4
@@ -36,18 +41,38 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run pipeline
+      - name: Sync Slack inbox only (scheduled)
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_full_pipeline != true)
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_DM_CHANNEL_ID: ${{ secrets.SLACK_DM_CHANNEL_ID }}
+          SLACK_WORKSPACE_DOMAIN: ${{ secrets.SLACK_WORKSPACE_DOMAIN }}
+          SLACK_HUMAN_USER_ID: ${{ secrets.SLACK_HUMAN_USER_ID }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: bash scripts/run_slack_inbox_sync.sh
+
+      - name: Run full productivity pipeline (manual)
+        if: github.event_name == 'workflow_dispatch' && inputs.run_full_pipeline == true
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_DM_CHANNEL_ID: ${{ secrets.SLACK_DM_CHANNEL_ID }}
           SLACK_WORKSPACE_DOMAIN: ${{ secrets.SLACK_WORKSPACE_DOMAIN }}
           SLACK_HUMAN_USER_ID: ${{ secrets.SLACK_HUMAN_USER_ID }}
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+          NOTION_TASKS_DATABASE_ID: ${{ vars.NOTION_TASKS_DATABASE_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: bash scripts/run_productivity_pipeline.sh
 
-      - name: Upload pipeline log
-        if: always()
+      - name: Upload inbox sync log
+        if: always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_full_pipeline != true))
+        uses: actions/upload-artifact@v4
+        with:
+          name: slack-inbox-sync-log-${{ github.run_id }}
+          path: Vincent-Code/logs/slack_inbox_sync.log
+          if-no-files-found: ignore
+
+      - name: Upload full pipeline log
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_full_pipeline == true
         uses: actions/upload-artifact@v4
         with:
           name: productivity-pipeline-log-${{ github.run_id }}
@@ -63,6 +88,10 @@ jobs:
           if git diff --staged --quiet; then
             echo "No vault changes to commit."
           else
-            git commit -m "chore: productivity pipeline run ${{ github.run_id }}"
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.run_full_pipeline }}" == "true" ]]; then
+              git commit -m "chore: productivity pipeline run ${{ github.run_id }}"
+            else
+              git commit -m "chore: slack inbox sync run ${{ github.run_id }}"
+            fi
             git push
           fi

@@ -50,8 +50,8 @@ SCRIPTS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
 sys.path.insert(0, PROJECT_ROOT)
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text, safe_date_from_slack_ts
+from src.slack_task_update_obsidian import should_skip_productivity_classify
 
-TASKS_DB_ID = "20d793a25b644663bca9641d927171ca"
 LEARNINGS_DB_ID = "8e62295d7d514e17a8f3ea39706692b7"
 
 TASKS_IDEAS_FOLDER = "Tareas-Ideas"
@@ -69,8 +69,11 @@ def normalize_id(block_id: str) -> str:
 
 
 def resolve_tasks_db_id() -> str:
-    """NOTION_TASKS_DATABASE_ID env override, or TASKS_DB_ID when unset/empty."""
-    return normalize_id((os.getenv("NOTION_TASKS_DATABASE_ID") or "").strip() or TASKS_DB_ID)
+    """NOTION_TASKS_DATABASE_ID from .env / environment (required)."""
+    raw = (os.getenv("NOTION_TASKS_DATABASE_ID") or "").strip()
+    if not raw:
+        raise SystemExit("Missing required env var: NOTION_TASKS_DATABASE_ID")
+    return normalize_id(raw)
 
 
 def parse_frontmatter(content: str) -> Tuple[Dict[str, str], str]:
@@ -159,6 +162,8 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
                 continue
             body_stripped = (body or "").strip()
             slack_completo = _extract_slack_completo(body_stripped) or body_stripped
+            if should_skip_productivity_classify(fm, body_stripped):
+                continue
             titulo_corto = (fm.get("titulo_corto") or "").strip()
             out.append(
                 NoteItem(
@@ -549,7 +554,7 @@ def main() -> int:
 
     print(f"Local notes ready: tasks/ideas={len(tasks_items)} learnings={len(learn_items)}")
 
-    t_created, t_updated, t_skipped = upsert_items(client, normalize_id(TASKS_DB_ID), tasks_items, args.dry_run)
+    t_created, t_updated, t_skipped = upsert_items(client, resolve_tasks_db_id(), tasks_items, args.dry_run)
     l_created, l_updated, l_skipped = upsert_items(client, normalize_id(LEARNINGS_DB_ID), learn_items, args.dry_run)
 
     print(

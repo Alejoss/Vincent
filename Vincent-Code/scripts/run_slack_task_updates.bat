@@ -1,7 +1,7 @@
 @echo off
 REM Slack DM -> Notion task updates. Use with Task Scheduler.
 REM Requires .env with SLACK_BOT_TOKEN, SLACK_DM_CHANNEL_ID, NOTION_API_TOKEN.
-REM Optional: NOTION_TASKS_DATABASE_ID, OBSIDIAN_VAULT_PATH, LLM_PROVIDER, OPENAI_API_KEY.
+REM Requires: NOTION_TASKS_DATABASE_ID. Optional: OBSIDIAN_VAULT_PATH, LLM_PROVIDER, OPENAI_API_KEY.
 REM Logs: ..\logs\slack_task_updates.log
 
 cd /d "%~dp0.."
