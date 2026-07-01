@@ -1,0 +1,2 @@
+{"ts": "1782747016.538799", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-01T21:12:29.100023+00:00"}
+{"ts": "1782753717.789829", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-01T21:12:31.266686+00:00"}
