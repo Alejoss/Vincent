@@ -58,7 +58,7 @@ scripts\run_slack_inbox_sync.bat
 - `NOTION_API_TOKEN`
 - `NOTION_TASKS_DATABASE_ID` — base **Tareas Ideas** (obligatoria)
 
-En **GitHub Actions** (environment `Ramdau`), configura la variable de repositorio/entorno `NOTION_TASKS_DATABASE_ID` con el mismo valor que en `.env`.
+En **GitHub Actions** (environment `Ramdau`), configura el secret de entorno `NOTION_TASKS_DATABASE_ID` con el mismo valor que en `.env`.
 
 **Opcionales**
 

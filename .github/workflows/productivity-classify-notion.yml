@@ -37,7 +37,7 @@ jobs:
       - name: Classify and sync to Notion
         env:
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
-          NOTION_TASKS_DATABASE_ID: ${{ vars.NOTION_TASKS_DATABASE_ID }}
+          NOTION_TASKS_DATABASE_ID: ${{ secrets.NOTION_TASKS_DATABASE_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: bash scripts/run_productivity_classify_notion.sh
 
