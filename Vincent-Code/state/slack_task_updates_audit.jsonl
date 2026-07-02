@@ -2,3 +2,4 @@
 {"ts": "1782753717.789829", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-01T21:12:31.266686+00:00"}
 {"ts": "1782747016.538799", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-02T09:46:16.180321+00:00"}
 {"ts": "1782753717.789829", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-02T09:46:19.070188+00:00"}
+{"ts": "1782753717.789829", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-02T16:27:46.773408+00:00"}
