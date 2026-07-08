@@ -93,5 +93,7 @@ jobs:
             else
               git commit -m "chore: slack inbox sync run ${{ github.run_id }}"
             fi
-            git push
+            git fetch origin main
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi

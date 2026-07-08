@@ -61,5 +61,7 @@ jobs:
             echo "No vault or audit changes to commit."
           else
             git commit -m "chore: slack task updates run ${{ github.run_id }}"
-            git push
+            git fetch origin main
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi

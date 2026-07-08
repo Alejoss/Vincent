@@ -48,5 +48,7 @@ jobs:
             echo "No reminder dedup state changes."
           else
             git commit -m "chore: update slack reminder dedup state"
-            git push
+            git fetch origin main
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi

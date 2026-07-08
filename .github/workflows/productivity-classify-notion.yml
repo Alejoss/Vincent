@@ -59,5 +59,7 @@ jobs:
             echo "No vault changes to commit."
           else
             git commit -m "chore: productivity classify+notion run ${{ github.run_id }}"
-            git push
+            git fetch origin main
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
