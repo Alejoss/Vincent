@@ -85,3 +85,4 @@
 {"ts": "1783978533.412699", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-15T21:38:05.814973+00:00"}
 {"ts": "1783978533.412699", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-16T10:34:41.653966+00:00"}
 {"ts": "1783978533.412699", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-16T16:02:58.062068+00:00"}
+{"ts": "1784751737.145289", "outcome": "gate_skip", "gate": "no_phrase", "dry_run": false, "reason": "Sin frase explícita 'marcar/marca como completada/o'; no se aplica completado automático.", "logged_at": "2026-07-22T21:43:28.909212+00:00"}
