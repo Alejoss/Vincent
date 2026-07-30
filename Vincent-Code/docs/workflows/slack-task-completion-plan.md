@@ -284,6 +284,7 @@ PR-1 y PR-2 pueden ir en un solo despliegue inicial.
 
 | Fecha | Nota |
 |-------|------|
+| 2026-07-29 | Intent integral: `intencion` en clasificador + sync cierra tareas; detector cubre “ya completé la tarea…” |
 | 2026-06-27 | Fases 4–5: audit jsonl, cursor conservador, dedup atrasadas 2 días |
 | 2026-06-27 | Fase 3: skip classify/sync, crear/marcar Input, cron classify :42 |
 | 2026-06-27 | Fase 2: cron GHA :00/:40/:42/:45, scripts inbox y classify+notion |

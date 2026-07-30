@@ -13,8 +13,8 @@ Messages that are classified as task updates are marked in the matching Obsidian
 Input note so the normal classifier does not create a new task from text like
 "ya envie el mail".
 
-Completion (Hecho) only runs when the message contains an explicit phrase such as
-"marcar como completada" or "marca como completado" (see src/slack_task_completion_gate.py).
+Completion (Hecho) runs when the message shows clear completion intent
+(e.g. "completé la tarea", "marcar como completada"; see src/slack_task_intent.py).
 Other messages are ignored by this script; reschedule/delete are not auto-detected yet.
 
 Env:
@@ -63,6 +63,8 @@ from src.slack_task_completion_gate import GATE_SKIP_REASON, message_requests_co
 from src.slack_inbox_obsidian import default_input_rel_dir  # noqa: E402
 from src.slack_task_update_obsidian import mark_task_update_note  # noqa: E402
 from src.slack_task_updates_audit import (  # noqa: E402
+    GATE_INTENT_MATCH,
+    GATE_NO_INTENT,
     GATE_NO_PHRASE,
     GATE_PHRASE_MATCH,
     OUTCOME_APPLIED,
@@ -537,7 +539,7 @@ def _build_complete_candidate_prompt(
 ) -> str:
     return (
         "Eres un asistente que elige UNA tarea existente de Notion para marcar como completada.\n"
-        "El usuario ya pidió explícitamente marcar como completada/completado algo.\n"
+        "El usuario ya indicó que una tarea quedó hecha o pidió marcarla como completada.\n"
         "No decidas si completar: eso ya está confirmado. Solo elige la tarea candidata correcta.\n"
         "Reglas:\n"
         "- Responde candidate_id de la lista (p. ej. c1) o vacío si ninguna encaja.\n"

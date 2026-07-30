@@ -78,7 +78,8 @@ En **GitHub Actions** (environment `Ramdau`), configura el secret de entorno `NO
 | **Fecha Slack** | Fecha del mensaje (`message_at` / `slack_ts`) | Sí (se crea la propiedad si falta) |
 | `Fin` / **fecha objetivo** | Inferida del texto (“el viernes”, “esta semana”…) | Solo si hay plazo en el mensaje |
 | Slack Procesado / Notas | Transcripción completa | Sí |
-| `Estado` | Por defecto “Por hacer” en tareas nuevas | Al crear |
+| `Estado` | Por defecto “Por hacer” en tareas nuevas (`intencion=nueva`) | Al crear |
+| `intencion` (Obsidian) | `nueva` = crear fila; `completar` = cerrar tarea abierta existente | Sí (clasificador) |
 
 **Ordenar en Notion:** vista por **Fecha Slack** descendente (fecha en que enviaste el mensaje, no vencimiento).
 
@@ -124,6 +125,7 @@ python scripts/notion_rename_task_titles_ollama.py
 | Fechas vacías en columna “Fin” | Normal si el mensaje no menciona plazo; usar columna **Fecha Slack** |
 | Títulos truncados con `...` | `classify_slack_input_with_ollama.py --reclassify` y volver a sync |
 | Clasificación no actualiza notas en `Tareas-Ideas` | Hace falta `--reclassify` (sin eso se saltan notas ya clasificadas) |
+| Mensaje de “ya completé la tarea…” crea fila nueva | Debe clasificarse con `intencion=completar`; sync cierra la abierta. Ver [slack-task-updates.md](slack-task-updates.md) |
 
 ## Scripts relacionados
 

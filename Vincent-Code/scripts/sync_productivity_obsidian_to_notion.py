@@ -2,33 +2,14 @@
 Sync classified Obsidian productivity notes into Notion databases.
 
 Pipeline role
-- This is the final transport step in the Slack -> Obsidian -> Notion flow.
-- It expects notes already classified by `classify_slack_input_with_ollama.py`.
+- Final transport step in Slack -> Obsidian -> Notion.
+- Expects notes already classified (`tipo`, `intencion`, …).
 
 Routing rules
-- `Tarea` / `Idea` -> Tasks DB
+- `Tarea` / `Idea` + `intencion=nueva` -> create/update Tasks DB row (by slack_ts)
+- `Tarea` / `Idea` + `intencion=completar` -> match open task -> Estado Hecho
+  (never creates a new row for the completion message)
 - `Aprendizaje` -> Learnings DB
-
-Idempotency / dedup
-- `slack_ts` is the stable key.
-- If a page with the same `slack_ts` exists, this script updates that page.
-- Otherwise, it creates a new page.
-
-Mapped fields (best effort by property name/type)
-- Title: `titulo_corto` (fallback to derived first line)
-- `tipo`, `proyecto`, `slack_ts`
-- Slack full text:
-  - preferred: `Slack Procesado (origen)` if rich_text
-  - fallback: `Notas` / `Notas (extra)` rich_text
-- Dates:
-  - `Fecha Slack` (or `message_at` / `Inicio`): calendar date when the Slack message was sent (always set)
-  - `fecha_objetivo` / `Fin`: due date only when inferred from text (optional)
-- Status default:
-  - New `Tarea` rows are created with `Estado = Por hacer` when status prop exists.
-
-Assumptions
-- Notion token has access to both target DBs.
-- Required schema fields were normalized beforehand (or are mappable by name).
 """
 
 from __future__ import annotations
@@ -50,7 +31,18 @@ SCRIPTS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
 sys.path.insert(0, PROJECT_ROOT)
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text, safe_date_from_slack_ts
-from src.slack_task_update_obsidian import should_skip_productivity_classify
+from src.notion_task_complete import (
+    best_completion_match,
+    choose_complete_status,
+    list_open_tasks,
+    mark_task_hecho,
+)
+from src.slack_task_intent import INTENT_COMPLETAR, INTENT_NUEVA, normalize_intent
+from src.slack_task_update_obsidian import (
+    is_task_update_processed,
+    mark_note_path_task_update,
+    should_skip_notion_create,
+)
 
 LEARNINGS_DB_ID = "8e62295d7d514e17a8f3ea39706692b7"
 
@@ -138,6 +130,7 @@ class NoteItem:
     message_at: str
     source: str
     tipo: str
+    intencion: str
     proyecto: str
     titulo_corto: str
     referencia_temporal: str
@@ -160,11 +153,12 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
             tipo = (fm.get("tipo") or "").strip()
             if not slack_ts or not tipo:
                 continue
+            if is_task_update_processed(fm.get("task_update_processed", "")):
+                continue
             body_stripped = (body or "").strip()
             slack_completo = _extract_slack_completo(body_stripped) or body_stripped
-            if should_skip_productivity_classify(fm, body_stripped):
-                continue
             titulo_corto = (fm.get("titulo_corto") or "").strip()
+            intencion = normalize_intent(fm.get("intencion", "")) or INTENT_NUEVA
             out.append(
                 NoteItem(
                     path=path,
@@ -172,6 +166,7 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
                     message_at=(fm.get("message_at") or "").strip(),
                     source=(fm.get("source") or "").strip(),
                     tipo=tipo,
+                    intencion=intencion,
                     proyecto=(fm.get("proyecto") or "General - Otros").strip(),
                     titulo_corto=titulo_corto,
                     referencia_temporal=(fm.get("referencia_temporal") or "").strip(),
@@ -484,6 +479,98 @@ def build_prop_map(props: Dict[str, Any]) -> Dict[str, str]:
     return result
 
 
+def _status_options(props: Dict[str, Any], status_prop: str) -> List[str]:
+    if not status_prop:
+        return []
+    status_opts = (((props.get(status_prop) or {}).get("status") or {}).get("options") or [])
+    return [str(o.get("name", "")).strip() for o in status_opts if str(o.get("name", "")).strip()]
+
+
+def complete_existing_tasks(
+    client: Client,
+    database_id: str,
+    items: List[NoteItem],
+    dry_run: bool,
+) -> Tuple[int, int]:
+    """Close matching open Notion tasks for notes with intencion=completar."""
+    completions = [i for i in items if i.intencion == INTENT_COMPLETAR and i.tipo in {"Tarea", "Idea"}]
+    if not completions:
+        return 0, 0
+
+    ds_id, props = get_ds_and_props(client, database_id)
+    prop_map = build_prop_map(props)
+    status_prop = prop_map.get("estado") or ""
+    complete_name = choose_complete_status(_status_options(props, status_prop))
+    if not status_prop or not complete_name:
+        print("[warn] Cannot complete tasks: missing Estado / Hecho option")
+        return 0, len(completions)
+
+    open_tasks = list_open_tasks(
+        client,
+        database_id=database_id,
+        ds_id=ds_id,
+        title_prop=prop_map["title"],
+        status_prop=status_prop,
+        tipo_prop=prop_map["tipo"],
+        notes_prop=prop_map.get("slack_procesado") or prop_map.get("notas") or "",
+    )
+
+    applied = 0
+    unmatched = 0
+    for item in completions:
+        query = " ".join(
+            part for part in [item.titulo_corto, item.slack_completo] if (part or "").strip()
+        )
+        match = best_completion_match(query, open_tasks, min_score=4)
+        if not match:
+            unmatched += 1
+            print(f"[unmatched-complete] {item.path.name}: no open task for {item.titulo_corto!r}")
+            mark_note_path_task_update(
+                item.path,
+                status="unmatched",
+                action="complete",
+                page_id="",
+                model_label="sync:title_match",
+                reason="No clear open Notion task candidate.",
+                dry_run=dry_run,
+            )
+            continue
+        ok, detail = mark_task_hecho(
+            client,
+            page_id=match.page_id,
+            status_prop=status_prop,
+            status_name=complete_name,
+            dry_run=dry_run,
+        )
+        if not ok:
+            unmatched += 1
+            print(f"[failed-complete] {item.path.name}: {detail}")
+            mark_note_path_task_update(
+                item.path,
+                status="failed",
+                action="complete",
+                page_id=match.page_id,
+                model_label="sync:title_match",
+                reason=detail,
+                dry_run=dry_run,
+            )
+            continue
+        applied += 1
+        print(f"[complete] {item.path.name} -> {match.title!r} ({detail})")
+        mark_note_path_task_update(
+            item.path,
+            status="applied",
+            action="complete",
+            page_id=match.page_id,
+            model_label="sync:title_match",
+            reason=f"Matched open task {match.title!r} (score={match.score}). {detail}",
+            dry_run=dry_run,
+        )
+        # Avoid matching the same open task twice in one run.
+        open_tasks = [t for t in open_tasks if t.page_id != match.page_id]
+    return applied, unmatched
+
+
 def upsert_items(
     client: Client,
     database_id: str,
@@ -513,7 +600,15 @@ def upsert_items(
     updated = 0
     skipped = 0
 
-    for item in items:
+    create_items = [i for i in items if i.intencion != INTENT_COMPLETAR]
+    for item in create_items:
+        # Completion notes must never create a row keyed by their own slack_ts.
+        if should_skip_notion_create(
+            {"intencion": item.intencion, "task_update_processed": ""},
+            item.body,
+        ):
+            skipped += 1
+            continue
         existing = find_page_by_slack_ts(client, database_id, ds_id, prop_map["slack_ts"], item.slack_ts)
         payload = build_props(prop_map, item, set_default_status=(existing is None))
         if dry_run:
@@ -554,12 +649,21 @@ def main() -> int:
 
     print(f"Local notes ready: tasks/ideas={len(tasks_items)} learnings={len(learn_items)}")
 
-    t_created, t_updated, t_skipped = upsert_items(client, resolve_tasks_db_id(), tasks_items, args.dry_run)
-    l_created, l_updated, l_skipped = upsert_items(client, normalize_id(LEARNINGS_DB_ID), learn_items, args.dry_run)
+    completed, unmatched = complete_existing_tasks(
+        client, resolve_tasks_db_id(), tasks_items, args.dry_run
+    )
+    create_tasks = [n for n in tasks_items if n.intencion != INTENT_COMPLETAR]
+    t_created, t_updated, t_skipped = upsert_items(
+        client, resolve_tasks_db_id(), create_tasks, args.dry_run
+    )
+    l_created, l_updated, l_skipped = upsert_items(
+        client, normalize_id(LEARNINGS_DB_ID), learn_items, args.dry_run
+    )
 
     print(
         "Done. "
-        f"tasks(created={t_created}, updated={t_updated}, skipped={t_skipped}) "
+        f"tasks(created={t_created}, updated={t_updated}, skipped={t_skipped}, "
+        f"completed={completed}, unmatched_complete={unmatched}) "
         f"learnings(created={l_created}, updated={l_updated}, skipped={l_skipped})"
     )
     return 0

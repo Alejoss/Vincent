@@ -1,4 +1,4 @@
-"""Obsidian helpers for Slack task-update notes (Pipeline 3)."""
+"""Obsidian helpers for Slack task-update notes (completion path)."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from src.slack_inbox_obsidian import (
     resolve_input_dir,
     write_slack_message_note,
 )
-from src.slack_task_completion_gate import message_requests_complete
+from src.slack_task_intent import INTENT_COMPLETAR, normalize_intent
 
-TASK_UPDATE_SKIP_STATUSES = frozenset({"true", "yes", "1", "unmatched", "ignored", "failed"})
+TASK_UPDATE_SKIP_STATUSES = frozenset({"true", "yes", "1", "unmatched", "ignored", "failed", "applied"})
 
 
 def frontmatter_flag(value: str) -> str:
@@ -33,12 +33,27 @@ def slack_plain_for_gate(body: str) -> str:
     return text
 
 
-def should_skip_productivity_classify(fm: Dict[str, str], body: str) -> bool:
-    """Skip classifier when Pipeline 3 already handled or text is a completion instruction."""
+def note_intent(fm: Dict[str, str]) -> str:
+    return normalize_intent(frontmatter_flag(fm.get("intencion", "")))
+
+
+def should_skip_productivity_classify(fm: Dict[str, str], body: str = "") -> bool:
+    """Skip classifier only when a completion update was already applied."""
+    del body  # kept for call-site compatibility
+    return is_task_update_processed(fm.get("task_update_processed", ""))
+
+
+def should_skip_notion_create(fm: Dict[str, str], body: str = "") -> bool:
+    """
+    Do not upsert a new Notion row for this slack_ts when the note is a
+    completion of an *existing* task (or already applied as task update).
+    """
     if is_task_update_processed(fm.get("task_update_processed", "")):
         return True
-    plain = slack_plain_for_gate(body)
-    return message_requests_complete(plain)
+    if note_intent(fm) == INTENT_COMPLETAR:
+        return True
+    del body
+    return False
 
 
 def _quote_yaml(value: str) -> str:
@@ -133,6 +148,35 @@ def mark_task_update_note(
     )
     if not path:
         return False
+    if dry_run:
+        return True
+    if not path.is_file():
+        return False
+    raw = path.read_text(encoding="utf-8")
+    fm, body = _parse_frontmatter(raw)
+    fm["task_update_processed"] = _quote_yaml(status)
+    fm["task_update_action"] = _quote_yaml(action)
+    if page_id:
+        fm["task_update_notion_page"] = _quote_yaml(page_id)
+    fm["task_update_model"] = _quote_yaml(model_label)
+    fm["task_update_actualizada"] = _quote_yaml(datetime.now(tz=timezone.utc).isoformat())
+    if reason:
+        fm["task_update_razon"] = _quote_yaml(reason[:500])
+    path.write_text(_compose_note(fm, body), encoding="utf-8", newline="\n")
+    return True
+
+
+def mark_note_path_task_update(
+    path: Path,
+    *,
+    status: str,
+    action: str,
+    page_id: str,
+    model_label: str,
+    reason: str,
+    dry_run: bool = False,
+) -> bool:
+    """Write task_update_* on an existing classified note path."""
     if dry_run:
         return True
     if not path.is_file():

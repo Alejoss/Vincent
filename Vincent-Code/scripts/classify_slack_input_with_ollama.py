@@ -3,7 +3,9 @@ Classify Slack productivity notes in Obsidian with a local or cloud LLM.
 
 Purpose
 - Convert raw Slack captures into structured productivity entries.
-- Produce stable metadata used by the Notion sync script.
+- Produce stable metadata used by the Notion sync script, including
+  `intencion` (`nueva` | `completar`) so completions close existing tasks
+  instead of creating duplicates.
 
 LLM backend (env LLM_PROVIDER=openai|groq|ollama|auto):
 - auto: OPENAI_API_KEY -> OpenAI; GROQ_API_KEY -> Groq; else local Ollama
@@ -30,6 +32,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from src.llm_client import LLMConfig, build_llm_config, call_json, ollama_is_reachable, validate_llm_config
 from src.slack_inbox_obsidian import default_input_rel_dir, resolve_input_dir
+from src.slack_task_intent import INTENT_COMPLETAR, INTENT_NUEVA, resolve_intent
 from src.slack_task_update_obsidian import is_task_update_processed, should_skip_productivity_classify
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text
 
@@ -162,10 +165,12 @@ def _build_classified_body(
     titulo_corto: str,
     recordatorio_slack: str,
     slack_plain: str,
+    intencion: str = INTENT_NUEVA,
 ) -> str:
     rec_line = (recordatorio_slack or "").strip() or "N/A"
     parts = [
         f"Tipo de entrada: {tipo}",
+        f"Intencion: {intencion}",
         f"Proyecto: {proyecto}",
         f"Referencia temporal: {referencia_temporal or 'N/A'}",
         f"Fecha objetivo: {fecha_objetivo or 'N/A'}",
@@ -181,18 +186,24 @@ def _build_classified_body(
 
 def _build_prompt(note_text: str) -> str:
     return (
-        "Clasifica la siguiente nota en EXACTAMENTE una categoria y un proyecto.\n"
+        "Clasifica la siguiente nota en EXACTAMENTE una categoria, un proyecto y una intencion.\n"
         "Categorias validas: Tarea, Idea, Aprendizaje.\n"
+        "Intenciones validas: nueva, completar.\n"
         "Proyectos validos (elige SOLO uno):\n"
         "- Creacion de Contenido\n"
         "- Desarrollo de Software para Academia Blockchain\n"
         "- Desarrollo de Software para Vincent\n"
         "- General - Otros\n"
         "Reglas:\n"
-        "- Tarea: accion concreta, pendiente, seguimiento o compromiso ejecutable.\n"
+        "- Tarea: accion concreta, pendiente, seguimiento, cierre de pendiente, o compromiso ejecutable.\n"
         "- Idea: propuesta, posibilidad, concepto a explorar, sin accion inmediata.\n"
         "- Aprendizaje: insight, leccion, conclusion o conocimiento adquirido.\n"
-        "- Si hay mezcla, elige la intencion principal.\n"
+        "- intencion=completar: el mensaje cierra una tarea EXISTENTE. Ejemplos: "
+        "'Ya completé la tarea de X', 'Marca como completada Y', 'Terminé la tarea de Z'.\n"
+        "- intencion=nueva: crea un pendiente o compromiso futuro. Ejemplos: "
+        "'Debo anunciar X', 'Tengo que terminar Y esta semana'.\n"
+        "- Si tipo es Idea o Aprendizaje, intencion casi siempre es nueva.\n"
+        "- Si hay mezcla, elige la intencion principal del mensaje.\n"
         "- Si no hay suficiente contexto de proyecto, usa General - Otros.\n"
         "- Detecta referencias temporales relevantes para ejecucion o cierre, por ejemplo: "
         "hoy, manana, esta semana, la proxima semana, el proximo mes, el 21 de abril.\n"
@@ -204,13 +215,15 @@ def _build_prompt(note_text: str) -> str:
         "- titulo_corto:\n"
         f"  Titular en español, maximo {MAX_TITLE_CHARS} caracteres, frase COMPLETA.\n"
         "  Lee toda la transcripcion y sintetiza; no copies solo el inicio.\n"
+        "  Si intencion=completar, describe la tarea que se cierra (sin 'ya completé' ni 'marcar como').\n"
         "  Sin comillas, sin '...', sin saltos de linea.\n"
-        "- recordatorio_slack: si tipo es Aprendizaje, cadena vacia. Si es Tarea o Idea, "
-        "UNA sola pregunta en español en segunda persona (tu), maximo 130 caracteres, "
-        "como recordatorio conversacional del dia del vencimiento (ej. titulo sobre responder a alguien -> "
-        "¿Ya le respondiste a...?). Debe terminar en un solo signo de interrogacion. Sin markdown ni comillas.\n"
+        "- recordatorio_slack: vacio si tipo es Aprendizaje o intencion=completar. "
+        "Si es Tarea/Idea con intencion=nueva, UNA sola pregunta en español en segunda persona (tu), "
+        "maximo 130 caracteres, como recordatorio conversacional del dia del vencimiento "
+        "(ej. titulo sobre responder a alguien -> ¿Ya le respondiste a...?). "
+        "Debe terminar en un solo signo de interrogacion. Sin markdown ni comillas.\n"
         "Responde SOLO JSON valido con esta forma exacta:\n"
-        '{"tipo":"Tarea|Idea|Aprendizaje","proyecto":"...","titulo_corto":"...",'
+        '{"tipo":"Tarea|Idea|Aprendizaje","intencion":"nueva|completar","proyecto":"...","titulo_corto":"...",'
         '"referencia_temporal":"...","fecha_objetivo":"YYYY-MM-DD|","recordatorio_slack":"...",'
         '"confianza":0.0,"razon":"..."}\n'
         "Nota:\n"
@@ -406,9 +419,9 @@ def _normalize_project(value: str) -> str:
     return ""
 
 
-def _sanitize_reminder_line(raw: str, tipo: str) -> str:
+def _sanitize_reminder_line(raw: str, tipo: str, intencion: str = INTENT_NUEVA) -> str:
     s = (raw or "").strip().replace("\n", " ").replace('"', "").strip()
-    if tipo == "Aprendizaje":
+    if tipo == "Aprendizaje" or intencion == INTENT_COMPLETAR:
         return ""
     if len(s) > 200:
         s = s[:197].rstrip() + "..."
@@ -417,12 +430,20 @@ def _sanitize_reminder_line(raw: str, tipo: str) -> str:
     return s
 
 
-def _reminder_from_title_llm(config: LLMConfig, titulo_corto: str, tipo: str, timeout_s: int) -> str:
+def _reminder_from_title_llm(
+    config: LLMConfig,
+    titulo_corto: str,
+    tipo: str,
+    timeout_s: int,
+    intencion: str = INTENT_NUEVA,
+) -> str:
+    if intencion == INTENT_COMPLETAR:
+        return ""
     if tipo not in {"Tarea", "Idea"} or not (titulo_corto or "").strip():
         return ""
     try:
         obj = _call_llm(config, _build_reminder_from_title_prompt(titulo_corto, tipo), timeout_s)
-        return _sanitize_reminder_line(str(obj.get("recordatorio_slack", "")), tipo)
+        return _sanitize_reminder_line(str(obj.get("recordatorio_slack", "")), tipo, intencion)
     except Exception:
         return ""
 
@@ -431,13 +452,17 @@ def _classify_text(
     config: LLMConfig,
     note_text: str,
     timeout_s: int,
-) -> Tuple[str, str, str, str, str, str, float, str]:
+) -> Tuple[str, str, str, str, str, str, str, float, str]:
     prompt = _build_prompt(note_text)
     obj = _call_llm(config, prompt, timeout_s)
 
     tipo = _normalize_type(str(obj.get("tipo", "")))
     if not tipo:
         raise ValueError(f"Invalid tipo from model: {obj.get('tipo')!r}")
+    intencion = resolve_intent(note_text, str(obj.get("intencion", "")))
+    if tipo in {"Idea", "Aprendizaje"} and intencion == INTENT_COMPLETAR:
+        # Completions only make sense against executable task rows.
+        tipo = "Tarea"
     proyecto = _normalize_project(str(obj.get("proyecto", "")))
     if not proyecto:
         raise ValueError(f"Invalid proyecto from model: {obj.get('proyecto')!r}")
@@ -456,10 +481,22 @@ def _classify_text(
 
     titulo_corto = _normalize_title_line(str(obj.get("titulo_corto", "")))
 
-    recordatorio_slack = _sanitize_reminder_line(str(obj.get("recordatorio_slack", "")), tipo)
+    recordatorio_slack = _sanitize_reminder_line(
+        str(obj.get("recordatorio_slack", "")), tipo, intencion
+    )
 
     razon = str(obj.get("razon", "")).strip()
-    return tipo, proyecto, titulo_corto, referencia_temporal, fecha_objetivo, recordatorio_slack, confidence, razon
+    return (
+        tipo,
+        intencion,
+        proyecto,
+        titulo_corto,
+        referencia_temporal,
+        fecha_objetivo,
+        recordatorio_slack,
+        confidence,
+        razon,
+    )
 
 
 def _iter_slack_notes(diario_root: str) -> List[Path]:
@@ -576,21 +613,32 @@ def main() -> int:
         slack_plain = _extract_slack_plain(body) or note_text
 
         try:
-            tipo, proyecto, titulo_corto, referencia_temporal, fecha_objetivo, recordatorio_slack, conf, razon = _classify_text(
-                llm, slack_plain, args.timeout
-            )
+            (
+                tipo,
+                intencion,
+                proyecto,
+                titulo_corto,
+                referencia_temporal,
+                fecha_objetivo,
+                recordatorio_slack,
+                conf,
+                razon,
+            ) = _classify_text(llm, slack_plain, args.timeout)
         except Exception as e:
             failed += 1
             log.info(f"[error] {path.name}: {e}")
             continue
 
         fm["tipo"] = _quote_yaml(tipo)
+        fm["intencion"] = _quote_yaml(intencion)
         fm["proyecto"] = _quote_yaml(proyecto)
         fm["referencia_temporal"] = _quote_yaml(referencia_temporal)
         anchor = anchor_date(fm.get("message_at", "").strip().strip('"'), fm.get("slack_ts", "").strip().strip('"'))
         fecha_objetivo = clamp_due_iso(fecha_objetivo, anchor)
         if not fecha_objetivo:
             fecha_objetivo = infer_due_from_text(slack_plain, anchor)
+        if intencion == INTENT_COMPLETAR:
+            fecha_objetivo = ""
         fm["fecha_objetivo"] = _quote_yaml(fecha_objetivo)
         titulo_corto = _resolve_titulo_corto(
             llm,
@@ -600,9 +648,15 @@ def main() -> int:
             args.timeout,
         )
         fm["titulo_corto"] = _quote_yaml(titulo_corto)
-        if tipo in {"Tarea", "Idea"} and not (recordatorio_slack or "").strip():
-            recordatorio_slack = _reminder_from_title_llm(llm, titulo_corto, tipo, args.timeout)
-        if tipo == "Aprendizaje":
+        if (
+            tipo in {"Tarea", "Idea"}
+            and intencion == INTENT_NUEVA
+            and not (recordatorio_slack or "").strip()
+        ):
+            recordatorio_slack = _reminder_from_title_llm(
+                llm, titulo_corto, tipo, args.timeout, intencion
+            )
+        if tipo == "Aprendizaje" or intencion == INTENT_COMPLETAR:
             recordatorio_slack = ""
         fm["recordatorio_slack"] = _quote_yaml(recordatorio_slack)
         fm["clasificacion_confianza"] = f"{conf:.2f}"
@@ -611,13 +665,23 @@ def main() -> int:
         if razon:
             fm["clasificacion_razon"] = _quote_yaml(razon[:500])
         body_with_headers = _build_classified_body(
-            tipo, proyecto, referencia_temporal, fecha_objetivo, titulo_corto, recordatorio_slack, slack_plain
+            tipo,
+            proyecto,
+            referencia_temporal,
+            fecha_objetivo,
+            titulo_corto,
+            recordatorio_slack,
+            slack_plain,
+            intencion,
         )
         target_dir = _target_dir_for_type(diario_root, tipo)
         target_path = target_dir / path.name
 
         if args.dry_run:
-            log.info(f"[dry-run] {path.name}: {tipo} | {proyecto} | {titulo_corto!r} ({conf:.2f}) -> {target_dir.name}")
+            log.info(
+                f"[dry-run] {path.name}: {tipo}/{intencion} | {proyecto} | "
+                f"{titulo_corto!r} ({conf:.2f}) -> {target_dir.name}"
+            )
             processed += 1
             continue
 
@@ -627,7 +691,9 @@ def main() -> int:
             if target_path.exists():
                 target_path.unlink()
             shutil.move(str(path), str(target_path))
-        log.info(f"[ok] {path.name}: {tipo} | {proyecto} | {titulo_corto!r} ({conf:.2f})")
+        log.info(
+            f"[ok] {path.name}: {tipo}/{intencion} | {proyecto} | {titulo_corto!r} ({conf:.2f})"
+        )
         processed += 1
 
     log.info(f"Done. processed={processed} skipped={skipped} failed={failed}")

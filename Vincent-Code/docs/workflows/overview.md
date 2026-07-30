@@ -6,10 +6,12 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 ┌─────────────────────────────────────────────────────────────────┐
 │  PIPELINE 1 — Entrada (Slack → Notion)                          │
 │                                                                 │
-│  Slack DM  →  Obsidian  →  LLM (clasificar)  →  Notion       │
+│  Slack DM  →  Obsidian  →  LLM (tipo + intencion)  →  Notion │
+│    intencion=nueva      → crea/actualiza fila                   │
+│    intencion=completar  → cierra tarea existente (Hecho)        │
 │                                                                 │
 │  Script: run_productivity_pipeline.bat (local, todo junto)      │
-│  GHA: 4 workflows escalonados (:00 → :15 → :30 → :45 UTC)       │
+│  GHA: workflows escalonados (:00 → :40 → :42 → :45 UTC)         │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -17,7 +19,8 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  PIPELINE 3 — Completadas (Slack → Notion, frase explícita)     │
+│  PIPELINE 3 — Completadas (Slack directo, misma intención)      │
+│  Red de seguridad; classify+sync es el camino preferido         │
 │  Script: run_slack_task_updates.sh · GHA: slack-task-updates    │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -33,13 +36,14 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 | Hora UTC | Workflow | Paso |
 |----------|----------|------|
 | `:00` | `productivity-pipeline.yml` | Ingesta Slack → Obsidian |
-| `:40` | `slack-task-updates.yml` | Completadas (gate estricto) |
-| `:42` | `productivity-classify-notion.yml` | Clasificar + sync Notion |
+| `:40` | `slack-task-updates.yml` | Completadas (intent detector, Slack directo) |
+| `:42` | `productivity-classify-notion.yml` | Clasificar (`intencion`) + sync Notion |
 | `:45` | `notion-reminders.yml` | Recordatorios |
 
 Equivalente aprox. Ecuador (UTC−5): 3:00 / 3:40 / 3:42 / 3:45 · 9:00 / 9:40 / 9:42 / 9:45 · 15:00 / 15:40 / 15:42 / 15:45.
 
-Clasificar corre **después** de completadas para que las notas Input queden marcadas antes.
+Clasificar+sync también aplica `intencion=completar` (cierra la tarea abierta; no crea duplicado).
+
 
 ## Cuándo correr cada uno
 
@@ -63,7 +67,7 @@ Clasificar corre **después** de completadas para que las notas Input queden mar
 ## Documentación detallada
 
 - [Slack → Notion](slack-to-notion.md) — ingesta, títulos, fechas, reset
-- [Completadas Slack → Notion](slack-task-updates.md) — gate estricto, audit, cursor
+- [Completadas Slack → Notion](slack-task-updates.md) — intención completar, audit, cursor
 - [Notion → Slack](notion-to-slack-reminders.md) — recordatorios por vencimiento
 - [Plan: completado de tareas Slack](slack-task-completion-plan.md) — fases de fix (Pipeline 3)
 - [Programador de tareas](../operations/windows-scheduler.md)
@@ -71,4 +75,9 @@ Clasificar corre **después** de completadas para que las notas Input queden mar
 ## Otros flujos (no son estos dos pipelines)
 
 - Email diario: [daily-email.md](daily-email.md)
-- Transcripciones YouTube/RSS: `main.py` (ver README raíz)
+- Newsletter SMTP2GO: [newsletter-smtp2go.md](newsletter-smtp2go.md)
+- Transcripciones YouTube (OAuth): [youtube-channel-transcripts.md](youtube-channel-transcripts.md)
+- Transcripciones locales (Whisper): [local-video-transcripts.md](local-video-transcripts.md)
+- Extracción de conocimiento: [own-transcript-knowledge.md](own-transcript-knowledge.md)
+- Knowledge por tema (transcripts → embeddings → Qdrant → ack): [topic-embeddings.md](topic-embeddings.md)
+- Transcripts por tema (Sophia): [topic-transcripts-sophia.md](topic-transcripts-sophia.md)
