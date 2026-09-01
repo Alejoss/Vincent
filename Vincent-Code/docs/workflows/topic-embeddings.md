@@ -10,6 +10,25 @@ Pipeline end-to-end para un tema de Academia Blockchain:
 
 Las **IMAGE** se excluyen. TEXT/descripción van a Qdrant vía SQLite local; el ACK de Sophia solo aplica a VIDEO/AUDIO con transcript.
 
+Contrato en Sophia.AI (fuente de verdad del API): [qdrant-embeddings.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/operations/qdrant-embeddings.md) · RAG chat: [topic-rag-chat.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/operations/topic-rag-chat.md).
+
+---
+
+## División de trabajo (Vincent vs Sophia)
+
+Coherente con el código actualizado y con la doc de Sophia: **Vincent crea y escribe los vectores de contenido; Sophia no indexa transcripts.**
+
+| Rol | Vincent (este repo) | Sophia.AI |
+|-----|---------------------|-----------|
+| Transcripts VIDEO/AUDIO | Worker `transcript-ingest` (Whisper / captions) | Cola + `ContentTranscript` en Postgres |
+| Embeddings de **contenido** (chunks) | OpenAI `text-embedding-3-large` (3072 dims) | **No.** No guarda vectores en Django |
+| Escritura Qdrant | Upsert a `sophia_acbc_topic_chunks` | No escribe puntos. `check_qdrant --ensure-collection` solo crea la colección vacía |
+| Bookkeeping | Tabla local `qdrant_sync` | `PUT /api/content/embedding-ingest/{id}/` → `indexed` / `failed` / `skipped` |
+| Lectura Qdrant | Query local opcional (`query_topic_embeddings.py`) | RAG: busca filtrando `topic_id` |
+| Embeddings de **pregunta** (query) | Solo en el chat local | Sí, al `POST .../topics/{id}/chat/` (mismo modelo, para buscar; no re-embebe transcripts) |
+
+Auth del worker: la misma key que transcripts (`TRANSCRIPT_INGEST_API_KEY`, header `X-Transcript-Ingest-Key` o `Authorization: Bearer`).
+
 ---
 
 ## Resumen de scripts
@@ -185,7 +204,7 @@ OLLAMA_MODEL=dolphin-llama3:8b
 QDRANT_URL=https://….aws.cloud.qdrant.io
 QDRANT_API_KEY=...
 QDRANT_COLLECTION=sophia_acbc_topic_chunks
-QDRANT_VECTOR_SIZE=3072
+QDRANT_VECTOR_SIZE=3072                  # esperado (3-large); Vincent infiere dims del vector al upsert
 ```
 
 ---
@@ -193,3 +212,12 @@ QDRANT_VECTOR_SIZE=3072
 ## Relación con Knowledge Engine
 
 No re-extrae `knowledge_items`. Solo reutiliza transcripts locales ya indexados. La extracción estructurada es un pipeline aparte: [own-transcript-knowledge.md](own-transcript-knowledge.md).
+
+## Relación con Sophia.AI
+
+| Doc Sophia | Qué cubre |
+|------------|-----------|
+| [qdrant-embeddings.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/operations/qdrant-embeddings.md) | API `embedding-ingest` (cola + ack) y payload Qdrant |
+| [topic-rag-chat.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/operations/topic-rag-chat.md) | Chat autenticado: embebe la **pregunta**, busca en Qdrant, no indexa transcripts |
+| [transcript-ingest.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/api/transcript-ingest.md) | Cola + PUT de transcripts (paso previo) |
+| [environment-variables.md](https://github.com/Alejoss/Sophia.AI/blob/main/docs/deployment/environment-variables.md) | `QDRANT_*`, `OPENAI_EMBEDDING_MODEL`, `TRANSCRIPT_INGEST_API_KEY` |
