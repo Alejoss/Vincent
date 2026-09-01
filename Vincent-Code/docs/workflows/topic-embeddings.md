@@ -156,15 +156,28 @@ La fuente de verdad sigue siendo Sophia. Notion es una **copia queryable** para 
 
 No reutilices el checkbox **Embeddings Ready** de Processed Transcripts (pipeline YouTube/Obsidian). Esta base es **una fila por tema de Sophia**.
 
-1. Crea la base (o deja que el script la cree bajo una página tuya):
+La base ya existe bajo **Vincent → Procesamiento de Videos**:
+
+- URL: https://www.notion.so/9dc0455d716344c68c207ee4011ad2e1
+- ID: `9dc0455d716344c68c207ee4011ad2e1`
+- Vistas: **Por bucket** (board) y **Needs embeddings** (tabla filtrada)
+
+No la confundas con **Topic Embeddings** (tablero del pipeline local: Embed Local / Qdrant / Sophia ACK). Esta es la copia de estado que Sophia reporta.
+
+1. En `.env` de la laptop:
+
+```
+NOTION_EMBEDDING_STATUS_DATABASE_ID=9dc0455d716344c68c207ee4011ad2e1
+```
+
+Si hace falta recrearla bajo otra página:
 
 ```powershell
-# Crea la DB bajo una página de Notion y escribe el id
 .\venv\Scripts\python.exe scripts\sync_topic_embedding_status_to_notion.py --create-under-page PAGE_ID
 # Copia NOTION_EMBEDDING_STATUS_DATABASE_ID=... a .env
 ```
 
-2. Comparte la base con la integración que usa `NOTION_API_TOKEN`.
+2. Comparte la base con la integración que usa `NOTION_API_TOKEN` (Connections → Vincent).
 3. Sincroniza (laptop / scheduler):
 
 ```powershell
