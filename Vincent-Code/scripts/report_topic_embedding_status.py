@@ -31,9 +31,8 @@ if str(PROJECT_ROOT) not in sys.path:
 load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 from src.embeddings.status_report import (  # noqa: E402
-    content_rows_for_topic,
+    collect_topic_status,
     count_embedding_statuses,
-    topic_summary_row,
 )
 from src.embeddings.store import EmbeddingStore  # noqa: E402
 from src.pipeline_logging import setup_pipeline_logging  # noqa: E402
@@ -45,7 +44,6 @@ from src.sophia_topics import SophiaTopicsClient  # noqa: E402
 
 REPORT_DIR = PROJECT_ROOT / "cache" / "topic_embeddings" / "reports"
 DEFAULT_DB = PROJECT_ROOT / "cache" / "topic_embeddings" / "state.sqlite3"
-AV_TYPES = ("VIDEO", "AUDIO")
 
 
 def _now() -> str:
@@ -107,46 +105,29 @@ def run(args: argparse.Namespace) -> int:
         topics = topics_client.list_topics()
         log.info("Public topics: %s", len(topics))
 
-    topic_rows: list[dict[str, Any]] = []
-    content_rows: list[dict[str, Any]] = []
-    buckets: dict[str, list[str]] = defaultdict(list)
-
-    for topic in topics:
-        topic_id = int(topic["id"])
-        title = topic.get("title") or f"topic-{topic_id}"
-        try:
-            items = sophia.list_queue_all(
-                topic_id=topic_id,
-                include_completed=True,
-            )
-        except SophiaEmbeddingIngestError as exc:
-            log.error("Queue topic %s failed: %s", topic_id, exc)
-            return 1
-
-        av_count = len(items)
-        if not args.skip_av_count:
-            av_contents = topics_client.list_topic_contents(
-                topic_id, media_types=AV_TYPES
-            )
-            av_count = len(av_contents)
-
-        row = topic_summary_row(
-            topic=topic,
-            av_count=av_count,
-            items=items,
+    try:
+        topic_rows, content_rows = collect_topic_status(
+            topics_client,
+            sophia,
+            topics,
+            skip_av_count=args.skip_av_count,
         )
+    except SophiaEmbeddingIngestError as exc:
+        log.error("Queue fetch failed: %s", exc)
+        return 1
+
+    buckets: dict[str, list[str]] = defaultdict(list)
+    for row in topic_rows:
         if args.include_local:
-            overlay = _local_overlay(db_path, topic_id)
+            overlay = _local_overlay(db_path, int(row["topic_id"]))
             if overlay:
                 row["local"] = overlay
-        topic_rows.append(row)
-        content_rows.extend(content_rows_for_topic(topic_id, items))
-        buckets[row["bucket"]].append(f"#{topic_id} {title}")
-
+        title = row.get("title") or f"topic-{row['topic_id']}"
+        buckets[row["bucket"]].append(f"#{row['topic_id']} {title}")
         log.info(
             "  [%s] #%s %s | av=%s transcribed=%s indexed=%s pending=%s stale=%s failed=%s missing_tx=%s",
             row["bucket"],
-            topic_id,
+            row["topic_id"],
             title[:50],
             row["av_count"],
             row["transcribed_count"],

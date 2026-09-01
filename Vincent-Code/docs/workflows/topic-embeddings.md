@@ -37,6 +37,7 @@ Auth del worker: la misma key que transcripts (`TRANSCRIPT_INGEST_API_KEY`, head
 |------|--------|-----|
 | **All-in-one** | `scripts/run_topic_knowledge_pipeline.py` | Orquesta 0→3 en orden |
 | **Status** | `scripts/report_topic_embedding_status.py` | Qué temas/contenidos están `indexed` vs pending/stale/failed |
+| **Notion board** | `scripts/sync_topic_embedding_status_to_notion.py` | Copia el status a Notion para agentes Cursor |
 | 0 | `scripts/map_topic_embedding_volume.py` | Inventario de volumen (tokens / missing) |
 | 1 | `scripts/process_topic_transcripts.py` | Transcripts → Sophia + vault |
 | 2 | `scripts/embed_topic.py` | Chunk + embed → SQLite local |
@@ -148,6 +149,45 @@ Cola cruda (un tema, sin agrupar):
 ```
 
 El mapa de volumen (`map_topic_embedding_volume.py`) dice si hay **texto** local; no dice si Sophia ya ACK-eó `indexed`.
+
+### Tablero Notion (para agentes Cursor)
+
+La fuente de verdad sigue siendo Sophia. Notion es una **copia queryable** para Cloud Agents: una vez autenticado el MCP de Notion, el agente filtra `Bucket = needs_embeddings` sin llamar a embedding-ingest.
+
+No reutilices el checkbox **Embeddings Ready** de Processed Transcripts (pipeline YouTube/Obsidian). Esta base es **una fila por tema de Sophia**.
+
+1. Crea la base (o deja que el script la cree bajo una página tuya):
+
+```powershell
+# Crea la DB bajo una página de Notion y escribe el id
+.\venv\Scripts\python.exe scripts\sync_topic_embedding_status_to_notion.py --create-under-page PAGE_ID
+# Copia NOTION_EMBEDDING_STATUS_DATABASE_ID=... a .env
+```
+
+2. Comparte la base con la integración que usa `NOTION_API_TOKEN`.
+3. Sincroniza (laptop / scheduler):
+
+```powershell
+.\venv\Scripts\python.exe scripts\sync_topic_embedding_status_to_notion.py
+.\scripts\run_sync_topic_embedding_status_to_notion.bat --dry-run
+```
+
+4. En Cursor: autentica el **Notion MCP** en el environment de Cloud Agents y comparte la misma base con esa conexión. Después un agente puede preguntar “temas con Needs embeddings”.
+
+Propiedades de la base `Sophia Topic Embeddings`:
+
+| Propiedad | Tipo | Uso |
+|-----------|------|-----|
+| Name | title | Título del tema |
+| Topic ID | number | Clave de upsert |
+| Bucket | select | `needs_embeddings` / `ready` / `needs_transcripts` / `partial` / `skipped_only` / `no_av` |
+| Needs embeddings | checkbox | Hay pending/stale/failed |
+| Needs transcripts | checkbox | VIDEO/AUDIO sin transcript |
+| Ready | checkbox | Todo lo transcrito está indexed |
+| Indexed, Pending, Stale, Failed, Skipped | number | Conteos |
+| AV count, Transcribed, Missing transcripts | number | Cobertura |
+| Chat enabled / Chat can enable | checkbox | Flags Sophia |
+| Last synced | date | Última corrida del sync |
 
 ---
 

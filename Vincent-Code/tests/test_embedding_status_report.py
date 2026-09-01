@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from src.embeddings.status_report import (
     classify_topic,
+    collect_topic_status,
     content_rows_for_topic,
     count_embedding_statuses,
     needing_embed_count,
@@ -154,6 +155,72 @@ class ListTopicsClientTests(unittest.TestCase):
         ):
             topics = client.list_topics()
         self.assertEqual(topics[0]["title"], "X")
+
+
+class CollectTopicStatusTests(unittest.TestCase):
+    def test_joins_queue_and_av_count(self):
+        class Topics:
+            def list_topic_contents(self, topic_id, media_types=None):
+                return [{"id": 1}, {"id": 2}, {"id": 3}]
+
+        class Embed:
+            def list_queue_all(self, topic_id, include_completed=False):
+                self.include_completed = include_completed
+                return [
+                    {
+                        "id": 1,
+                        "media_type": "VIDEO",
+                        "original_title": "One",
+                        "embedding_status": "indexed",
+                    }
+                ]
+
+        topics = [{"id": 12, "title": "Bitcoin", "chat_enabled": False}]
+        topic_rows, content_rows = collect_topic_status(
+            Topics(), Embed(), topics, skip_av_count=False
+        )
+        self.assertEqual(len(topic_rows), 1)
+        self.assertEqual(topic_rows[0]["bucket"], "partial")
+        self.assertEqual(topic_rows[0]["av_count"], 3)
+        self.assertEqual(topic_rows[0]["transcribed_count"], 1)
+        self.assertEqual(len(content_rows), 1)
+
+
+class NotionPropertyTests(unittest.TestCase):
+    def test_row_to_properties_and_missing_schema(self):
+        from src.embeddings.notion_status import (
+            missing_schema_properties,
+            row_to_properties,
+        )
+
+        row = {
+            "topic_id": 12,
+            "title": "Bitcoin",
+            "bucket": "needs_embeddings",
+            "needs_embeddings": True,
+            "needs_transcripts": False,
+            "ready": False,
+            "indexed": 1,
+            "pending": 2,
+            "stale": 0,
+            "failed": 0,
+            "skipped": 0,
+            "av_count": 3,
+            "transcribed_count": 3,
+            "missing_transcripts": 0,
+            "chat_enabled": False,
+            "chat_can_enable": True,
+        }
+        props = row_to_properties(row)
+        self.assertEqual(props["Topic ID"]["number"], 12)
+        self.assertEqual(props["Bucket"]["select"]["name"], "needs_embeddings")
+        self.assertTrue(props["Needs embeddings"]["checkbox"])
+        self.assertEqual(props["Name"]["title"][0]["text"]["content"], "Bitcoin")
+
+        missing = missing_schema_properties({"Name": {"type": "title"}})
+        self.assertIn("Topic ID", missing)
+        self.assertIn("Bucket", missing)
+        self.assertNotIn("Name", missing)
 
 
 if __name__ == "__main__":

@@ -126,3 +126,32 @@ def content_rows_for_topic(
             }
         )
     return rows
+
+
+def collect_topic_status(
+    topics_client: Any,
+    embedding_client: Any,
+    topics: list[dict[str, Any]],
+    *,
+    skip_av_count: bool = False,
+    av_types: tuple[str, ...] = ("VIDEO", "AUDIO"),
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Fetch embedding-ingest + optional AV counts; return (topic_rows, content_rows)."""
+    topic_rows: list[dict[str, Any]] = []
+    content_rows: list[dict[str, Any]] = []
+    for topic in topics:
+        topic_id = int(topic["id"])
+        items = embedding_client.list_queue_all(
+            topic_id=topic_id,
+            include_completed=True,
+        )
+        av_count = len(items)
+        if not skip_av_count:
+            av_contents = topics_client.list_topic_contents(
+                topic_id, media_types=av_types
+            )
+            av_count = len(av_contents)
+        row = topic_summary_row(topic=topic, av_count=av_count, items=items)
+        topic_rows.append(row)
+        content_rows.extend(content_rows_for_topic(topic_id, items))
+    return topic_rows, content_rows
