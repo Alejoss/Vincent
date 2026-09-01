@@ -1,0 +1,11 @@
+---
+title: "El patrón GLOBAL contra el efectivo"
+source_url: "https://www.youtube.com/watch?v=OvfLUGoW7Oo"
+source_type: "Own Video"
+uploaded_date: "2026-04-17T20:40:58Z"
+processed_date: "2026-06-05T22:39:21.798057"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . En México , Claudia Shinebound avanza con el plan de sus maestros pitiriteros y ha prohibido el efectivo en gasolineras , , el plan de remover el efectivo en todo el mundo avanza a pasos agigantados . en Argentina también , en bueno , en todos los países , incluso en Rusia , incluso en Irán , incluso en China , avanza la tecnocracia . Y miren , si es que ustedes sospechan de lo que les digo , investiguen sobre cómo avanza la agenda 2030 en Irán , cómo el sistema de puntaje funciona ya en Rusia y sobre todo en China . Todos los países están de una manera armónica implementando este sistema de efectivo de dinero electrónico y están retirando el efectivo . ¿ No les parece curioso esta armonicidad entre las voluntades de régimenes que están supuestamente en lados opuestos o son contrarios en la guerra incluso ? Y es que al igual que con la pandemia en la cual todos actuaron de manera armónica y hicieron lo mismo con el plan de pasarnos a un sistema de dinero electrónico , también todos están haciendo lo mismo , están actuando en Thunder . Quizás la guerra es solamente para eso , para tenernos distraídos con un teatro sangriento que claro les va a dar su tercer templo . Pero en el fondo la guerra es para catalizar un cambio . La guerra es la mejor manera de catalizar un cambio en la civilización y ese cambio será hacia el dinero electrónico . ¿ Qué podemos hacer ? Podemos hacer comunidades de trueque , sin duda . Podemos utilizar efectivo el mayor tiempo que nos permita la opresión , pero en el fondo es más cómodo el pago electrónico y en vez de irnos en contra de la ola , lo único que podemos hacer realmente es irnos a favor de ella , saber surfearla . y cómo la surfeamos con dinero electrónico descentralizado . Y para eso estoy acá ya más de 10 años hablando sobre este tema porque es la única salida que tenemos . Ah .

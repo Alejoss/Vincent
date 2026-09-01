@@ -1,0 +1,10 @@
+Match estricto portada ↔ PDF
+Covers: 517 | PDFs indexados con título: 3576
+Umbrales: auto_title>=92.0, review_title>=85.0, auto_author>=50.0
+
+  AUTO:       8
+  REVIEW:     4
+  NO_MATCH:   505
+  SKIP_EMPTY: 0
+
+CSV: E:\Vincent\Vincent-Code\scripts\book_cover_match\output\title_match_strict_latest.csv

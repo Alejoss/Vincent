@@ -1,0 +1,11 @@
+---
+title: "Maduro y Trump nos ayudan… ¿a pensar diferente?"
+source_url: "https://www.youtube.com/watch?v=nCjLA-qmtsE"
+source_type: "Own Video"
+uploaded_date: "2026-01-21T15:09:43Z"
+processed_date: "2026-07-02T17:12:25.233468"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Donald Trump le extrajo Nicolás Maduro de Venezuela sin la aprobación del Congreso. El mundo continuó su ritmo. ¿Dónde quedó la soberanía de Venezuela? ¿Dónde quedó la potestad del Congreso de Estados Unidos? Y es que estamos viviendo una época muy importante, una época de revelaciones. En esta época se caen mitos, ilusiones que han estado en nuestras mentes por cientos de años. Una de esas ilusiones es la ilusión de soberanía. Nos llegó quizás en 1648 con los tratados de Westfalia. Después de la guerra de los 80 años, la guerra de los 30 años, quedaron en el mundo países con estados que supuestamente no interfieren en sus asuntos y hay unos silos de poder que se llaman estados, tienen sus reyes o tienen sus presidentes y estos no se meten en los asuntos de otros estados. Esta ilusión nunca ha existido, ni antes ni después de Westfalia. Sin embargo, tenemos esta ilusión insertada en nuestra mente. El poder no piensa en términos de países, mueve fichas que van más allá de esas líneas que nosotros vemos en el mapa. Pero si esto es cierto, si es que el presidente no tiene el poder y los países están para estar dibujados en el mapa y para que jueguen fútbol en el mundial. ¿Para qué votamos? No tiene ningún sentido ir a votar si es que tu presidente no tiene el poder sobre lo que pasa en tu país, sino que esas decisiones se toman en unas mesas muy oscuras a las cuales nunca vamos a tener acceso. Lo mejor entonces es dejar de votar, aceptar que los países no tienen soberanía y no solamente la realización de la conspiración está derrumbando todas estas ilusiones. El mundo se está dando cuenta de la realidad conspirativa. También la tecnología está borrando esas líneas por otro lado, porque nuestra relación no está anclada a ningún territorio. Nuestra relación como conectados a través del internet está en un no lugar y así es como se cae la ilusión de soberanía. Prepárense porque el terremoto va a ser grande. Un enorme abrazo.

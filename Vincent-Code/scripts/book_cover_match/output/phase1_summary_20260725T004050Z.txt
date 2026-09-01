@@ -1,0 +1,15 @@
+Fase 1 — match por nombre
+Covers: 517  |  PDFs: 3576
+  camera (skip): 145
+  matchable:     372
+
+Resultados (umbrales auto>=90.0, review>=75.0):
+  AUTO:      82  (22.0% de matchable)
+  REVIEW:    124  (33.3%)
+  NO_MATCH:  166  (44.6%)
+
+Cobertura total portadas (auto+review / all):
+  206/517 = 39.8%
+
+CSV: E:\Vincent\Vincent-Code\scripts\book_cover_match\output\phase1_matches_20260725T004050Z.csv
+JSON: E:\Vincent\Vincent-Code\scripts\book_cover_match\output\phase1_matches_20260725T004050Z.json

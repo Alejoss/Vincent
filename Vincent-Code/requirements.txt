@@ -5,6 +5,9 @@ notion-client>=2.7.0
 youtube-transcript-api>=0.6.1
 google-api-python-client>=2.100.0
 
+# Media download (YouTube/Odysee/etc → Whisper fallback)
+yt-dlp>=2024.1.0
+
 # Blog scraping
 trafilatura>=1.6.3
 feedparser>=6.0.10

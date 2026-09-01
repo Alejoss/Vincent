@@ -1,0 +1,11 @@
+---
+title: "El ‘precio justo’ es una ILUSIÓN peligrosa, el inicio del control. Intriga Anarquista Segunda."
+source_url: "https://www.youtube.com/watch?v=0el5MmZMXUA"
+source_type: "Own Video"
+uploaded_date: "2026-02-28T12:00:00Z"
+processed_date: "2026-06-05T22:40:02.233147"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola amigos , el día de hoy les traigo otra intriga anarquista . Una pregunta que es esencial y es la siguiente . ¿ De dónde vienen los precios de las cosas ? ¿ Existe o no existe un precio justo para las cosas y para los servicios ? Si es que sí existe un precio justo , entonces tenemos una razón para que el gobierno entre en el mercado a garantizar un respeto de el precio justo . Pero si es que el precio es subjetivo o como dicen algunos intersubjetivo , que emerge espontáneamente en los intercambios , entonces no necesitamos y últimamente es imposible que una autoridad entre en el mercado a garantizar precios justos . Les pongo una pregunta . Supongamos que yo necesito una persona que me ayude a editar los videos de academia blockchain . ¿ Cuánto debo pagarle ? Es una pregunta muy válida para cualquier youtuber que quiere más tiempo para sí mismo . ¿ Cuánto debo pagar a un editor de videos ? ¿ Debería acaso existir una autoridad como una secretaría de la defensa de los editores de videos que le asegure a la gente que esos editores de video estén siendo bien pagados ? ¿ Qué pasaría si es que dicta un precio de $ 100 por video ? Lo que pasaría es que muchos editores se quedarían sin trabajo y yo no podría contratar un editor de videos porque no tendría para pagarle . Así es como nos enfrentamos a que el estudio de la economía también es el estudio de la espontaneidad y de las relaciones de poder con el gobierno . Hay una lucha centenaria por la justificación de entrar en el mercado a regular los precios o no hacerlo . Que se asigne el gobierno a sí mismo . Yo soy capaz de decir cuál es un precio justo . Pero , ¿ qué tipo de idealismos nos están acompañando el momento en que dictamos que el precio justo de la leche es tal o el precio justo de una edición de video es $ o $ 10 o 5 ? ¿ Quién debe dictar eso ? Tenemos que dejar que alguien dicte eso .

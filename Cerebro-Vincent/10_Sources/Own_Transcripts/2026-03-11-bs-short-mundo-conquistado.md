@@ -1,0 +1,11 @@
+---
+title: "BS Short Mundo Conquistado"
+source_url: "file:///E:/Buho%20Serpiente/39_short_mundo_conquistado/BS%20Short%20Mundo%20Conquistado_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-03-11T23:10:54.897342+00:00"
+processed_date: "2026-06-06T02:32:18.009560"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola amigos del búho y la serpiente . El día de hoy les traigo un mensaje corto pero muy importante ya que suenan tambores de guerra en todo el mundo . Y el mensaje es sencillo , el mundo ya fue conquistado . Durante el siglo XIX y el siglo XX la mafia de judíos luciferianos detrás del imperio británico conquistó el mundo . He hecho varios documentales al respecto . Les recomiendo uno en específico llamado la infiltración que está en este canal . Y es que por poner un ejemplo , la India fue conquistada por el imperio británico . Un imperio capaz de cometer varios genocidios . ¿ Ustedes creen que retrocedió y dejó a la India libre porque Gandhi salió a decir váyanse británicos ? No . El imperio dejó una carcasa , una máscara de soberanía y puso un líder con una cara hindú en la cual el pueblo se puede reflejar . Pero nunca soltó el poder sobre la India . Y es que las mafias no piensan en términos de países . Esas líneas en el mapa que parecen un juego de Risk son una cortina de humo para el pueblo . Lamentablemente el 99% de los analistas geopolíticos , incluyendo aquellos que dicen estudiar la conspiración , hablan en términos de la India busca tal cosa o China quiere esto , Rusia quiere esto y le dotan de voluntad a los países cuando en verdad las mafias no piensan en términos de países . Y es que si quitamos la cortina de humo de los países podemos apreciar la complejidad de las mafias y dejar de ver esta película que nos dice que China y Rusia quieren cosas y están luchando contra Estados Unidos . No . Rusia y China ya fueron conquistadas . Judíos financiaron la revolución bolchevique . Es importante estudiar la historia . Stalin murió señalando que médicos sionistas buscaban asesinarlo y décadas después Boris Yeltsin viajaba en el avión privado de David Rockefeller . Y ahora si es que seguimos el hilo del dinero que compra las armas nos encontramos con que China y Rusia armaron a Irán . Irán fue construido para que sea el mejor enemigo que el dinero puede comprar .

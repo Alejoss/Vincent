@@ -1,0 +1,11 @@
+---
+title: "BS Short Que han hecho con el Velo"
+source_url: "file:///E:/Buho%20Serpiente/46_short_velo/BS%20Short%20Que%20han%20hecho%20con%20el%20Velo_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-04-17T21:40:29.202445+00:00"
+processed_date: "2026-06-06T02:42:20.357032"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola amigos , ¿ cómo están ? Bienvenidos a un nuevo pequeño short de El Búho y la Serpiente . El día de hoy quiero conversarles sobre una idea . Si es que definimos , si es que investigamos suficiente , y nos damos cuenta de que hay una secta de judíos luciferianos que tomaron el control de la catedral . La catedral siendo la mente , la psique , la forma en la que se construye esa mitología . Y lo hicieron a través del dominio de Hollywood , por ejemplo , el dominio de los sitios de poder como Washington . , ellos por ahora podrían decir algunas personas que tienen el control del velo . Pero en otros momentos de la historia , otras sectas han tenido el control del velo . No podemos juzgar excesivamente a estos judíos luciferianos como si fueran una excepción de maldad . Porque , por ejemplo , en el siglo XV , siglo XVI , los papas que tenían en ese momento el control del velo , ¿ qué hicieron con el velo ? , convencieron a la gente que tenían que comprar unos papeles para que al comprar esos papeles , las almas de sus seres queridos salgan del purgatorio . ¿ Tú crees que Alejandro VI realmente creía que estaba salvando almas del purgatorio ? No , estaba vendiendo unos papeles y lo estaba haciendo de una manera fraudulenta porque entendía que esa institución que lideraba era una institución corrupta . ¿ Qué han hecho otras civilizaciones con el velo ? , en la India , por casi 5.000 años , hubo un sistema de castas y eso estaba institucionalizado en la India . Y habían personas que eran los intocables , que estaban ellas convencidas que ellas eran intocables . Quizás los brahmanes sabían que no era un orden divino el que estaban trayendo sobre la tierra , sino que era un orden que les convenía . Y es que el poder , la topografía del poder , es la que importa . Luego , la gente que está en el poder se cuenta a sí misma cualquier narrativa para justificarse .

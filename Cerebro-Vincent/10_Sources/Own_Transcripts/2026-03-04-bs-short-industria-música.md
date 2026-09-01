@@ -1,0 +1,11 @@
+---
+title: "BS Short Industria Música"
+source_url: "file:///E:/Buho%20Serpiente/38_Short_Industria_Musica/BS%20Short%20Industria%20M%C3%BAsica_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-03-04T17:41:37.269014+00:00"
+processed_date: "2026-06-06T02:32:07.947020"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hubo una época que probablemente muchos de ustedes recuerden , en la cual nosotros compartíamos música de una manera muy distinta . Compartíamos CDs , antes compartíamos casets , y antes compartíamos vinilos , coleccionábamos vinilos , y había un acto bello que era el regalar un vinilo o regalar un CD a alguien , quizás por su cumpleaños . Un CD creado específicamente para esa persona . Tú unías las canciones que creías que te gustaban y regalabas ese CD con la música dentro de ese CD . Nosotros éramos dueños del archivo de la música . Nosotros teníamos soberanía sobre ese archivo . ¿ Cómo han cambiado las cosas con Spotify ? Spotify es ahora dueño de los archivos y tú tienes un derecho a acceder a ese archivo que te da Spotify y que también te puede quitar . ¿ No les parece extraño que Spotify haya sobrevivido 10 años en pérdidas ? Eso debería hacernos meditar sobre este mito que tenemos , que nos dice que las corporaciones y las compañías están ahí para hacer dinero . No están ahí para hacer dinero . Están ahí porque son centros de poder y por eso sobreviven 10 años en pérdidas , corporaciones como Spotify . No es porque quieren hacer dinero después de 10 años , no . Es porque quieren tener el control de la música en este mundo y ser capaces de dirigir la mente de la población . Porque si es que yo inserto cierto tipo de música en la población , puedo lograr ciertos cambios . Porque el K-pop o el reggaetón con voz de víctima lo que hace es dañar el cerebro de los adolescentes . Para lograr eso se requiere tener control sobre la industria musical y estos mafiosos te plantean Spotify como una corporación exitosa cuando realmente es una operación de inteligencia . ¿ Qué opinas tú ? ¿ Crees que Spotify sobrevivió 10 años en pérdidas solamente para luego hacer dinero ? ¿ O crees que hay una agenda más profunda que llega a controlar la música ? Como último dato , ahora Spotify está apoyando la música creada por inteligencia artificial .

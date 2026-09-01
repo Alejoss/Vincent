@@ -1,0 +1,11 @@
+---
+title: "¿Cultivar cuerpos humanos para vivir más?"
+source_url: "https://www.youtube.com/watch?v=RAsw0CrOrl4"
+source_type: "Own Video"
+uploaded_date: "2026-05-24T01:51:26Z"
+processed_date: "2026-06-05T22:38:40.327747"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . El día de hoy vamos a comenzar con una noticia que es tremenda y es que hay una empresa de el billonario Team Draper Drapper que es todo un mafioso , financió a Coinbase , entre otras cosas . Esta empresa llamada R3 , circa R3 propone crear clones humanos sin cerebro para que nos sirvan de sacos de órganos . De nuevo , clones sin cerebro para que podamos sacarle los órganos y ponernos sus órganos . Las personas millonarias que compren el servicio de esta empresa tendrían un saco de órganos al cual le va extrayendo los órganos en la medida en que tomes demasiado alcohol y necesites un nuevo hígado , le sacas el hígado a tu bolsa de órganos . ¿ Qué podría ir mal ? Hay una película llamada La isla , en donde ya sucede algo similar , con la diferencia de que los sacos de órganos en realidad son clones humanos que esperan a que les llegue el día en el cual tienen que donar sus órganos a su creador . Y esto me recuerda a una conversación de Jeffrey Epstein con otro vampiro billonario en el cual este bromea sobre sacarse muchos clones a sí mismo de diferentes tamaños y atributos . El avance de la tecnología no se puede parar . La pregunta es , ¿ en qué dirección va ? , podemos utilizar los sacos de órganos o los órganos sin cerebro para reemplazar a muchos animales que son sujetos a experimentos en laboratorios y eso es quizás loable , pero los billonarios inevitablemente van a utilizar esa tecnología para crear sacos de órganos y así volverse mucho más longevos . pregunta , ¿ ustedes creen que el Estado puede limitar el avance de esta tecnología o solamente lo oculta ? , si es que el Estado es un centro de poder , como centro de poder atrae a los más poderosos y los billonarios más poderosos sin escrúpulos , por definición terminan ocupando esos puestos de poder creados por el Estado . No .

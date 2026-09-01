@@ -1,0 +1,11 @@
+---
+title: "BS Short Steve Bannon Mails Epstein"
+source_url: "file:///E:/Buho%20Serpiente/41_short_bannon_emails/BS%20Short%20Steve%20Bannon%20Mails%20Epstein_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-04-06T20:24:03.397174+00:00"
+processed_date: "2026-06-06T02:32:40.403819"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola amigos , ¿ cómo están ? Bienvenidos a un nuevo video de El Búho y la Serpiente . El día de hoy les voy a compartir un correo entre Steve Bannon y Jeffrey Epstein . Steve Bannon es un billonario , alguien entrenado por el aparato militar estadounidense y luego por Goldman Sachs , porque no nos sorprende . También es productor de varias películas de Hollywood , como 18 películas de Hollywood . Es dueño de varios medios de comunicación . , es todo un vampiro . Y en un corto intercambio de correos con Jeffrey Epstein , Steve Bannon le envía un artículo de un medio del cual él es dueño y ese artículo reafirma la posición de Trump . Luego Jeffrey Epstein le responde con otro artículo . Un artículo de la CNN que se titula Funcionario de la CIA , dos puntos , China quiere reemplazar a Estados Unidos como una superpotencia mundial . , alguien en la CIA nos está advirtiendo que China quiere reemplazar a Estados Unidos en su rol de el poder hegemónico . Y el artículo describe cómo China ha invertido una cantidad monumental de dinero y cómo ha adquirido nuevos portaaviones , nuevas bombas , nuevos aviones de guerra . A lo cual Steve Bannon responde , tan épico , el mundo viene hacia nosotros , se refiere hacia nuestras manos . ¿ Cómo puede ser esa respuesta ? ¿ No estaban conversando sobre cómo China se ha armado tanto ? ¿ Cómo Donald Trump ha reafirmado su posición en el partido republicano ? ¿ Cómo puede encuadrar esa respuesta ? ¿ Cómo pueden celebrar eso ? La única forma en que esa respuesta sea coherente es porque China es oposición controlada . Repito , China es oposición controlada y ya fue conquistada . Por eso celebran Steve Bannon y Jeffrey Epstein en este intercambio de correos , que además también celebra , no solo que China esté armándose , sino celebra la posición de Donald Trump . Y me parece que está claro que el nosotros al cual se refiere Steve Bannon y que incluye a Jeffrey Epstein , también incluye a Donald Trump .

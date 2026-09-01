@@ -8,6 +8,10 @@ Env:
   GROQ_API_KEY, GROQ_API_BASE            (groq; default https://api.groq.com/openai/v1)
   OLLAMA_URL, OLLAMA_MODEL               (ollama; default http://127.0.0.1:11434)
 
+Editorial writing (outline, essay, platform posts):
+  EDITORIAL_LLM_PROVIDER=openai|groq|ollama|auto
+  EDITORIAL_LLM_MODEL                    (default gpt-4o when openai)
+
 Auto resolution (LLM_PROVIDER=auto):
   1) OPENAI_API_KEY  -> openai
   2) GROQ_API_KEY    -> groq
@@ -19,9 +23,13 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import requests
+
+# Multimodal message content (text and/or images)
+MessageContent = Union[str, List[Dict[str, Any]]]
+ChatMessage = Dict[str, Any]
 
 DEFAULT_OPENAI_BASE = "https://api.openai.com/v1"
 DEFAULT_GROQ_BASE = "https://api.groq.com/openai/v1"
@@ -73,6 +81,31 @@ def default_model_for_provider(provider: str) -> str:
     return (os.getenv("OLLAMA_MODEL") or "dolphin-llama3:8b").strip()
 
 
+def build_editorial_llm_config(
+    provider: Optional[str] = None,
+    model: Optional[str] = None,
+) -> LLMConfig:
+    """Premium model for editorial writing (essay, platform posts)."""
+    explicit_provider = (provider or os.getenv("EDITORIAL_LLM_PROVIDER") or "").strip()
+    if explicit_provider:
+        resolved = resolve_llm_provider(explicit_provider)
+    elif os.getenv("OPENAI_API_KEY", "").strip():
+        resolved = "openai"
+    elif os.getenv("GROQ_API_KEY", "").strip():
+        resolved = "groq"
+    else:
+        resolved = resolve_llm_provider("auto")
+
+    explicit_model = (model or os.getenv("EDITORIAL_LLM_MODEL") or "").strip()
+    if not explicit_model:
+        if resolved == "openai":
+            explicit_model = (os.getenv("OPENAI_MODEL") or "gpt-4o").strip()
+        else:
+            explicit_model = default_model_for_provider(resolved)
+
+    return build_llm_config(provider=resolved, model=explicit_model)
+
+
 def build_llm_config(
     provider: Optional[str] = None,
     model: Optional[str] = None,
@@ -120,27 +153,32 @@ def _parse_json_response(raw: str, source: str) -> Dict[str, object]:
         raise
 
 
-def _call_openai_compatible(
+def _call_openai_compatible_chat(
     *,
     api_key: str,
     base_url: str,
     model: str,
-    prompt: str,
+    messages: List[ChatMessage],
     timeout_s: int,
     source: str,
-) -> Dict[str, object]:
+    json_mode: bool = False,
+    temperature: float = 0,
+) -> str:
+    payload: Dict[str, Any] = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+    }
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
+
     response = requests.post(
         f"{base_url.rstrip('/')}/chat/completions",
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         },
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0,
-            "response_format": {"type": "json_object"},
-        },
+        json=payload,
         timeout=timeout_s,
     )
     if response.status_code >= 400:
@@ -150,7 +188,28 @@ def _call_openai_compatible(
     choices = data.get("choices") or []
     if not choices:
         raise ValueError(f"{source} returned no choices")
-    content = ((choices[0].get("message") or {}).get("content") or "").strip()
+    return ((choices[0].get("message") or {}).get("content") or "").strip()
+
+
+def _call_openai_compatible(
+    *,
+    api_key: str,
+    base_url: str,
+    model: str,
+    prompt: str,
+    timeout_s: int,
+    source: str,
+) -> Dict[str, object]:
+    content = _call_openai_compatible_chat(
+        api_key=api_key,
+        base_url=base_url,
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        timeout_s=timeout_s,
+        source=source,
+        json_mode=True,
+        temperature=0,
+    )
     return _parse_json_response(content, source)
 
 
@@ -192,3 +251,97 @@ def call_json(prompt: str, config: LLMConfig, timeout_s: int = 90) -> Dict[str, 
             source="Groq",
         )
     return _call_ollama(config, prompt, timeout_s)
+
+
+def call_json_vision(
+    *,
+    prompt: str,
+    image_data_url: str,
+    config: LLMConfig,
+    timeout_s: int = 120,
+) -> Dict[str, object]:
+    """
+    Vision → JSON. OpenAI-compatible chat with one image (data URL).
+
+    Requires a vision-capable model (e.g. gpt-4o-mini, gpt-4o).
+    Groq/Ollama vision are not wired here yet.
+    """
+    validate_llm_config(config)
+    if config.provider != "openai":
+        raise ValueError(
+            f"call_json_vision currently supports openai only (got {config.provider}). "
+            "Set LLM_PROVIDER=openai and use a vision model such as gpt-4o-mini."
+        )
+
+    messages: List[ChatMessage] = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {"type": "image_url", "image_url": {"url": image_data_url, "detail": "low"}},
+            ],
+        }
+    ]
+    content = _call_openai_compatible_chat(
+        api_key=config.openai_api_key,
+        base_url=config.openai_base_url,
+        model=config.model,
+        messages=messages,
+        timeout_s=timeout_s,
+        source="OpenAI-vision",
+        json_mode=True,
+        temperature=0,
+    )
+    return _parse_json_response(content, "OpenAI-vision")
+
+
+def call_text(
+    *,
+    system: str,
+    user: str,
+    config: LLMConfig,
+    timeout_s: int = 180,
+    temperature: float = 0.7,
+) -> str:
+    """Generate prose (editorial writers). Returns raw markdown/text."""
+    validate_llm_config(config)
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    if config.provider == "openai":
+        return _call_openai_compatible_chat(
+            api_key=config.openai_api_key,
+            base_url=config.openai_base_url,
+            model=config.model,
+            messages=messages,
+            timeout_s=timeout_s,
+            source="OpenAI",
+            json_mode=False,
+            temperature=temperature,
+        )
+    if config.provider == "groq":
+        return _call_openai_compatible_chat(
+            api_key=config.groq_api_key,
+            base_url=config.groq_base_url,
+            model=config.model,
+            messages=messages,
+            timeout_s=timeout_s,
+            source="Groq",
+            json_mode=False,
+            temperature=temperature,
+        )
+
+    prompt = f"{system}\n\n---\n\n{user}"
+    response = requests.post(
+        f"{config.ollama_url.rstrip('/')}/api/generate",
+        json={
+            "model": config.model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": temperature},
+        },
+        timeout=timeout_s,
+    )
+    response.raise_for_status()
+    return (response.json().get("response") or "").strip()

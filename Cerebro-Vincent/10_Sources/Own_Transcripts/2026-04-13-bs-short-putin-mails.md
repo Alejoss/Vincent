@@ -1,0 +1,11 @@
+---
+title: "BS Short Putin Mails"
+source_url: "file:///E:/Buho%20Serpiente/44_short_epstein_putin/BS%20Short%20Putin%20Mails_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-04-13T17:26:20.388680+00:00"
+processed_date: "2026-06-06T02:34:41.216314"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola amigos del búho y la serpiente . El día de hoy les traigo algunos correos extraños . Hay un correo en el que Jeffrey Epstein pregunta si Vladimir Putin estuvo en el bote . Me pregunto qué habrán hecho en ese bote . Hay otro correo en el que se discute una reunión entre el sultán Bin Salman y Vladimir Putin y Jeffrey Epstein para discutir sobre la construcción del sistema de transporte del noroeste de Rusia . ¿ Por qué el sultán Bin Salman , que por otros textos sabemos que probablemente es una persona muy tétrica y sombría , ¿ por qué participa siquiera de esta reunión en la que se conversa sobre la construcción del sistema de transporte en el noroeste de Rusia ? ¿ Será que están considerándolo para darle un contrato billonario ? ¿ Pero por qué a él ? ¿ Será que son sectas ? Hay otro correo en el que se establece una reunión entre Jeffrey Epstein y Vladimir Putin directamente . Hay otro correo en el que le preguntan a Jeffrey Epstein si es que Vladimir Putin no tendrá fotos de Donald Trump haciendo cosas indebidas . Hay otro correo con Ehud Barak , el ex primer ministro de Israel , en el cual Jeffrey Epstein le dice , si es que estás cerca del Kremlin , estás en Moscú , anda a visitar a Vladimir Putin o por lo menos hazle saber , porque es posible que Putin quiera algo de tiempo privado contigo . ¿ Por qué el ex primer ministro de Israel quisiera asegurarse que Vladimir Putin no quiere un tiempo en privado ? Porque Jeffrey Epstein siquiera lo considera . Y es que Vladimir Putin es parte de la misma secta . Lo entrenaron , lo prepararon desde pequeño para que cuando crezca ocupe el puesto de oponente y lleve a Rusia a generar un choque . Pero el mundo ya fue conquistado . Lo que estamos viendo es un teatro sangriento . Si es que quieres profundizar en él y comprenderlo , te recomiendo mi documental Ucronía , que ya está listo con subtítulos en español en la página web AcademiaBlockchain.com Te mando un enorme abrazo . Estamos en contacto .

@@ -1,0 +1,254 @@
+{
+  "topic_id": 2,
+  "generated_at": "2026-07-25T01:25:50.831982+00:00",
+  "counts": {
+    "done": 12,
+    "failed": 2
+  },
+  "remote": {
+    "pending": 2,
+    "completed": 12,
+    "total": 14
+  },
+  "state_db": "E:\\Vincent\\Vincent-Code\\cache\\video_transcripts\\state.sqlite3",
+  "items": [
+    {
+      "content_id": 45,
+      "status": "done",
+      "title": "QUIÉN MATÓ a BITCOIN (DOCUMENTAL COMPLETO en ESPAÑOL)",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-25T01:25:36.106716+00:00",
+      "uploaded_at": "2026-07-25T01:25:36.106716+00:00",
+      "server_created_at": "2026-07-25T01:25:36.086962Z",
+      "text_hash": "33700d966983d8375ab4e7756ae36d80d35457aa092fb14f33490ee188640d25",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=Vq9bCuM0YQ8",
+      "file_key": "content_owner_attach/45/2/La_Eterna_Vigilancia_QUIÉN_MATÓ_a_BITCOIN_DOCUMENTAL_COMPLETO_en_ESPAÑOL_45.mp4"
+    },
+    {
+      "content_id": 46,
+      "status": "done",
+      "title": "¿Por qué Bitcoin aparece cuando se destapan los Epstein Files?",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-25T01:25:36.636540+00:00",
+      "uploaded_at": "2026-07-25T01:25:36.636540+00:00",
+      "server_created_at": "2026-07-25T01:25:36.637806Z",
+      "text_hash": "96670eafb82e2cf31a6a6035e9754df8aea792437297f22247202925a0f9abc7",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=UaMEeL-A-ok",
+      "file_key": "content_owner_attach/46/2/Academia_Blockchain_Por_qué_Bitcoin_aparece_cuando_se_destapan_los_Epstein_Files_46.mp4"
+    },
+    {
+      "content_id": 47,
+      "status": "done",
+      "title": "Conversación con Ian de @LaEconomiaP2P ¿Qué pasó en el 2017? CISMA en BTC! ES IMPRESCINDIBLE SABER",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-25T01:25:37.380480+00:00",
+      "uploaded_at": "2026-07-25T01:25:37.380480+00:00",
+      "server_created_at": "2026-07-25T01:25:37.372406Z",
+      "text_hash": "cd0ab99bd455f7ed745e6389807dfc7ffdbaa7296d82fe35908de11af8ec0a31",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=-IfP5lA-Cpw",
+      "file_key": "content_owner_attach/47/2/Academia_Blockchain_Conversación_con_Ian_de_LaEconomiaP2P_Qué_pasó_en_el_2017_CI_47.mp4"
+    },
+    {
+      "content_id": 48,
+      "status": "done",
+      "title": "Cambiaron la Historia de Bitcoin!! Emails de Satoshi / Malmi + patente de Schwartz son una MENTIRA!",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-24T23:52:25.877334+00:00",
+      "uploaded_at": "2026-07-24T23:52:25.877334+00:00",
+      "server_created_at": "2026-07-24T23:52:26.001704Z",
+      "text_hash": "6e5e92999bad6f4bbfac1ce9fb82e4aef600e15feeacc7abc4a1edb278b41e15",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=fCrnFuH66sE",
+      "file_key": "content_owner_attach/48/2/Academia_Blockchain_Cambiaron_la_Historia_de_Bitcoin_Emails_de_Satoshi_Malmi_pat_48.mp4"
+    },
+    {
+      "content_id": 49,
+      "status": "done",
+      "title": "Rompe la Rueda -  2017⚠ HARD FORK de BTC. Lightning Network. EL OTRO LADO DE LA HISTORIA.",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-25T01:25:38.139716+00:00",
+      "uploaded_at": "2026-07-25T01:25:38.139716+00:00",
+      "server_created_at": "2026-07-25T01:25:38.131594Z",
+      "text_hash": "4c029fa5edc5d63e3ff15149bff71f8701ac8b6ce89eb045ed0cd1d7c46519f2",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=kYOQS24eiY0",
+      "file_key": "content_owner_attach/49/2/Academia_Blockchain_Rompe_la_Rueda_-_2017_HARD_FORK_de_BTC_Lightning_Network_EL_49.mp4"
+    },
+    {
+      "content_id": 50,
+      "status": "done",
+      "title": "✂ LA VERDAD SOBRE EL TAMAÑO DE LOS BLOQUES! EL DESTINO DE BITCOIN!!",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-25T01:25:40.779067+00:00",
+      "uploaded_at": "2026-07-25T01:25:40.779067+00:00",
+      "server_created_at": "2026-07-25T01:25:40.774819Z",
+      "text_hash": "41929d9085433e6436b9abc1dfdd5f1b55c795a7dcadd339bd95944fcd05b6d9",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=Arek43HJCnQ",
+      "file_key": "content_owner_attach/50/2/Academia_Blockchain_LA_VERDAD_SOBRE_EL_TAMAÑO_DE_LOS_BLOQUES_EL_DESTINO_DE_BITCO_50.mp4"
+    },
+    {
+      "content_id": 51,
+      "status": "done",
+      "title": "PETER TODD: DEMOLIENDO a BTC desde DENTRO 🤔 | EP 182",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-25T01:25:45.075441+00:00",
+      "uploaded_at": "2026-07-25T01:25:45.075441+00:00",
+      "server_created_at": "2026-07-25T01:25:45.054289Z",
+      "text_hash": "6a7c6de40a4d7c3b4c0ca72a9162f61921dea4b8b50d9d0535d11ef428e5a199",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=P7jQHTh2pRI",
+      "file_key": "content_owner_attach/51/2/No_Hay_Almuerzo_Gratis_PETER_TODD_DEMOLIENDO_a_BTC_desde_DENTRO_EP_182_51.mp4"
+    },
+    {
+      "content_id": 53,
+      "status": "done",
+      "title": "Academia Blockchain",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-25T01:25:45.680903+00:00",
+      "uploaded_at": "2026-07-25T01:25:45.680903+00:00",
+      "server_created_at": "2026-07-25T01:25:45.675911Z",
+      "text_hash": "0ce4793025c71a315c6d3303e6e27365e2c73760ebc0f12b92e7c2ccae5011cd",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/live/BS3fbSVn8c0?si=fjpNrKd7Wfe7_BuB",
+      "file_key": "content_owner_attach/53/2/Alejandro_Veintimilla_El_Desarrollo_de_Bitcoin_Conversación_53.mp4"
+    },
+    {
+      "content_id": 55,
+      "status": "failed",
+      "title": "El secuestro de BITCOIN: La historia oculta del BTC - Roger Ver",
+      "media_type": "AUDIO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        2
+      ],
+      "error": "yt-dlp not found in PATH",
+      "source_url": "https://open.spotify.com/episode/4YixreG2Ytddnnunqsm06F?si=6022137142c74833",
+      "file_key": null
+    },
+    {
+      "content_id": 63,
+      "status": "failed",
+      "title": "La captura de Bitcoin por el sector financiero",
+      "media_type": "AUDIO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        2
+      ],
+      "error": "yt-dlp not found in PATH",
+      "source_url": "https://open.spotify.com/episode/4fykoqzUYkm6uSeuihZf01?si=12a4849fb1a44e59",
+      "file_key": null
+    },
+    {
+      "content_id": 350,
+      "status": "done",
+      "title": "La Guerra por las Criptomonedas / Las Avispas de Satoshi",
+      "media_type": "VIDEO",
+      "method": "local_vault",
+      "transcribed_at": "2026-07-24T23:52:34.662982+00:00",
+      "uploaded_at": "2026-07-24T23:52:34.662982+00:00",
+      "server_created_at": "2026-07-24T23:52:34.790523Z",
+      "text_hash": "402ff16f64178f2d6258cf682187a50d7903b958436bebd42805b7559f05b01e",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=7N1DBhqCGMo",
+      "file_key": null
+    },
+    {
+      "content_id": 354,
+      "status": "done",
+      "title": "The Rise & Fall of Mt.GOX: How to burn 850,000 Bitcoin and get away with it! | FD Finance",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-24T23:52:40.156215+00:00",
+      "uploaded_at": "2026-07-24T23:52:40.156215+00:00",
+      "server_created_at": "2026-07-24T23:52:40.253557Z",
+      "text_hash": "506f20d5201c52d8fcda29ac2087e3fe3bb757a4d9ccdb999be9712343c83856",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=hvCdu0zsSP4",
+      "file_key": null
+    },
+    {
+      "content_id": 355,
+      "status": "done",
+      "title": "Debes saber esto sobre Assange y Bitcoin",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-25T01:25:48.315791+00:00",
+      "uploaded_at": "2026-07-25T01:25:48.315791+00:00",
+      "server_created_at": "2026-07-25T01:25:48.316288Z",
+      "text_hash": "af0cfd35ae99edcf6291b38a49f83086e9ffc01f6a8959401b1432ef79712734",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=3Lfq8cBSMS0",
+      "file_key": null
+    },
+    {
+      "content_id": 400,
+      "status": "done",
+      "title": "¿Qué es Bitcoin y cómo funciona?",
+      "media_type": "VIDEO",
+      "method": "youtube_captions",
+      "transcribed_at": "2026-07-25T01:25:50.493846+00:00",
+      "uploaded_at": "2026-07-25T01:25:50.493846+00:00",
+      "server_created_at": "2026-07-25T01:25:50.494408Z",
+      "text_hash": "1b9fd75dda75265cdd859720c1ff88876c4f282cef8accf7e10d80755f65b35c",
+      "topic_ids": [
+        2
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=S2HxMK7iO4c",
+      "file_key": null
+    }
+  ]
+}

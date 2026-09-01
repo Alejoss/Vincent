@@ -1,0 +1,11 @@
+---
+title: "¿Porqué mataron a Jacob Duygu? El misterio de las ARMAS."
+source_url: "https://www.youtube.com/watch?v=9IOr30tXKJg"
+source_type: "Own Video"
+uploaded_date: "2026-06-09T10:00:20Z"
+processed_date: "2026-07-02T17:12:05.487980"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+En la película Brasil de Terry Guillam, que les recomiendo mucho, se puede ver una escena bastante graciosa. En esta escena se presenta un mercado de armas, como si fuera un mercado de barrio, pero de armas. En este mercado se pueden comprar ACAS 47. ¿Te puedes imaginar cómo sería un mundo en el que eso fuera real, en el cual se podría comprar armas? Creo que es difícil de imaginar porque las armas están ocultas de la vista del pueblo y esto es el resultado de una campaña activa por parte del poder para desarmar a la población. en esta campaña ya tiene más de 100 años y ahora la gente no se imagina como podría ser un mundo en el cual se puedan comprar armas fácilmente. Y es que al poder le conviene que la población esté desarmada. Una población desarmada puede ser víctima fácil de todo tipo de carteles. Por eso el poder oculta el tema de las armas desde la academia hasta las películas. El tema de las armas es un misterio para la sociedad actual y quizás eso viene también por un no querer ver la violencia que hay en el mundo, pero la guerra está ahí. La veas o no la veas. Hace 5 años, la policía allanó la casa de Jacob Duigu. Jacob Duigu se dedicaba a imprimir armas en 3D y a facilitar la impresión de armas 3D. La policía entró a su departamento, desmanteló su operación y algo curioso es que ahora si le preguntas a la inteligencia artificial te dirá que Jacob Duigu murió por causas naturales. En su momento la noticia fue que Jacob presentó resistencia y murió en la operación. Tres días después de el allanamiento de su casa, el cuerpo de Jacob fue encontrado. Miren, ahí está la real oposición al sistema en las armas 3D, en la descentralización de la tecnología y en la conciencia. La oposición no está en China, en Rusia o en Tok Carson.

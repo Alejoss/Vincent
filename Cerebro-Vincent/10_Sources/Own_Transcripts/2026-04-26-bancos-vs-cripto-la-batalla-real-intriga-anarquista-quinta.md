@@ -1,0 +1,11 @@
+---
+title: "Bancos vs Cripto: la batalla real. Intriga Anarquista Quinta"
+source_url: "https://www.youtube.com/watch?v=r1V2sJI-80Q"
+source_type: "Own Video"
+uploaded_date: "2026-04-26T02:56:18Z"
+processed_date: "2026-06-05T22:39:11.663245"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . El día de hoy les traigo otra intriga anarquista y es que es importante saber que para ser anarquistas no es necesario solucionar todo mentalmente sobre cómo funcionaría una sociedad sin estado . Quizás lo más importante es ubicarse en el mundo real . Y en el mundo real , el estado es una banda de criminales cubiertos con banderas . Si se entiende eso , podemos pensar en dejar de votar . Pero hay cómo ir más allá . Con criptografía y con tecnología podemos salirnos de la economía que nos plantea el Estado , esa economía en la cual el Estado es dictador . ¿ Cómo nos salimos de su economía ? pues le quitamos su herramienta más poderosa que es la moneda . Si es que utilizamos una criptomoneda quizás anónima , quizás no como Bitcoin Cash , podemos generar economías paralelas , mercados negros , mercados grises que le quiten al estado del medio y que no le dejen , por ejemplo , cobrar su impuesto al valor agregado en cada transacción , que no le permitan cobrar su impuesto a la renta , porque no puede el Estado saber cuántas criptomonedas tenemos . Ese es el potencial del criptoanarquismo . El criptoanarquismo se ubica en el mundo real , no en ciudades utópicas , en el mundo real en el cual hay que plantear una resistencia . Y con las criptomonedas no solamente le quitas poder al Estado , sino que también le quitas poder a otros actores igual o más peligrosos , como por ejemplo los grandes bancos . Estos son capaces de crear dinero , son capaces de vigilarte y además parece que son sujetos al mercado cuando en verdad no lo son . Son herramientas de una mafia que está en la élite , que utiliza el dinero de sus depositantes para comprar políticos corruptos y también para financiar guerras . Es por eso que estos banqueros mafiosos han puesto tanta energía en regular las criptomonedas y en secuestrar a Bitcoin . Te recomiendo este canal para profundizar en la historia de Bitcoin . Te mando un enorme abrazo .

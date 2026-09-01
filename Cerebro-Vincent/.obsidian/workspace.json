@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "1db04cc0e5e116a3",
+        "id": "588376b1d31f7969",
         "type": "tabs",
         "children": [
           {
-            "id": "d9a14900cc19abd7",
+            "id": "32eb7d4fff1882ec",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "30_News/Noticias/wef-israeli-philosopher-yuval-harari-says-if-religion-is-built-from-words-then-ai-will-take-over-religion.md",
+                "file": "Clippings/Where Is The Empire Moving.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "wef-israeli-philosopher-yuval-harari-says-if-religion-is-built-from-words-then-ai-will-take-over-religion"
+              "title": "Where Is The Empire Moving"
             }
           }
         ]
@@ -41,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Explorador de archivos"
@@ -61,7 +63,7 @@
                 "sortOrder": "alphabetical"
               },
               "icon": "lucide-search",
-              "title": "Search"
+              "title": "Buscar"
             }
           },
           {
@@ -78,7 +80,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 310.5
+    "width": 305.5
   },
   "right": {
     "id": "095b437adf28ff65",
@@ -176,51 +178,60 @@
     "hiddenItems": {
       "switcher:Abrir selector rápido": false,
       "graph:Abrir vista gráfica": false,
-      "canvas:Crear nuevo lienzo": false,
       "daily-notes:Abrir la nota de hoy": false,
+      "canvas:Crear nuevo lienzo": false,
       "templates:Insertar plantilla": false,
       "command-palette:Abrir paleta de comandos": false,
       "bases:Crear nueva base": false
     }
   },
-  "active": "d9a14900cc19abd7",
+  "active": "32eb7d4fff1882ec",
   "lastOpenFiles": [
-    "Temas/Tecnocracia.md",
-    "Temas/Guerra.md",
-    "Temas/Control Climático.md",
-    "Temas/Blockchain.md",
-    "Temas/Alimentos.md",
-    "30_News/News_URLS.md",
-    "30_News/Noticias/the-whole-model-is-broken-tech-mafia-wife-admits-we-were-klaus-schwabs-useful-idiots.md",
-    "30_News/Noticias/catherine-austin-fitts-reveals-planned-wealth-takeover-beware-of-this-trap.md",
-    "30_News/Noticias/project-artichoke-cia-project-proposed-covertly-drugging-subjects-in-food-water-and-vaccines.md",
-    "Investigaciones/Talmud/El rabino y el jesuita (Eibeschütz y Haselbauer) - Pawel Maciejko.md",
-    "Investigaciones/Sidonia/Guía de los perplejos - Maimónides.md",
-    "Investigaciones/Sidonia/Tancred - Benjamin Disraeli.md",
-    "Investigaciones/Sidonia/Sidonia the Sorceress - Wilhelm Meinhold.md",
-    "Investigaciones/Sidonia/La Ilustre degeneración - Luisa Isabel Álvarez de Toledo.md",
-    "Investigaciones/Sidonia/El Judío Internacional - Henry Ford.md",
-    "Investigaciones/Sidonia/Roma y Jerusalén - Moisés Hess.md",
-    "Investigaciones/Sidonia/Coningsby - Benjamin Disraeli.md",
-    "30_News/Noticias/james-okeefe-infiltrates-davos-world-economic-forum-and-talks-chemtrails.md",
-    "Investigaciones/Sidonia",
-    "Investigaciones/Cypherpunks/Obras cyberpunk esenciales 1970s-1990s.md",
-    "Investigaciones/Cypherpunks/Mirrorshades Neuromancer Androids - resúmenes y temas.md",
-    "Investigaciones/Cypherpunks/Línea de tiempo 1980s - Cyberpunk y Cypherpunks.md",
-    "Investigaciones/Cypherpunks/Gilmore Hughes May - línea de tiempo.md",
-    "Investigaciones/Cypherpunks/Cypherpunks.md",
-    "Investigaciones/Cypherpunks",
-    "0_Diario_Productividad/Tareas-Ideas/slack-1777060252.953069.md",
-    "0_Diario_Productividad/Tareas-Ideas/slack-1777048180.357029.md",
-    "0_Diario_Productividad/Tareas-Ideas/slack-1777041447.531659.md",
-    "0_Diario_Productividad/Projects",
-    "0_Diario_Productividad/Aprendizajes",
-    "0_Diario_Productividad/Tareas-Ideas",
-    "Investigaciones",
-    "Temas/Untitled.base",
-    "Untitled 1.base",
-    "Untitled.base",
-    "Temas",
+    "Clippings/ACBC Directo 10/Whistleblower Says Journalist James O'Keefe Buried Evidence Against the COVID Vaccine and Went to Bohemian Grove.md",
+    "Clippings/ACBC Directo 10/UK Conservative Politician Bludgeoned to Death in Her Home – Police Claimed It's Not Political.md",
+    "Clippings/ACBC Directo 10",
+    "Clippings/La Resolución del Experimento Bitcoin.md",
+    "Clippings/Richard von Coudenhove-Kalergi.md",
+    "Clippings/Charlemagne Prize.md",
+    "40_News/Temas/Tecnocracia.md",
+    "40_News/Temas/Blockchain.md",
+    "40_News/Temas/Alimentos.md",
+    "40_News/News_URLS.md",
+    "40_News/fuentes_directos_pasados.md",
+    "40_News/Taxonomia_Temas_Noticias.md",
+    "40_News/Temas/Guerra.md",
+    "40_News/Temas/Control Climático.md",
+    "Clippings/Adam Back Hid a Convicted Felon's Control of Billions, and It Sank His SPAC, Plus Greg Maxwell's Role.md",
+    "Clippings/The resolution of the Big Block experiment.md",
+    "Clippings/Reflections Upon Bitcoin's Block Size Debate.md",
+    "Clippings/ACBC Directo 9/Qué hay tras los “100.000 olivos talados para plantas solares en Jaén” números exagerados y rechazo por la pérdida de empleo.md",
+    "Clippings/ACBC Directo 9/Epstein's Paris Model Scout Found Dead at Home. List of Epstein Cohorts Who Are Now Dead 1.md",
+    "Clippings/ACBC Directo 9/Musk propone una revisión por pares para modelos de IA de vanguardia en una entrevista con Economist.md",
+    "Clippings/ACBC Directo 9/AI and the Psychology of Cognitive Surrender.md",
+    "Clippings/ACBC Directo 9/Massachusetts Dems Advance Bill To Limit How Far You Can Drive In Your Own Car.md",
+    "Clippings/ACBC Directo 9/The Rise of Seedless Fruits Convenience or Corporate Control.md",
+    "Clippings/ACBC Directo 9/Episode 489 - The Secret of the Doomsday Seed Vault.md",
+    "Clippings/ACBC Directo 9/Nationwide Recall of Millions of Eggs Over Salmonella Fears – 98 People Ill Since Nov. 2025.md",
+    "Clippings/ACBC Directo 9/Epstein's Paris Model Scout Found Dead at Home. List of Epstein Cohorts Who Are Now Dead.md",
+    "Clippings/ACBC Directo 9",
+    "Clippings/ACBC Directo 7/Wikipedia le bloqueó el acceso a uno de sus cofundadores, Larry Sanger.md",
+    "Clippings/ACBC Directo 7",
+    "40_News/_rewrite_temas.py",
+    "40_News/_clean_temas.py",
+    "40_News/_import_brave.py",
+    "40_News/_extract_brave.py",
+    "40_News/bookmarks_brave.html",
+    "40_News/bookmarks_30_7_26.html",
+    "40_News/_extract_bookmarks.py",
+    "Campaigns/2026/Seminario-Cypherpunk/assets/linea-tiempo-bitcoin.png",
+    "Campaigns/2026/Seminario-Cypherpunk/assets/bienvenido-iniciamos-club-lectura.png",
+    "Campaigns/2026/Seminario-Cypherpunk/assets/bienvenido_club_lectura_cypherpunk.png",
+    "Campaigns/2026/Seminario-Cypherpunk/assets/club-lectura-flyer.png",
+    "newsletters/assets/club-lectura-flyer.png",
+    "newsletters/imagenes_newsletters/club_lectura_flyer.png",
+    "newsletters/imagenes_newsletters/ChatGPT Image Jul 8, 2026, 02_24_35 PM.png",
+    "newsletters/assets/club-lectura-newsletter.png",
+    "newsletters/imagenes_newsletters/club_lectura_newsletter.png",
     "Untitled.canvas"
   ]
 }

@@ -1,0 +1,637 @@
+{
+  "meta": {
+    "platform": "Sophia.AI Academia Blockchain",
+    "feature": "Topics (Temas)",
+    "api_base_prefix": "/api/content/",
+    "auth": "JWT required on all topic endpoints unless noted",
+    "backend_app": "acbc_app/content/",
+    "frontend_dir": "frontend/src/topics/",
+    "source_docs": [
+      "docs/architecture/topics-and-knowledge-paths.md",
+      "docs/architecture/topic-timeline-entry-suggestions-plan.md",
+      "docs/architecture/topic-timeline-entry-content-suggestions.md",
+      "docs/api/endpoints.md"
+    ],
+    "purpose_of_this_file": "Standalone handoff for an agent without repo access: how Topics work, domain rules, and full endpoint map."
+  },
+
+  "concept": {
+    "summary": "A Topic is a curated category (usually by teachers) that groups educational content and supports collaborative moderation.",
+    "vs_knowledge_paths": "Topics = curation/categorization + moderation + editorial timeline. Knowledge Paths = ordered learning routes (nodes) over existing content, with progress tracking.",
+    "vs_book_clubs": "A BookClub can link a Topic as its Investigación theme and embed the topic timeline read-only; full topic UI opens separately.",
+    "core_capabilities": [
+      "Public listing ranked by activity_score",
+      "Staff-gated creation via TopicCreationRequest (or direct for staff)",
+      "Moderators invited by creator",
+      "Add/remove content belonging to the topic",
+      "Community content suggestions",
+      "Editorial timeline with dated/ordered entries linking topic content",
+      "Community suggestions for new timeline entries and for linking content to an entry"
+    ]
+  },
+
+  "domain_models": {
+    "Topic": {
+      "file": "content/models.py",
+      "fields": {
+        "title": "CharField(200)",
+        "description": "TextField",
+        "creator": "FK User",
+        "topic_image": "ImageField",
+        "is_public": "BooleanField default True — private topics excluded from public list/search",
+        "activity_score": "IntegerField default 0, indexed — cached ranking",
+        "created_at": "DateTimeField",
+        "updated_at": "DateTimeField",
+        "moderators": "M2M User",
+        "related_topics": "M2M self (directed)"
+      },
+      "helpers": {
+        "is_moderator_or_creator(user)": "True if user is creator or in moderators"
+      },
+      "activity_score_formula": {
+        "expression": "(contents * 10) + (positive likes on topic contents * 3) + (active comments with topic_id * 5) + (has >=1 timeline entry ? 50 : 0)",
+        "update_mode": "incremental deltas in hot path; full recompute via management command",
+        "management_command": "python manage.py recompute_topic_activity_scores [--topic-id N]"
+      },
+      "relations": {
+        "Content.topics": "M2M Topic related_name=contents — content can belong to multiple topics"
+      }
+    },
+
+    "TopicCreationRequest": {
+      "purpose": "User requests permission to create a topic; staff reviews title/description before publish.",
+      "fields": [
+        "requested_by",
+        "proposed_title",
+        "proposed_description",
+        "approved_title",
+        "approved_description",
+        "status",
+        "reviewed_by",
+        "rejection_reason",
+        "topic (optional FK after creation)"
+      ],
+      "status_enum": ["PENDING", "APPROVED", "REJECTED", "COMPLETED", "CANCELLED"],
+      "invariants": [
+        "Max 3 PENDING requests per user",
+        "Non-staff POST /topics/ requires creation_request_id of an APPROVED request owned by the user (legacy path)",
+        "On admin approve, topic is created immediately and request becomes COMPLETED",
+        "Requester can cancel only PENDING → CANCELLED"
+      ]
+    },
+
+    "TopicModeratorInvitation": {
+      "fields": ["topic", "invited_user", "invited_by", "status", "message"],
+      "status_enum": ["PENDING", "ACCEPTED", "DECLINED", "CANCELLED"],
+      "unique_together": ["topic", "invited_user"],
+      "domain_methods": {
+        "accept()": "Adds user as moderator; status ACCEPTED",
+        "decline()": "Status DECLINED"
+      }
+    },
+
+    "ContentSuggestion": {
+      "purpose": "Propose existing content to be added to a topic.",
+      "fields": [
+        "topic",
+        "content",
+        "suggested_by",
+        "reviewed_by",
+        "status",
+        "message",
+        "rejection_reason",
+        "is_duplicate"
+      ],
+      "status_enum": ["PENDING", "ACCEPTED", "REJECTED"],
+      "unique_together": ["topic", "content", "suggested_by"]
+    },
+
+    "TopicTimeline": {
+      "relation": "1:1 with Topic",
+      "created_implicitly": "Created when first entry is added; no separate setup step",
+      "fields": ["topic", "title", "description", "created_by", "created_at", "updated_at"],
+      "note": "title/description of container are optional and not editable from current UI"
+    },
+
+    "TopicTimelineEntry": {
+      "fields": {
+        "timeline": "FK TopicTimeline",
+        "title": "required",
+        "description": "optional narrative",
+        "start_date": "optional DateField",
+        "end_date": "optional DateField — rejected if before start_date",
+        "order": "auto-assigned on create; updated by reorder endpoint",
+        "created_by": "User",
+        "updated_by": "User",
+        "created_at": "DateTimeField",
+        "updated_at": "DateTimeField"
+      },
+      "ordering": ["order", "start_date", "created_at"],
+      "date_modes_ui": [
+        {
+          "mode": "concrete_date",
+          "fields": ["start_date"],
+          "use": "single milestone e.g. whitepaper publish date"
+        },
+        {
+          "mode": "period",
+          "fields": ["start_date", "end_date optional"],
+          "use": "stage with duration; open-ended if end null"
+        },
+        {
+          "mode": "no_date",
+          "fields": [],
+          "display": "Etapa N by position"
+        }
+      ]
+    },
+
+    "TopicTimelineEntryContent": {
+      "purpose": "Link entry ↔ Content already in the topic",
+      "fields": ["entry", "content", "order", "caption"],
+      "unique_together": ["entry", "content"],
+      "rules": [
+        "Content must already belong to topic.contents",
+        "Same content cannot appear twice in one entry",
+        "Same content MAY appear on multiple different entries",
+        "First/ordered contents: UI treats one as principal and others as references"
+      ]
+    }
+  },
+
+  "permissions": {
+    "list_public_topics": "authenticated — only is_public=True",
+    "view_topic_detail": "authenticated",
+    "view_timeline": "authenticated",
+    "create_topic_request": "authenticated (non-staff flow)",
+    "create_topic_direct": "staff only (or via approved request flow)",
+    "approve_reject_creation_requests": "staff only",
+    "edit_topic_metadata": "creator or moderators",
+    "add_remove_topic_content": "creator or moderators",
+    "manage_moderators": "creator only",
+    "timeline_mutate": "creator or moderators",
+    "delete_topic": "creator only",
+    "suggest_content_to_topic": "authenticated community (typically non-moderator)",
+    "review_content_suggestions": "creator or moderators",
+    "suggest_timeline_entry": "authenticated community",
+    "suggest_content_to_timeline_entry": "authenticated, not creator/moderator",
+    "review_timeline_suggestions": "creator or moderators",
+    "timeline_tab_visibility_frontend": "visible if viewer is creator/moderator OR timeline already has >=1 entry"
+  },
+
+  "flows": {
+    "create_topic_non_staff": [
+      "POST /topic-creation-requests/ with proposed_title, proposed_description",
+      "Staff reviews via admin endpoints",
+      "On approve: topic published immediately; request → COMPLETED",
+      "Legacy: APPROVED without topic may use POST /topics/ with creation_request_id or finalize endpoint"
+    ],
+    "create_topic_staff": [
+      "POST /topics/ directly without creation_request_id"
+    ],
+    "add_content": [
+      "Moderator POSTs content_profile_ids of their own ContentProfiles",
+      "Underlying Content objects are added to topic.contents"
+    ],
+    "remove_content": [
+      "Moderator PATCHes content_ids to detach from topic.contents"
+    ],
+    "content_suggestion": [
+      "User suggests existing content",
+      "Moderator accepts → content added to topic; rejects with reason; suggester can delete PENDING"
+    ],
+    "timeline_authoring": [
+      "Moderator creates entries with optional dates and linked topic contents",
+      "Reorder via full ordered entry_ids list",
+      "Community can suggest new entries or suggest content onto an existing entry"
+    ]
+  },
+
+  "serializers_notes": {
+    "TopicBasicSerializer": ["id", "title", "description", "creator", "topic_image (absolute URL)"],
+    "TopicDetailSerializer": "basic + contents (with selected ContentProfile) + moderators",
+    "content_profile_display_rule": "Prefer ContentProfile of topic creator; else current user profile for that content"
+  },
+
+  "endpoints": {
+    "note": "All paths below are relative to /api/content/. Full example: GET /api/content/topics/",
+
+    "topics_crud": [
+      {
+        "method": "GET",
+        "path": "/topics/",
+        "auth": "required",
+        "permission": "any authenticated",
+        "description": "List public topics ordered by -activity_score, then -created_at",
+        "response": "TopicBasicSerializer[]"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/",
+        "auth": "required",
+        "permission": "staff direct OR user with APPROVED creation_request_id",
+        "body": {
+          "staff": "title, description, topic_image optional",
+          "non_staff": "creation_request_id required; title/description taken from approved request"
+        },
+        "description": "Create topic; creator = request.user"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/",
+        "auth": "required",
+        "description": "Topic detail with contents (sorted by votes/media type) and selected ContentProfiles"
+      },
+      {
+        "method": "PATCH",
+        "path": "/topics/{pk}/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": "title, description, and/or topic_image (multipart)",
+        "notes": "Replacing topic_image deletes previous file from disk/S3"
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/",
+        "auth": "required",
+        "permission": "creator only",
+        "description": "Delete topic"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/basic/",
+        "auth": "required",
+        "description": "TopicBasicSerializer without contents/moderators"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/content-simple/",
+        "auth": "required",
+        "description": "Topic id/title/description + current user's ContentProfiles that are in the topic (management UI)"
+      }
+    ],
+
+    "topic_creation_requests": [
+      {
+        "method": "GET",
+        "path": "/topic-creation-requests/",
+        "auth": "required",
+        "query": ["status"],
+        "description": "List current user's creation requests"
+      },
+      {
+        "method": "POST",
+        "path": "/topic-creation-requests/",
+        "auth": "required",
+        "body": {
+          "proposed_title": "string",
+          "proposed_description": "string"
+        },
+        "constraints": "Max 3 PENDING per user; notifies staff + admin email"
+      },
+      {
+        "method": "POST",
+        "path": "/topic-creation-requests/{request_id}/cancel/",
+        "auth": "required",
+        "permission": "requester; PENDING only",
+        "description": "Cancel own request → CANCELLED"
+      },
+      {
+        "method": "GET",
+        "path": "/admin/topic-creation-requests/",
+        "auth": "required",
+        "permission": "staff",
+        "query": ["status"],
+        "description": "List all creation requests"
+      },
+      {
+        "method": "POST",
+        "path": "/admin/topic-creation-requests/{request_id}/approve/",
+        "auth": "required",
+        "permission": "staff",
+        "body": {
+          "approved_title": "string (editable)",
+          "approved_description": "string (editable)"
+        },
+        "description": "Approve and publish topic immediately; request → COMPLETED"
+      },
+      {
+        "method": "POST",
+        "path": "/admin/topic-creation-requests/{request_id}/finalize/",
+        "auth": "required",
+        "permission": "staff",
+        "description": "Publish topic for legacy APPROVED requests without linked topic"
+      },
+      {
+        "method": "POST",
+        "path": "/admin/topic-creation-requests/{request_id}/reject/",
+        "auth": "required",
+        "permission": "staff",
+        "body": {
+          "rejection_reason": "string optional"
+        }
+      }
+    ],
+
+    "topic_content": [
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/content/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": {
+          "content_profile_ids": [1, 2]
+        },
+        "description": "Add Content from caller's ContentProfiles to topic"
+      },
+      {
+        "method": "PATCH",
+        "path": "/topics/{pk}/content/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": {
+          "content_ids": [1, 2]
+        },
+        "description": "Remove Content from topic.contents"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/content/{media_type}/",
+        "auth": "required",
+        "path_params": {
+          "media_type": ["VIDEO", "AUDIO", "TEXT", "IMAGE"]
+        },
+        "description": "List topic content filtered by media type"
+      }
+    ],
+
+    "moderators": [
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/moderators/",
+        "auth": "required",
+        "permission": "creator only",
+        "description": "Add moderators by usernames (direct)"
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/moderators/",
+        "auth": "required",
+        "permission": "creator only",
+        "description": "Remove moderators"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/moderators/invite/",
+        "auth": "required",
+        "permission": "creator",
+        "description": "Invite user as moderator"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/moderators/invitations/",
+        "auth": "required",
+        "description": "List invitations for this topic"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/moderators/invitations/{invitation_id}/accept/",
+        "auth": "required",
+        "permission": "invited user"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/moderators/invitations/{invitation_id}/decline/",
+        "auth": "required",
+        "permission": "invited user"
+      },
+      {
+        "method": "GET",
+        "path": "/user/topics/",
+        "auth": "required",
+        "description": "Topics created, moderated, or related to current user (structured by type)"
+      },
+      {
+        "method": "GET",
+        "path": "/user/topics/invitations/",
+        "auth": "required",
+        "query": ["status"],
+        "description": "Moderator invitations for current user"
+      }
+    ],
+
+    "content_suggestions": [
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/content-suggestions/",
+        "auth": "required",
+        "description": "List content suggestions for topic"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/content-suggestions/create/",
+        "auth": "required",
+        "description": "Create content suggestion"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/content-suggestions/{suggestion_id}/accept/",
+        "auth": "required",
+        "permission": "creator or moderators"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/content-suggestions/{suggestion_id}/reject/",
+        "auth": "required",
+        "permission": "creator or moderators"
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/content-suggestions/{suggestion_id}/",
+        "auth": "required",
+        "description": "Delete suggestion (typically suggester, PENDING)"
+      },
+      {
+        "method": "GET",
+        "path": "/user/content-suggestions/",
+        "auth": "required",
+        "description": "Suggestions made by current user"
+      }
+    ],
+
+    "timeline": [
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/timeline/",
+        "auth": "required",
+        "description": "Timeline with entries and contents; if none exists returns empty shell entries:[] with 200"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body_example": {
+          "title": "Publicación del Whitepaper de Bitcoin",
+          "description": "Satoshi Nakamoto publica el whitepaper...",
+          "start_date": "2008-10-31",
+          "end_date": null,
+          "contents": [
+            { "content_id": 101, "order": 1 },
+            { "content_id": 102, "order": 2 }
+          ]
+        },
+        "description": "Create entry; creates TopicTimeline on first entry"
+      },
+      {
+        "method": "PATCH",
+        "path": "/topics/{pk}/timeline/{entry_id}/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": "Partial same shape as create"
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/timeline/{entry_id}/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "response": "204"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline/reorder/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": {
+          "entry_ids": [15, 12, 14]
+        },
+        "constraint": "entry_ids must include exactly all entry IDs in desired order"
+      }
+    ],
+
+    "timeline_entry_suggestions": [
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline-suggestions/create/",
+        "auth": "required",
+        "description": "Community suggests a new timeline entry"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/timeline-suggestions/",
+        "auth": "required",
+        "description": "List timeline entry suggestions for topic"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline-suggestions/{suggestion_id}/accept/",
+        "auth": "required",
+        "permission": "creator or moderators"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline-suggestions/{suggestion_id}/reject/",
+        "auth": "required",
+        "permission": "creator or moderators"
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/timeline-suggestions/{suggestion_id}/",
+        "auth": "required",
+        "description": "Delete suggestion"
+      },
+      {
+        "method": "GET",
+        "path": "/user/timeline-entry-suggestions/",
+        "auth": "required",
+        "description": "Current user's timeline entry suggestions"
+      }
+    ],
+
+    "timeline_entry_content_suggestions": [
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline/{entry_id}/content-suggestions/create/",
+        "auth": "required",
+        "permission": "not creator/moderator",
+        "body": {
+          "content_id": 101,
+          "message": "optional note for moderators"
+        },
+        "constraint": "Content must be in the topic or in the suggester's library"
+      },
+      {
+        "method": "GET",
+        "path": "/topics/{pk}/timeline-entry-content-suggestions/",
+        "auth": "required",
+        "query": ["status", "entry_id"]
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline-entry-content-suggestions/{suggestion_id}/accept/",
+        "auth": "required",
+        "permission": "creator or moderators"
+      },
+      {
+        "method": "POST",
+        "path": "/topics/{pk}/timeline-entry-content-suggestions/{suggestion_id}/reject/",
+        "auth": "required",
+        "permission": "creator or moderators",
+        "body": {
+          "rejection_reason": "required string"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/topics/{pk}/timeline-entry-content-suggestions/{suggestion_id}/",
+        "auth": "required",
+        "permission": "suggester only, PENDING only"
+      },
+      {
+        "method": "GET",
+        "path": "/user/timeline-entry-content-suggestions/",
+        "auth": "required",
+        "query": ["status", "topic_id"]
+      }
+    ]
+  },
+
+  "frontend": {
+    "api_client": "frontend/src/api/contentApi.js",
+    "components_dir": "frontend/src/topics/",
+    "timeline_components_dir": "frontend/src/topics/timeline/",
+    "routes": [
+      { "path": "/content/create_topic", "component": "TopicCreationForm", "notes": "request creation" },
+      { "path": "/dashboard", "component": "Dashboard", "notes": "staff; includes TopicCreationRequestsAdmin" },
+      { "path": "/content/topics", "component": "TopicList" },
+      { "path": "/content/topics/:topicId", "component": "TopicDetail" },
+      {
+        "path": "/content/topics/:topicId/edit",
+        "component": "TopicEdit",
+        "tabs_query": ["general", "content", "timeline", "suggestions", "moderators", "danger"]
+      },
+      { "path": "/content/topics/:topicId/add-content", "component": "TopicAddContent" },
+      { "path": "/content/topics/:topicId/edit-content", "notes": "legacy redirect → edit?tab=content" },
+      { "path": "/content/topics/:topicId/suggestions", "component": "TopicContentSuggestionsPage" },
+      { "path": "/content/topics/:topicId/:mediaType", "component": "TopicContentMediaType" },
+      { "path": "/content/topics/:topicId/timeline/new", "notes": "moderator create entry" },
+      { "path": "/content/topics/:topicId/timeline/:entryId/edit", "notes": "moderator edit entry" },
+      { "path": "/content/topics/:topicId/timeline/suggest", "notes": "community suggest entry" },
+      { "path": "/content/topics/:topicId/timeline/:entryId/suggest-content", "notes": "community suggest content for entry" }
+    ]
+  },
+
+  "related_systems": {
+    "knowledge_paths": {
+      "prefix": "/api/knowledge_paths/",
+      "role": "Structured learning path with Nodes referencing ContentProfiles; visibility requires >=2 nodes; progress via UserNodeCompletion"
+    },
+    "book_clubs": {
+      "prefix": "/api/book_clubs/",
+      "role": "May link a Topic for Investigación; reuses topic basic/timeline/content/{media_type} endpoints read-only in hub"
+    },
+    "votes_comments": {
+      "note": "Votes/comments can carry topic_id and feed activity_score"
+    }
+  }
+}

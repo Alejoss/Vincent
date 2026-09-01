@@ -19,7 +19,10 @@ Diagrama y rutina diaria: [workflows/overview.md](workflows/overview.md)
 - [Pipeline 3: Completadas Slack → Notion](workflows/slack-task-updates.md)
 - [Plan: completado de tareas Slack](workflows/slack-task-completion-plan.md)
 - [Email diario](workflows/daily-email.md)
-- [Transcripciones YouTube (canal)](workflows/youtube-channel-transcripts.md) — subtítulos OAuth → Obsidian
+- [Newsletter SMTP2GO](workflows/newsletter-smtp2go.md)
+- [Campañas editoriales](workflows/editorial-campaigns.md)
+- [Motor editorial IA](workflows/editorial-engine.md)
+- [Transcripciones YouTube (canal)](workflows/youtube-channel-transcripts.md) — subtítulos OAuth → Obsidian (backlog OAuth vacío; 57 sin captions → Whisper)
 - [Transcripciones locales (Whisper)](workflows/local-video-transcripts.md) — vídeos en disco → Obsidian
 - [Extracción de conocimiento (Own_Transcripts)](workflows/own-transcript-knowledge.md) — transcripts propios → activos estructurados
 - [Programador de tareas Windows](operations/windows-scheduler.md)

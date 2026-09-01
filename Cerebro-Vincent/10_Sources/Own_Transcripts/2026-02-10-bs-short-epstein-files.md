@@ -1,0 +1,11 @@
+---
+title: "BS Short Epstein Files"
+source_url: "file:///E:/Buho%20Serpiente/35_short_Epstein_files/BS%20Short%20Epstein%20Files_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-02-10T03:52:57.163864+00:00"
+processed_date: "2026-06-06T02:30:39.307809"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Los archivos de Jeffrey Epstein fueron liberados por el Departamento de Justicia de Estados Unidos . No creo que querían liberarlos hace cinco años sino que la presión de la gente y de la resistencia fue tal que tuvieron que hacerlo para mantener esta ficción de que existe justicia en este mundo y que del Departamento de Justicia se merece un puesto en nuestras mentes y unos pilares de mármol en Washington que no debemos quemar porque esos personajes en el Departamento de Justicia luchan contra estos otros personajes satánicos pedófilos que gobiernan el mundo de alguna manera . La verdad los liberaron para mantener su posición en nuestras mentes y la ficción de justicia . El mundo se desayunó que estamos siendo gobernados por pedófilos satánicos o por lo menos mucha gente se enfrenta a esa realidad ahora . Ahora un periodista o un historiador moderno que no es un teórico de la conspiración no debe ser tomado en serio . Esa persona tiene la cabeza metida en la arena y no es capaz de sacarla ni siquiera ahora con estas declaraciones . Algunos hemos estado hablando de esto por más de diez años y también van a llegar cientos de miles de nuevos periodistas que también van a analizar lo que pasa en el mundo desde un punto de vista más realista , desde el entendimiento de la realidad conspirativa y eso es bueno porque va a aumentar la velocidad de la conversación y la potencia de la investigación pero tiene un riesgo . ¿ Cuál es el riesgo ? ¿ Qué se trate de encuadrar esta información en paradigmas obsoletos como izquierda contra derecha con republicanos versus liberales o a favor de Donald Trump y en contra de Donald Trump como si esto se tratara de Donald Trump ? No se trata de Donald Trump , se trata de una tradición oscura que tiene el poder sobre este mundo y en el caso de este canal nos importa mucho que las cabecillas de Silicon Valley desde Elon Musk , Jeff Bezos , Bill Gates hasta Peter Thiel asisten a estas fiestas y descienden en estos sótanos en donde se asfixian niñas.

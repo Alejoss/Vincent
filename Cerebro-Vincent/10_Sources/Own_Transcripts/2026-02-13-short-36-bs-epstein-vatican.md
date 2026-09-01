@@ -1,0 +1,11 @@
+---
+title: "short 36 BS Epstein Vatican"
+source_url: "file:///E:/Buho%20Serpiente/36_Epstein_Vatican/short_36_BS_Epstein_Vatican_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-02-13T21:15:46.622708+00:00"
+processed_date: "2026-06-06T02:30:50.743923"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hay un correo de Jeffrey Epstein muy interesante , en el que se menciona que Jeffrey Epstein vivió con el Papa Juan Pablo II en el Vaticano . Si es que has visto el documental Ucronía sabes que la cabeza de la serpiente está en el Vaticano y que Juan Pablo II no era ningún santo . Por poner un ejemplo , encubrió casos de pedofilia en Polonia . Hay otro correo en el que Jeffrey Epstein se refiere al Closet del Vaticano . Me pregunto qué significará el Closet del Vaticano . En otra conversación , en este caso con Steve Bannon . Steve Bannon es un ex militar entrenado por Goldman Sachs que invierte en películas de Hollywood , , todo un vampiro . Steve le señala un artículo que comenta la posición del Vaticano al respecto de la inmigración . Recordemos que la inmigración está siendo utilizada en este mundo como un arma . La respuesta de Jeffrey Epstein es única . Dice genial , se olvidaron de mencionar al mismísimo Lucifer . ¿ Por qué Jeffrey dirá se olvidaron de mencionar al mismísimo Lucifer cuando Steve Bannon le señala algo que tiene que ver con el Vaticano ? ¿ Qué tiene que ver Lucifer con el Vaticano ? Para Jeffrey Epstein está ahí . Jeffrey termina la correspondencia con un poema de John Milton que dice lo siguiente . Aquí al menos seremos libres . El Todopoderoso no ha construido aquí por su envidia . No nos echará de aquí . Aquí podemos reinar seguros . Y en mi elección reinar vale la misión aunque sea en el infierno . Mejor reinar en el infierno que servir en el cielo . Si quieres profundizar en estos temas y comprender lo que está detrás del velo , te recomiendo visitar mi muro de Patreon , me puedes encontrar ahí como Alejandro Ventimilla . Te mando un enorme abrazo . Estamos en contacto .

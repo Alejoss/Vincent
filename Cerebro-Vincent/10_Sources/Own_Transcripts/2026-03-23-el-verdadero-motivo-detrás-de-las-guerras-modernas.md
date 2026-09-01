@@ -1,0 +1,11 @@
+---
+title: "El verdadero motivo detrás de las guerras modernas"
+source_url: "https://www.youtube.com/watch?v=0zR3UE4xW7Q"
+source_type: "Own Video"
+uploaded_date: "2026-03-23T18:35:12Z"
+processed_date: "2026-06-05T22:39:48.998070"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . El día de hoy les traigo una idea que les invito a contemplar con seriedad . Y esta idea dice que la guerra realmente es contra el pueblo . La guerra no es entre países , la guerra es contra el pueblo . ¿ Por qué ? Porque la guerra es el mejor catalizador de cambio que puede existir . Y es que la Primera Guerra Mundial nos dejó un mundo cubierto de visas . y pasaportes que antes no existían . También nos dejó el impuesto a la renta y la potestad del Estado a meterse en la contabilidad de todos para extraer ese impuesto a la renta . También reafirmó el poder del Banco Central , específicamente la Primera Guerra Mundial de la Reserva Federal Estadounidense . , la Primera Guerra Mundial estableció un sistema de control antes inimaginable . La Segunda Guerra Mundial también nos trajo su set de cambios orguelianos totalitarios , que los mafiosos que financiaron los dos lados de la Segunda Guerra Mundial querían ver implementados en el mundo . Por ejemplo , el Petrodólar , el sistema de Breton Woods , el Fondo Monetario Internacional Dominando a los Países . La pregunta es , ¿ qué nos quieren traer ? ¿ Qué quieren implementar con la tercera guerra mundial ? Y la respuesta es , el cambio que quieren catalizar se define como una cárcel digital con su ID digital . Y eso es lo que quieren acelerar , ciudades de 15 minutos . ¿ Qué creen que viene después de eso ? Les recomiendo estudiar la historia de los ninjas , que una vez que perdieron frente al emperador y a los samurá tuvieron que pasar a las sombras . También les recomiendo mucho visitar mi otro canal llamado El búo y la Serpiente . Te mando un enorme abrazo . Estamos en contacto .

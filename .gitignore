@@ -21,6 +21,10 @@ ENV/
 **/logs/
 *.log
 .last_sent_date
+data/newsletter_settings.json
+data/newsletter_send_log.jsonl
+data/newsletter.db
+emails/preview/
 
 # IDE / editor
 .cursor/

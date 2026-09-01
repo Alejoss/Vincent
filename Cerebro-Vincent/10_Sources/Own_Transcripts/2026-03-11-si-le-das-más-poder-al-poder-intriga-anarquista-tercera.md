@@ -1,0 +1,11 @@
+---
+title: "Si le das más PODER al PODER. Intriga Anarquista Tercera"
+source_url: "https://www.youtube.com/watch?v=TMwMbrRseNo"
+source_type: "Own Video"
+uploaded_date: "2026-03-11T20:02:54Z"
+processed_date: "2026-06-05T22:39:55.714982"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola amigos , el día de hoy les comparto otra intriga anarquista , otra idea anarquista que nos ayuda a pensar fuera de la caja . Y en estos tiempos es importante pensar fuera de la caja porque si no nos van a hacer la del sapo cocinado . ¿ Cómo podemos levantar la vista hacia el horizonte y contemplar el anarquismo para dejar de votar ? No votar es bueno , pero pensar en anarquismo requiere ideas , requiere pensamientos , conocimiento , desde versículos de la Biblia hasta el conocimiento que nace de las veredas . Porque en las veredas ahí está acumulado el sudor y las decepciones del pueblo que han sido traicionado tantas veces una y otra vez y siguen votando porque el próximo quizás será mejor . Pero frases como esta puede ayudarnos a quitarnos esa carie cerebral que es el creer en el estado . Si le das más poder , al poder más duro , te van a venir a Lo puso Molotov , pero ese conocimiento viene desde Aristóteles . Si le das más poder al poder , más duro te van a venir a Pueden contemplar la profundidad de ese pensamiento . Solo con eso es suficiente para tumbar a Marx , para derrumbar al socialismo . ¿ Por qué ? Porque no va a haber nunca una dictadura del proletariado , ni un presidente bueno que se pueda alargar en el poder , porque el poder , en la medida en que genera un centro de poder , atrae a las personas que no tienen escrúpulos y tarde o temprano esos puestos de poder van a corromper a las personas que los ocupan o otras personas van a desplazar a la gente honesta que está en puestos de poder , porque el poder corrompe . Y si el poder corrompe , no podemos confiar en que haya un buen gobierno . Por más que tú hayas visto uno alguna vez en tu vida , esa posición de poder , tarde o temprano será ocupada por un mafioso . No importa si es que hay un buen rey , Alfonso el Sabio , tarde o temprano ese trono será ocupado por un tirano . No .

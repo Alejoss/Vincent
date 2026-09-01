@@ -36,11 +36,16 @@ scripts\run_notion_due_slack_reminders.bat
 
 ## Otros flujos
 
+- **Newsletter / campañas:** `scripts\run_newsletter_app.bat` — pestaña **Generar** + envío SMTP2GO — [docs/workflows/editorial-engine.md](docs/workflows/editorial-engine.md)
 - **Email diario:** `scripts\run_daily_email_send.bat` — [docs/workflows/daily-email.md](docs/workflows/daily-email.md)
-- **Transcripciones YouTube/RSS:** `python main.py` (pipeline legacy)
+- **Transcripciones YouTube (OAuth):** `scripts\run_youtube_channel_transcripts.bat` — [docs/workflows/youtube-channel-transcripts.md](docs/workflows/youtube-channel-transcripts.md)
+- **Transcripciones locales (Whisper):** `scripts\run_local_videos_transcripts.bat` — [docs/workflows/local-video-transcripts.md](docs/workflows/local-video-transcripts.md)
+- **Podcast MP3:** `python scripts/extract_podcast_mp3.py` — carpeta `VideosParaPodcast/`
 
 ## Logs
 
 - `logs/productivity_pipeline.log` — pipeline 1
 - `logs/notion_due_slack_reminders.log` — pipeline 2
 - `logs/slack_inbox_sync.log` — solo ingesta Slack
+- `logs/youtube_channel_transcripts_latest.log` — YouTube
+- `logs/local_videos_transcripts_latest.log` — Whisper local

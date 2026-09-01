@@ -1,0 +1,11 @@
+---
+title: "BS Short Thiel Tesalonians"
+source_url: "file:///E:/Buho%20Serpiente/43_short_thiel_tesalonians/BS%20Short%20Thiel%20Tesalonians_final.mp4"
+source_type: "Own Video"
+uploaded_date: "2026-04-17T21:36:09.843154+00:00"
+processed_date: "2026-06-06T02:34:30.138190"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola amigos del búho y la serpiente , el día de hoy les quiero comentar algo importante y es que Peter Thiel , el dueño de Palantir , uno de los vendedores de armas más importantes de este mundo , está de gira , o ha estado de gira ya por algún tiempo , hablando sobre el Anticristo . Es muy preocupante que uno de los vendedores más grandes del mundo tenga estas ideas en su mente y lo más curioso es que no creo que se refiere con sus conferencias a la mayor parte de gente o al público en general , no , él está hablando para un público culto y no solo eso , para un público podeoso . Miren , hizo una serie de conferencias sobre el Anticristo en Italia , las entradas costaban desde 200 dólares para arriba , , se está refiriendo a personas que tienen su capital y tienen su poder , tienen la capacidad de sentarse a leer y a estudiar lo que él está diciendo . ¿ Y qué es lo que dice ? Insiste una y otra vez sobre el Anticristo , pero ¿ por qué nos habla del Anticristo ? Porque está en una posición en la cual puede considerarlo y para él el Anticristo es un gobierno global que puede significar una singularidad . Yo estoy hablando de la singularidad de poder ya más de 10 años . Y bueno , para finalizar , les quiero compartir algo a lo cual Peter Thiel regresa constantemente y que es muy preocupante . Regresa constantemente a un versículo del libro de Daniel , a un versículo de Desalonicenses . Este versículo dice que cuando digan paz y seguridad , entonces vendrá sobre ellos destrucción repentina , como los dolores de parto de una mujer encinta . Se refiere al día del Señor . Me pregunto , ¿ por qué Peter Thiel nos advierte ante la paz y la seguridad ? Y nos dice , hey , tengan cuidado , con ese versículo de la Biblia .

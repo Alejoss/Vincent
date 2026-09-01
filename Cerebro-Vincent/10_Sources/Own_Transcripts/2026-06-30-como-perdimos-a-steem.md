@@ -1,0 +1,11 @@
+---
+title: "Como perdimos a Steem"
+source_url: "https://www.youtube.com/watch?v=LLc7AoDtmpo"
+source_type: "Own Video"
+uploaded_date: "2026-06-30T15:45:29Z"
+processed_date: "2026-07-02T17:11:47.264562"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola, amigos, amigas de Academia Blockchain. Algunos de ustedes se acordarán de un proyecto llamado Steam o Steamit. Ese proyecto era grande. En el 2017-2018 estaba entre los top 10 de Coin Market Cap. ¿Qué pasó con Steam? Steam apuntaba a hacer una red social resistente a la censura y descentralizada, aprovechando la tecnología de las cadenas de bloques. También buscaba incentivar la actividad en esta red social llamada Steam con el beneficio de tokens para los usuarios que posteen contenido valioso y para los moderadores que filtren contenido valioso. ¿Qué pasó con esta iniciativa que tenía un horizonte muy loable? , recibió todo tipo de ataques, ataques de negación de servicio, de doos, ataques de hackers, pero el ataque que realmente lo derrumbó fue uno institucional. Y es que Justin Son, el fundador y dueño de la cadena de bloques Stron, compró la empresa Stimit.inc, que era la empresa que había sacado el mundo la cadena de bloques de Stimit. La empresa que compró Justin Son tenía millones de tokens de Steam y la comunidad había aceptado que esos tokens existan porque se le había dicho a la comunidad que esos tokens serían utilizados para pagar a los programadores. Muy importante. Para hacer marketing también muy importante. Y lograr así que crezca la red y la comunidad de Steamit. Pero cuando Justinson compró la empresa Stimit.in utilizó esos tokens en contra de la misma red. Justinson tomó control de la red de Stimit de manera hostil. En la prueba de participación delegada, que es un mecanismo de consenso utilizado por varias cadenas de bloques, entre otras Steam, los votos se asientan en tokens y mientras más tokens tengas, puedes votar por los validadores de los bloques. Si es que Justins compra esos tokens, puede poner sus propios validadores. Y eso fue lo que pasó. Aunque no le fue suficiente con la compra de la empresa Stit, también requirió el apoyo de algunos intercambios de criptomonedas mafiosos que utilizaron los tokens de sus depositantes para apoyar a los validadores puestos ahí por Justin Son. Y así es como perdimos a Steam.

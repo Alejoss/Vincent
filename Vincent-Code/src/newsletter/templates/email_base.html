@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject }}</title>
+  {% if preview_text %}
+  <meta name="description" content="{{ preview_text }}">
+  <!--[if !mso]><!-->
+  <span style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+    {{ preview_text }}
+  </span>
+  <!--<![endif]-->
+  {% endif %}
+  <style>
+    body { margin: 0; padding: 0; background: #f4f4f5; font-family: Georgia, 'Times New Roman', serif; color: #1a1a1a; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { padding: 28px 32px 16px; border-bottom: 3px solid #111111; }
+    .header h1 { margin: 0; font-size: 18px; letter-spacing: 0.04em; text-transform: uppercase; font-family: Arial, Helvetica, sans-serif; }
+    .content { padding: 28px 32px 36px; font-size: 17px; line-height: 1.65; }
+    .content h1 { font-size: 26px; line-height: 1.25; margin: 0 0 16px; }
+    .content h2 { font-size: 20px; margin: 28px 0 12px; }
+    .content h3 { font-size: 17px; margin: 20px 0 8px; }
+    .content p { margin: 0 0 16px; }
+    .content ul, .content ol { margin: 0 0 16px; padding-left: 24px; }
+    .content a { color: #0b57d0; text-decoration: underline; }
+    .content img { display: block; max-width: 100%; height: auto; margin: 0 0 20px; border: 0; }
+    .footer { padding: 20px 32px 28px; font-size: 13px; line-height: 1.5; color: #666666; font-family: Arial, Helvetica, sans-serif; border-top: 1px solid #e8e8e8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Academia Blockchain</h1>
+    </div>
+    <div class="content">
+      {{ content_html | safe }}
+    </div>
+    <div class="footer">
+      Recibes este correo porque estás suscrito a Academia Blockchain.
+      {# SMTP2GO añade el enlace de baja automáticamente (Unsubscribe Footer en la API Key).
+         SMTP2GO inyecta el enlace de baja vía custom_headers List-Unsubscribe. #}
+    </div>
+  </div>
+</body>
+</html>

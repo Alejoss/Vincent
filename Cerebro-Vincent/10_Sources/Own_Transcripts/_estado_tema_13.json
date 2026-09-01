@@ -1,0 +1,220 @@
+{
+  "topic_id": 13,
+  "generated_at": "2026-07-28T17:48:38.706903+00:00",
+  "counts": {
+    "pending": 9,
+    "done": 3
+  },
+  "remote": {
+    "pending": 9,
+    "completed": 3,
+    "total": 12
+  },
+  "state_db": "E:\\Vincent\\Vincent-Code\\cache\\video_transcripts\\state.sqlite3",
+  "items": [
+    {
+      "content_id": 62,
+      "status": "pending",
+      "title": "Historia del dinero y Bitcoin con Juan Ramón Rallo",
+      "media_type": "AUDIO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://open.spotify.com/episode/7ApmBLM5lKHlyPhvct2ELp?si=76885af501364b49",
+      "file_key": null
+    },
+    {
+      "content_id": 83,
+      "status": "pending",
+      "title": "El Banco de Inglaterra, el HECHICERO y la CONQUISTA del Dinero",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=rbe-NnJCxYw",
+      "file_key": "content_owner_attach/83/2/0eca6c6cf8e749fa92d6801a4d3056e3_ACBC_Hechicero_Banco_Dinero.mp4"
+    },
+    {
+      "content_id": 110,
+      "status": "pending",
+      "title": "The Trust Game: Episode 1 - \"Crowns and Sovereigns\"",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=K-s72LSlwt0",
+      "file_key": "content_owner_attach/110/2/Truthstream_Media_The_Trust_Game_Episode_1_-_Crowns_and_Sovereigns_110.mp4"
+    },
+    {
+      "content_id": 322,
+      "status": "pending",
+      "title": "El TERRORISMO SEMÁNTICO detrás del DINERO | ¿Por qué lo llaman DINERO si es DEUDA?",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=3EQjFK3HaDk",
+      "file_key": "content_owner_attach/322/2/Liberalístico_El_TERRORISMO_SEMÁNTICO_detrás_del_DINERO_Por_qué_lo_llaman_322.mp4"
+    },
+    {
+      "content_id": 323,
+      "status": "pending",
+      "title": "The Truth About The Federal Reserve They Don't Want You To See",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://youtu.be/5IJeemTQ7Vk?si=7MdGqRADSXLUaOrA",
+      "file_key": "content_owner_attach/323/2/86e2b9f18ec2459f99513e505f128e1c_yt1z.net_-_Full_Documentary_The_Money_Masters_360p.mp4"
+    },
+    {
+      "content_id": 324,
+      "status": "pending",
+      "title": "Markets verses Government in Money and Banking - Dr. Lawrence White for Hillsdale College Praxis",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=jcV3mVgZcog",
+      "file_key": "content_owner_attach/324/2/Hillsdale_Praxis_Markets_verses_Government_in_Money_and_Banking_-_Dr_Lawrence_324.mp4"
+    },
+    {
+      "content_id": 325,
+      "status": "pending",
+      "title": "Princes of the Yen | The Hidden Power of Central Banks",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=p5Ac7ap_MAY",
+      "file_key": "content_owner_attach/325/2/Independent_POV_Princes_of_the_Yen_The_Hidden_Power_of_Central_Banks_325.mp4"
+    },
+    {
+      "content_id": 326,
+      "status": "pending",
+      "title": "Century of Enslavement: The History of The Federal Reserve",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=5IJeemTQ7Vk",
+      "file_key": "content_owner_attach/326/2/corbettreport_Century_of_Enslavement_The_History_of_The_Federal_Reserve_326.mp4"
+    },
+    {
+      "content_id": 327,
+      "status": "pending",
+      "title": "The Collapse of The American Dream Explained in Animation",
+      "media_type": "VIDEO",
+      "method": null,
+      "transcribed_at": null,
+      "uploaded_at": null,
+      "server_created_at": null,
+      "text_hash": null,
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://www.youtube.com/watch?v=mII9NZ8MMVM",
+      "file_key": "content_owner_attach/327/2/doctordude_The_Collapse_of_The_American_Dream_Explained_in_Animation_327.mp4"
+    },
+    {
+      "content_id": 328,
+      "status": "done",
+      "title": "DOCUMENTAL  Imperios de la plata (cap 1)",
+      "media_type": "VIDEO",
+      "method": "whisper_ytdlp",
+      "transcribed_at": "2026-07-28T17:29:30.514721+00:00",
+      "uploaded_at": "2026-07-28T17:29:30.514721+00:00",
+      "server_created_at": "2026-07-28T17:29:30.607100Z",
+      "text_hash": "730b4e61b84ae5c8d69090bef202ae823a121b13c88535addc45cb961cb05877",
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://odysee.com/@ANONYMOUSBOLIVIA:2/documental-imperios-de-la-plata-%28cap-1%29:c?r=Acv8Xr1vu1i3NHhsdfaQJk8iPCiHRqr2",
+      "file_key": null
+    },
+    {
+      "content_id": 329,
+      "status": "done",
+      "title": "DOCUMENTAL  Imperios de la plata (cap 2)",
+      "media_type": "VIDEO",
+      "method": "whisper_ytdlp",
+      "transcribed_at": "2026-07-28T17:35:18.727177+00:00",
+      "uploaded_at": "2026-07-28T17:35:18.727177+00:00",
+      "server_created_at": "2026-07-28T17:35:18.831093Z",
+      "text_hash": "e0300af31d6e8e8c6b63d46476dac118c3f45f0272b36ef832fa0ea26a40b8c5",
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://odysee.com/@ANONYMOUSBOLIVIA:2/documental-imperios-de-la-plata-%28cap-2%29:0?r=Acv8Xr1vu1i3NHhsdfaQJk8iPCiHRqr2",
+      "file_key": null
+    },
+    {
+      "content_id": 330,
+      "status": "done",
+      "title": "DOCUMENTAL  Imperios de la plata (cap 3)",
+      "media_type": "VIDEO",
+      "method": "whisper_ytdlp",
+      "transcribed_at": "2026-07-28T17:48:38.351756+00:00",
+      "uploaded_at": "2026-07-28T17:48:38.351756+00:00",
+      "server_created_at": "2026-07-28T17:48:38.462919Z",
+      "text_hash": "3510750371c2fc9e22bc04c2cbf8304be37aace89442765508a7a99f8014c3cb",
+      "topic_ids": [
+        13
+      ],
+      "error": null,
+      "source_url": "https://odysee.com/@ANONYMOUSBOLIVIA:2/documental-imperios-de-la-plata-%28cap-3%29:9?r=Acv8Xr1vu1i3NHhsdfaQJk8iPCiHRqr2",
+      "file_key": null
+    }
+  ]
+}

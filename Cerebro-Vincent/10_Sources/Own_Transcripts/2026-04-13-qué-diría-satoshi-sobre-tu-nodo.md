@@ -1,0 +1,11 @@
+---
+title: "¿Qué diría Satoshi sobre tu Nodo?"
+source_url: "https://www.youtube.com/watch?v=qeXarcm_HPU"
+source_type: "Own Video"
+uploaded_date: "2026-04-13T17:38:09Z"
+processed_date: "2026-06-05T22:39:25.258602"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola amigos de Academia Blockchain . El día de hoy les traigo un mensaje corto a partir de un texto que es una cita de Satoshi Nakamoto . Veamos qué dice . Solo las personas que intentasen crear monedas necesitarían gestionar nodos de red . Al principio , la mayoría de los usuarios gestionarían nodos de red , pero a medida que la red creciera más allá de cierto punto , se dejaría cada vez más en manos de especialistas con granjas de servidores de hardware especializado . Esta cita está en el libro El secuestro de Bitcoin , que lo he recomendado mucho . Ahora vamos a ir revisándolo . Esta cita del 2008 es muy importante porque nos apunta hacia qué es lo que estaba pensando Satoshi Nokamoto cuando creaba y desarrollaba Bitcoin . Veamos otra cita . El sistema actual en el que cada usuario es un nodo de red no es la configuración prevista a gran escala . Sería como si cada usuario de Usenet tuviera su propio servidor NNTP . El diseño apoya a que los usuarios sean solo usuarios . Cuanto más pesado sea gestionar un nodo , menos nodos habrá . Esos pocos nodos serán grandes granjas de servidores . El resto serán nodos cliente que solo harán transacciones y no generarán . Satashi Nakamoto está diferenciando entre un nodo minero y un nodo que no validará transacciones . Él los llamaba SPBS , un nodo que solamente genera transacciones , pero que no valida ni crea monedas . Eso Satoshi Nakamoto ya lo tenía claro . Veía la arquitectura de Bitcoin como una red de nodos validadores , los mineros y otros nodos que podrían ser billeteras que no necesitaban una copia entera de la cadena de bloques . Lamentablemente esa fue la exacta narrativa que utilizaron para secuestrar a Bitcoin y meter una idea en los bitcoiners de todo el mundo , una idea populista , una idea fácil . ¿ Cuál fue esa idea ? que todos necesitamos tener nuestro propio nodo .

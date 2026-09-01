@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "auto": 25,
+    "review": 26,
+    "no_match": 466,
+    "skip_empty": 0
+  },
+  "thresholds": {
+    "covers": "E:\\Vincent\\Vincent-Code\\scripts\\book_cover_match\\output\\cover_title_table_latest.csv",
+    "pdfs": "E:\\Vincent\\Vincent-Code\\scripts\\book_cover_match\\output\\pdf_title_table_latest.csv",
+    "out": "E:\\Vincent\\Vincent-Code\\scripts\\book_cover_match\\output",
+    "auto_title": 92.0,
+    "review_title": 85.0,
+    "auto_author": 50.0
+  }
+}

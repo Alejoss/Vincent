@@ -1,0 +1,11 @@
+---
+title: "¿Qué se llama Bitcoin? ¡Guerras de Hash!"
+source_url: "https://www.youtube.com/watch?v=RZcEOvn1ZRA"
+source_type: "Own Video"
+uploaded_date: "2026-06-15T17:45:51Z"
+processed_date: "2026-07-02T17:12:02.359985"
+language_code: "es"
+tags: ['transcript', 'source']
+---
+
+Hola, amigos de Academia Blockchain. El día de hoy les traigo un mensaje importante y la invitación a recordar un evento histórico. ¿Se acuerdan de las guerras de Hash? Las guerras de Hash sucedieron hace más de 7 años y decidieron que se llama Bitcoin. En ese momento Bitcoin se había dividido en dos por un hard fork. había copiado su código y teníamos dos cadenas de bloques que las dos decían llamarse Bitcoin. ¿Qué es lo que hicieron los intercambios? Los intercambios no tenían claro cuál proyecto se llamaría BTC. Entonces, algunos como Binance pusieron BTC Core y BTC Cash, Bitcoin Core y Bitcoin Cash. Luego, ¿qué le dio legitimidad a Bitcoin para llamarse Bitcoin? Es una pregunta clave. Y lo que sucedió fue que se dieron unas guerras de hash por demostrar cuál de los dos proyectos tenía más poder de minado. Bitman apoyó a Bitcoin Cash, pero no fue suficiente. Hubo otros proyectos, enormes granjas de minería que apoyaron a Bitcoin Core y eso le dio la legitimidad suficiente al proyecto Bitcoin Core para decir al mundo, miren, nosotros tenemos más apoyo, nosotros somos realmente Bitcoin. Hay gente que cree que en verdad el mercado eligió que Bitcoin se llame Bitcoin y Bitcoin Cash se llame Bitcoin Cash. El mercado puede ser una cortina de humo, una entele que al parecer está llena de tratos voluntarios y esa forma de ver el mundo no nos permite entender el mundo, porque en ese mercado lo que existe son realmente luchas de poder en donde influyen todo tipo de actores y entre otros actores hay unos que defienden el monopolio de la moneda estatal. A esos les importaba mucho que Bitcoin no aumente el tamaño del bloque, porque si aumentaba el tamaño del bloque, este hype que tenía no iba a parar. Esos actores utilizaron estrategias como ponerle una pistola en la cabeza a tal o cual CEO o a tal o cual desarrollador. Y así es como se logró que Bitcoin se llame Bitcoin, el proyecto atrofiado se llame Bitcoin y el proyecto que tiene los tamaños de bloque correctos tenga que llamarse Bitcoin Cash. Estén muy bien.

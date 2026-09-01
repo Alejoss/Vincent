@@ -1,0 +1,11 @@
+---
+title: "Control DESAPERCIBIDO en la Música. ¿Recuerdas los CDs?"
+source_url: "https://www.youtube.com/watch?v=YTJamZU5icc"
+source_type: "Own Video"
+uploaded_date: "2026-03-05T12:00:00Z"
+processed_date: "2026-06-05T22:39:59.031977"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+¿ Alguna vez conversamos sobre cómo cuando tú escuchas una canción en Spotify tú no tienes poder sobre el archivo . Spotify tiene poder sobre el archivo y tú solo tienes el derecho a acceder esa canción . Y así es como perdimos poder sobre la música . ¿ Te acuerdas lo bonito que era componer un CD , componer un cassette y compartir incluso ese vinilo con un amigo ? Sabiendo que ahí estaba la canción , el archivo estaba en tus manos . La industria de la música ha cambiado mucho y ha desempoderado a la gente . Primero nos quitaron el poder sobre el archivo y ahora nos venden servicios de streaming donde corren algoritmos que aplastan a los verdaderos artistas y benefician a los grandes productos de esta industria que cada vez nos queda más claro cuán corrupta es . Recuerdan que hace año y medio George Soros compró 200 estaciones de radio . Necesitan el control sobre la industria musical y sobre la industria de la radio porque es parte de la catedral y tienen que controlar la catedral , la forma que tiene la catedral , las imágenes que nos reflejan para últimamente controlar lo que nosotros pensamos . Por eso es importante dominar la industria del cine y la industria de la música . Afortunadamente hay tecnologías como la blockchain integrada en el navegador , lo que se conoce como web 3 , que nos permiten hacer pagos de punto a punto en algunos casos y permiten conectarte directamente financieramente también con el artista y apoyarle y aportar con su proyecto . Algunas plataformas ya están listas y funcionando y si quieren profundizar más pueden ver el documental sobre la descentralización en la industria y la música que hay en el canal de Academia Blockchain en YouTube . Les mando un enorme abrazo . Estamos en contacto .

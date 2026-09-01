@@ -1,0 +1,11 @@
+---
+title: "El Problema NO es la Ciencia ..."
+source_url: "https://www.youtube.com/watch?v=VKAAOP6FaYM"
+source_type: "Own Video"
+uploaded_date: "2026-04-06T19:13:39Z"
+processed_date: "2026-06-05T22:39:37.261980"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . El día de hoy les traigo un tema que es crucial , es muy importante . Hablemos sobre la ciencia . ¿ Por qué tenemos fe en la ciencia ? Es una muy buena pregunta y es que primero , ¿ qué es lo que nos hace confiar en ella ? Y es que tiene algo muy valioso , sin duda . Lo que tiene valioso es el proceso descentralizado de confirmación de teorías y de hipótesis . Si es que tú puedes generar un experimento y luego puedes publicar tu experimento y otra persona puede replicarlo en otra parte del mundo . Quizás esa persona y tú están llegando a algo esencial , a real conocimiento sobre el mundo que compartimos . De ahí parte nuestra confianza en la ciencia . Pero , ¿ cuál es el riesgo ? El riesgo es que un grupo organizado , ambicioso y sin escrúpulos puede dominar las vías de comunicación que utiliza la ciencia , incluyendo los lugares en donde la conversación sucede . Si esos actores tienen capital suficiente , pueden financiar investigaciones con objetivos específicos . dirigir la atención y la reputación a través del control de ciertas revistas científicas y de la industria de libros universitarios . Entre otras cosas , el poder al darle forma a la ciencia también puede escribir la ley . Y así es como nos planean someter a leyes para imaginarias huellas de carbono . Ya no podemos confiar en la ciencia porque entre otras cosas , además de convencerle a la gente que llegamos a la Luna en el 69 , le convenció a la gente en el 2020 que tiene que inyectarle veneno a sus hijos y tiene que inyectarse veneno con esas vacunas . Ya no podemos confiar en la ciencia y la situación es crítica , pero por suerte quizás en el futuro podríamos volver a confiar en la ciencia . Porque ahora contamos con una tecnología que permite generar comunicaciones confiables , descentralizadas , transparentes y abiertas . , la cadena de bloques mezclada con el internet y el código abierto .

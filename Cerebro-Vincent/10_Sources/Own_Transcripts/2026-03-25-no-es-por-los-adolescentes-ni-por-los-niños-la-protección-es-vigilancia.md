@@ -1,0 +1,11 @@
+---
+title: "NO ES por los adolescentes ni por los niños. La PROTECCIÓN es VIGILANCIA."
+source_url: "https://www.youtube.com/watch?v=28s0mNwHu0Q"
+source_type: "Own Video"
+uploaded_date: "2026-03-25T15:28:41Z"
+processed_date: "2026-06-05T22:39:45.629693"
+language_code: "es"
+tags: ['transcript', 'source', 'own-video', 'youtube']
+---
+
+Hola , amigos de Academia Blockchain . El día de hoy les quiero compartir un comentario sobre una noticia importante y es que en muchos países en este mundo , desde Australia , Malasia , Portugal , España , Francia , Italia , Alemania , está pensándolo Inglaterra y Argentina , se están implementando políticas que revisan la identidad y sobre todo la edad de las personas para proteger a los adolescentes y a los menores de los males que pueden causar las redes sociales . Recordemos en un paréntesis que las redes sociales son corporaciones que realmente son fachadas del aparato militar . Pero esto no tiene nada que ver con proteger a los niños y a los adolescentes . Esto tiene todo que ver con acostumbrarnos a la verificación constante de la identidad . El rato que verificas tu identidad en tu celular , tu cerebro va a recibir un pequeño shot de dopamina y además la posición del Estado y de sus corporaciones se va a reafirmar en la mente de la gente y van a ocupar el puesto del padre de familia que se asegura que su hijo adolescente no vea películas inadecuadas . Eso antes , de nuevo , le pertenecía al padre de familia . Y ahora el Estado se reafirma en esa posición de cuidador . Eso es muy peligroso . Y es que el Estado totalitario se asienta sobre la vigilancia total . Nunca ha existido en la historia la capacidad administrativa para micromanejar la sociedad como existe ahora . El emperador romano Caracala fue el que le dio identidad romana a diferentes pueblos y lo hizo no porque era buena gente , no . Lo hizo porque le era necesario administrar su imperio y cobrar impuestos . Para eso les dio identidad a cada uno de los habitantes de Roma . Pero el día de hoy la vigilancia permite el control y no solo eso , facilita la experimentación . En Academia Blockchain hemos estado hablando de esto por más de 10 años . Te recomiendo visitar mi muro de Patreon . Te mando un enorme abrazo .

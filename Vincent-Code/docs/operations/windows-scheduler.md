@@ -1,6 +1,6 @@
 # Operación: Windows Task Scheduler
 
-Automatizar los **dos pipelines de productividad** (y opcionalmente el email diario).
+Automatizar los **pipelines de productividad** y, opcionalmente, email diario y transcripciones.
 
 ## Tareas recomendadas
 
@@ -9,6 +9,10 @@ Automatizar los **dos pipelines de productividad** (y opcionalmente el email dia
 | Pipeline 1 — Slack → Notion | `E:\Vincent\Vincent-Code\scripts\run_productivity_pipeline.bat` | 2–3× al día |
 | Pipeline 2 — Recordatorios | `E:\Vincent\Vincent-Code\scripts\run_notion_due_slack_reminders.bat` | 1–2× al día |
 | Email diario (opcional) | `scripts\run_daily_email_send.bat` | 1× al día o al login |
+| YouTube transcripts (opcional) | `scripts\run_youtube_channel_transcripts.bat` | 1× al día — vídeos **nuevos** del canal |
+| Local Whisper (opcional) | `scripts\run_local_videos_transcripts.bat` | 1× al día o bajo demanda |
+
+Guías: [YouTube](../workflows/youtube-channel-transcripts.md) · [Local Whisper](../workflows/local-video-transcripts.md)
 
 **Iniciar en:** `E:\Vincent\Vincent-Code` (carpeta del proyecto, no la de `scripts`).
 
@@ -33,3 +37,5 @@ Automatizar los **dos pipelines de productividad** (y opcionalmente el email dia
 | `logs\productivity_pipeline.log` | 1 |
 | `logs\notion_due_slack_reminders.log` | 2 |
 | `logs\slack_inbox_sync.log` | Solo paso Slack (si usas `run_slack_inbox_sync.bat`) |
+| `logs\youtube_channel_transcripts_latest.log` | YouTube OAuth |
+| `logs\local_videos_transcripts_latest.log` | Local Whisper |
