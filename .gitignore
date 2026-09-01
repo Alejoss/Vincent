@@ -24,7 +24,28 @@ ENV/
 data/newsletter_settings.json
 data/newsletter_send_log.jsonl
 data/newsletter.db
+Vincent-Code/data/newsletter.db
+Vincent-Code/data/newsletter_send_log.jsonl
 emails/preview/
+emails/email_diario_*.txt
+
+# Local podcast media (too large for GitHub)
+VideosParaPodcast/*.mp4
+VideosParaPodcast/*.mp3
+VideosParaPodcast/*.json
+VideosParaPodcast/mp3/
+VideosParaPodcast/Directos/
+
+# Streamlit local
+Vincent-Code/.streamlit/credentials.toml
+
+# Scratch / one-off artifacts
+_tmp_runs.py
+freud_mentions_*.txt
+pdf_thumbs_sample/
+tmp-liberator-diff/
+Vincent-Code/Plan Social N 1
+Vincent-Code/Plan Social N 2
 
 # IDE / editor
 .cursor/
