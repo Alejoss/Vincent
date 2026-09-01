@@ -26,7 +26,7 @@ Diagrama y rutina diaria: [workflows/overview.md](workflows/overview.md)
 - [Transcripciones locales (Whisper)](workflows/local-video-transcripts.md) — vídeos en disco → Obsidian
 - [Extracción de conocimiento (Own_Transcripts)](workflows/own-transcript-knowledge.md) — transcripts propios → activos estructurados
 - [Transcripts por tema (Sophia)](workflows/topic-transcripts-sophia.md) — VIDEO/AUDIO → `transcript-ingest`
-- [Knowledge por tema (embeddings → Qdrant)](workflows/topic-embeddings.md) — Vincent embebe y sube vectores; Sophia ACK + RAG
+- [Knowledge por tema (embeddings → Qdrant)](workflows/topic-embeddings.md) — Vincent embebe y sube vectores; Sophia ACK + RAG. Estado: `scripts/report_topic_embedding_status.py`
 - [Programador de tareas Windows](operations/windows-scheduler.md)
 
 ## Orden típico en un día

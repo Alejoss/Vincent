@@ -36,6 +36,7 @@ Auth del worker: la misma key que transcripts (`TRANSCRIPT_INGEST_API_KEY`, head
 | Paso | Script | Rol |
 |------|--------|-----|
 | **All-in-one** | `scripts/run_topic_knowledge_pipeline.py` | Orquesta 0→3 en orden |
+| **Status** | `scripts/report_topic_embedding_status.py` | Qué temas/contenidos están `indexed` vs pending/stale/failed |
 | 0 | `scripts/map_topic_embedding_volume.py` | Inventario de volumen (tokens / missing) |
 | 1 | `scripts/process_topic_transcripts.py` | Transcripts → Sophia + vault |
 | 2 | `scripts/embed_topic.py` | Chunk + embed → SQLite local |
@@ -104,6 +105,52 @@ Pasos sueltos (si prefieres controlar uno a uno):
 
 ---
 
+## ¿Qué embeddings están listos? ¿Qué temas faltan?
+
+Fuente de verdad: `ContentTranscript.embedding_status` en Sophia (`pending` / `stale` / `failed` / `indexed` / `skipped`). El listado público `GET /api/content/topics/` solo da un atajo: `indexed_transcript_count` (cuántos VIDEO/AUDIO del tema ya están `indexed`) y `chat_can_enable`.
+
+```powershell
+# Todos los temas públicos + cada VIDEO/AUDIO con transcript
+.\venv\Scripts\python.exe scripts\report_topic_embedding_status.py
+
+# Un tema
+.\venv\Scripts\python.exe scripts\report_topic_embedding_status.py --topic-id N
+
+# Más rápido (no cuenta VIDEO/AUDIO sin transcript)
+.\venv\Scripts\python.exe scripts\report_topic_embedding_status.py --skip-av-count
+```
+
+Atajo: `.\scripts\run_report_topic_embedding_status.bat`
+
+El script escribe:
+
+| Archivo | Contenido |
+|---------|-----------|
+| `cache/topic_embeddings/reports/topic_embedding_status_latest.json` | Resumen por bucket + detalle |
+| `…/topic_embedding_status_topics.csv` | Un row por tema |
+| `…/topic_embedding_status_contents.csv` | Un row por contenido transcrito |
+
+Buckets de tema:
+
+| Bucket | Significado |
+|--------|-------------|
+| `needs_embeddings` | Hay `pending`, `stale` o `failed` — hay que correr el worker |
+| `ready` | Todo VIDEO/AUDIO **con transcript** está `indexed` |
+| `needs_transcripts` | Hay VIDEO/AUDIO pero ninguno tiene transcript aún |
+| `partial` | Algo ya `indexed`, pero otros AV siguen sin transcript |
+| `skipped_only` | El worker marcó skip (p. ej. sin texto usable) |
+| `no_av` | El tema no tiene VIDEO/AUDIO |
+
+Cola cruda (un tema, sin agrupar):
+
+```powershell
+.\venv\Scripts\python.exe scripts\sync_topic_embeddings_to_qdrant.py --topic-id N --dry-run --mode queue
+```
+
+El mapa de volumen (`map_topic_embedding_volume.py`) dice si hay **texto** local; no dice si Sophia ya ACK-eó `indexed`.
+
+---
+
 ## Sync Qdrant / ACK (detalle)
 
 Worker según handoff Sophia:
@@ -150,6 +197,7 @@ Cada corrida escribe:
 |--------|----------------|-------------------------|
 | `run_topic_knowledge_pipeline.py` | `topic_knowledge_pipeline_*` | Orquesta pasos; mira también los `*_latest` de cada hijo |
 | `process_topic_transcripts.py` | `topic_transcripts_*` | Vault `_estado_tema_{id}.json/.md` + SQLite `sophia_content_transcript` |
+| `report_topic_embedding_status.py` | `topic_embedding_status_*` | `reports/topic_embedding_status_{latest.json,topics.csv,contents.csv}` |
 | `map_topic_embedding_volume.py` | `topic_volume_map_*` | `reports/topic_{id}_embedding_volume_map.{csv,json}` |
 | `embed_topic.py` | `embed_topic_*` | `reports/topic_{id}_embed_plan_latest.json` + SQLite `documents`/`chunks` |
 | `sync_topic_embeddings_to_qdrant.py` | `qdrant_sync_*` | `reports/topic_{id}_qdrant_sync_latest.json` + SQLite `qdrant_sync` |
