@@ -24,6 +24,8 @@ El `.bat`:
 2. Ejecuta los 3 scripts en cadena.
 3. Escribe log en `logs\productivity_pipeline.log`.
 
+**GHA:** la ingesta programada es `.github/workflows/productivity-pipeline.yml` (`0 8,14,20 * * *`). Classify+Notion va en `productivity-classify-notion.yml` (`:42`). Horarios: [overview](overview.md).
+
 **Ollama:** debe estar instalado y el modelo de `.env` (`OLLAMA_MODEL`, p. ej. `dolphin-llama3:8b`) descargado (`ollama pull ...`).
 
 ## Ejecución manual (paso a paso)
