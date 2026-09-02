@@ -74,8 +74,19 @@ def run(args: argparse.Namespace) -> int:
     log.info("Model: %s", model)
     log.info("Store: %s", db_path)
 
-    units = [resolve_topic_description(topic)]
+    units = []
+    wanted = {int(x) for x in (args.content_id or [])}
+    if not wanted:
+        units.append(resolve_topic_description(topic))
     contents = topics.list_topic_contents(topic_id, include_images=False)
+    if wanted:
+        contents = [item for item in contents if int(item["id"]) in wanted]
+        missing = wanted - {int(item["id"]) for item in contents}
+        if missing:
+            log.error("Content IDs not on topic %s: %s", topic_id, sorted(missing))
+            store.close()
+            return 1
+        log.info("Filtered to content IDs: %s", sorted(wanted))
     log.info("Contents (no images): %s", len(contents))
     for item in contents:
         units.append(
@@ -253,6 +264,13 @@ def run(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Embed Sophia topic contents")
     p.add_argument("--topic-id", type=int, required=True)
+    p.add_argument(
+        "--content-id",
+        type=int,
+        action="append",
+        default=[],
+        help="Only embed these Sophia content IDs (repeatable). Skips topic description.",
+    )
     p.add_argument("--model", default="", help=f"Default: {DEFAULT_EMBEDDING_MODEL}")
     p.add_argument("--db", default="", help="SQLite path for embedding store")
     p.add_argument("--dry-run", action="store_true")
