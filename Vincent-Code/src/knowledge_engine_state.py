@@ -355,6 +355,51 @@ def summary_counts(conn: sqlite3.Connection) -> dict[str, int]:
     return {row["status"]: row["n"] for row in rows}
 
 
+def search_knowledge_items(
+    conn: sqlite3.Connection,
+    query: str,
+    *,
+    limit: int = 20,
+    item_type: Optional[str] = None,
+) -> list[dict[str, Any]]:
+    """Keyword search over extracted knowledge items (payload, summary, title)."""
+    tokens = [t for t in (query or "").lower().replace("%", " ").replace("_", " ").split() if t]
+    sql = """
+        SELECT
+            ki.item_id,
+            ki.item_type,
+            ki.item_key,
+            ki.payload,
+            ki.anchor_text,
+            ki.video_id,
+            e.summary,
+            e.output_md_path,
+            e.status AS extraction_status,
+            v.title
+        FROM knowledge_items ki
+        JOIN extractions e ON e.extraction_id = ki.extraction_id
+        JOIN videos v ON v.video_id = ki.video_id
+        WHERE e.status = 'done'
+    """
+    params: list[Any] = []
+    if item_type:
+        sql += " AND ki.item_type = ?"
+        params.append(item_type)
+    for token in tokens:
+        like = f"%{token}%"
+        sql += (
+            " AND ("
+            "LOWER(ki.payload) LIKE ? OR LOWER(IFNULL(ki.anchor_text,'')) LIKE ? "
+            "OR LOWER(IFNULL(e.summary,'')) LIKE ? OR LOWER(IFNULL(v.title,'')) LIKE ? "
+            "OR LOWER(ki.item_type) LIKE ?"
+            ")"
+        )
+        params.extend([like, like, like, like, like])
+    sql += " ORDER BY ki.item_id DESC LIMIT ?"
+    params.append(max(1, int(limit)))
+    return [dict(row) for row in conn.execute(sql, params).fetchall()]
+
+
 def list_extractions(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     rows = conn.execute(
         """

@@ -19,9 +19,7 @@ Examples (from Vincent-Code root):
 from __future__ import annotations
 
 import argparse
-import json
 import logging
-import math
 import os
 import sys
 from pathlib import Path
@@ -39,6 +37,19 @@ from src.embeddings.openai_embed import (  # noqa: E402
     DEFAULT_EMBEDDING_MODEL,
     EmbeddingClient,
 )
+from src.embeddings.query import (  # noqa: E402
+    CHAT_TEMPERATURE,
+    DEFAULT_TOP_K,
+    NO_CONTEXT_ANSWER,
+    SYSTEM_PROMPT,
+    build_user_prompt,
+    default_embeddings_db,
+    format_context,
+    hits_to_sources,
+    load_chunks,
+    retrieve,
+    topic_title_from_store,
+)
 from src.embeddings.store import EmbeddingStore  # noqa: E402
 from src.llm_client import (  # noqa: E402
     build_llm_config,
@@ -47,159 +58,7 @@ from src.llm_client import (  # noqa: E402
 )
 from src.pipeline_logging import setup_pipeline_logging  # noqa: E402
 
-DEFAULT_DB = PROJECT_ROOT / "cache" / "topic_embeddings" / "state.sqlite3"
-DEFAULT_TOP_K = 8  # Sophia TOPIC_CHAT_TOP_K
-MAX_CONTEXT_CHARS = 12000  # Sophia TOPIC_CHAT_MAX_CONTEXT_CHARS
-MAX_CHUNKS_PER_CONTENT = 2
-CHAT_TEMPERATURE = 0.2  # Sophia OpenAIClient.chat default
-
-# Copied from Sophia acbc_app/content/topic_chat.py
-SYSTEM_PROMPT = (
-    "Eres un asistente de Academia Blockchain. Respondes preguntas sobre un tema "
-    "usando ÚNICAMENTE los fragmentos de transcripciones proporcionados como contexto.\n"
-    "Reglas:\n"
-    "- Si el contexto no contiene la información, di claramente que no la encuentras "
-    "en las transcripciones del tema. No inventes.\n"
-    "- Cita fuentes con [n] donde n es el número del fragmento.\n"
-    "- Responde en español, de forma clara y educativa.\n"
-    "- No inventes citas, títulos ni hechos fuera del contexto."
-)
-NO_CONTEXT_ANSWER = (
-    "No encontré fragmentos indexados de transcripciones para este tema "
-    "que respondan a tu pregunta. Puede que aún no haya embeddings o que "
-    "la pregunta no coincida con el material disponible."
-)
-
-
-def cosine(a: list[float], b: list[float]) -> float:
-    if len(a) != len(b) or not a:
-        return -1.0
-    dot = 0.0
-    na = 0.0
-    nb = 0.0
-    for x, y in zip(a, b):
-        dot += x * y
-        na += x * x
-        nb += y * y
-    if na <= 0.0 or nb <= 0.0:
-        return -1.0
-    return dot / (math.sqrt(na) * math.sqrt(nb))
-
-
-def load_chunks(
-    store: EmbeddingStore,
-    *,
-    topic_id: int,
-    model: str,
-) -> list[dict[str, Any]]:
-    rows = store.conn.execute(
-        """
-        SELECT
-            c.id,
-            c.doc_key,
-            c.topic_id,
-            c.content_id,
-            c.media_type,
-            c.chunk_index,
-            c.text,
-            c.token_count,
-            c.embedding_model,
-            c.embedding_dims,
-            c.embedding_json,
-            d.title,
-            d.author,
-            d.source
-        FROM chunks c
-        LEFT JOIN documents d ON d.doc_key = c.doc_key
-        WHERE c.topic_id = ? AND c.embedding_model = ?
-        ORDER BY c.id
-        """,
-        (int(topic_id), model),
-    ).fetchall()
-    out: list[dict[str, Any]] = []
-    for row in rows:
-        item = dict(row)
-        item["embedding"] = json.loads(item.pop("embedding_json"))
-        out.append(item)
-    return out
-
-
-def retrieve(
-    chunks: list[dict[str, Any]],
-    query_vec: list[float],
-    *,
-    top_k: int,
-) -> list[tuple[float, dict[str, Any]]]:
-    scored: list[tuple[float, dict[str, Any]]] = []
-    for ch in chunks:
-        score = cosine(query_vec, ch["embedding"])
-        scored.append((score, ch))
-    scored.sort(key=lambda x: x[0], reverse=True)
-    # Sophia: Qdrant limit = top_k * 2, then max 2 chunks per content_id, then top_k.
-    pool = scored[: max(1, top_k * 2)]
-    per_content: dict[Any, int] = {}
-    selected: list[tuple[float, dict[str, Any]]] = []
-    for score, ch in pool:
-        key = ch.get("content_id")
-        if key is None:
-            key = id(ch)
-        count = per_content.get(key, 0)
-        if count >= MAX_CHUNKS_PER_CONTENT:
-            continue
-        per_content[key] = count + 1
-        selected.append((score, ch))
-    return selected[: max(1, top_k)]
-
-
-def hits_to_sources(hits: list[tuple[float, dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Same source shape Sophia builds before format_context / the API response."""
-    sources: list[dict[str, Any]] = []
-    for index, (score, ch) in enumerate(hits, start=1):
-        text = (ch.get("text") or "").strip()
-        excerpt = text[:400] + ("…" if len(text) > 400 else "")
-        sources.append(
-            {
-                "index": index,
-                "content_id": ch.get("content_id"),
-                "title": (ch.get("title") or "").strip(),
-                "media_type": ch.get("media_type") or "",
-                "chunk_index": ch.get("chunk_index"),
-                "score": round(float(score), 4),
-                "excerpt": excerpt,
-                "text": text,
-            }
-        )
-    return sources
-
-
-def format_context(sources: list[dict[str, Any]], *, max_chars: int = MAX_CONTEXT_CHARS) -> str:
-    """Sophia topic_chat.format_context — this is what the model sees as context."""
-    blocks: list[str] = []
-    used = 0
-    budget = max(1000, int(max_chars))
-    for src in sources:
-        text = (src.get("text") or src.get("excerpt") or "").strip()
-        if not text:
-            continue
-        title = src.get("title") or f"contenido {src.get('content_id') or '?'}"
-        header = f"[{src['index']}] {title}"
-        if src.get("chunk_index") is not None:
-            header += f" (chunk {src['chunk_index']})"
-        block = f"{header}\n{text}"
-        if used + len(block) > budget and blocks:
-            break
-        blocks.append(block)
-        used += len(block) + 2
-    return "\n\n".join(blocks)
-
-
-def build_user_prompt(topic_title: str, message: str, context: str) -> str:
-    """Sophia topic_chat.run_topic_chat user message (verbatim)."""
-    return (
-        f"Tema: {topic_title}\n\n"
-        f"Contexto (fragmentos de transcripciones):\n{context}\n\n"
-        f"Pregunta del usuario:\n{message}"
-    )
+DEFAULT_DB = default_embeddings_db(PROJECT_ROOT)
 
 
 def format_hits_debug(hits: list[tuple[float, dict[str, Any]]]) -> str:
@@ -330,21 +189,7 @@ def run(args: argparse.Namespace) -> int:
     try:
         stats = store.topic_stats(topic_id)
         chunks = load_chunks(store, topic_id=topic_id, model=model)
-        title_row = store.conn.execute(
-            """
-            SELECT title FROM documents
-            WHERE topic_id = ? AND media_type = 'TOPIC_DESCRIPTION'
-            LIMIT 1
-            """,
-            (topic_id,),
-        ).fetchone()
-        topic_title = ""
-        if title_row and title_row["title"]:
-            topic_title = str(title_row["title"]).strip()
-        if not topic_title and chunks:
-            topic_title = str(chunks[0].get("title") or "").strip()
-        if not topic_title:
-            topic_title = f"topic-{topic_id}"
+        topic_title = topic_title_from_store(store, topic_id=topic_id, chunks=chunks)
     finally:
         store.close()
 
