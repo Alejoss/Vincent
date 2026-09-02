@@ -58,6 +58,15 @@ class SophiaTopicsClient:
     def get_topic(self, topic_id: int) -> dict[str, Any]:
         return self._get(f"content/topics/{int(topic_id)}/")
 
+    def list_topics(self) -> list[dict[str, Any]]:
+        """Public topics. Includes indexed_transcript_count and chat_can_enable."""
+        data = self._get("content/topics/")
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            return list(data.get("results") or data.get("topics") or [])
+        return []
+
     def list_content_by_type(
         self,
         topic_id: int,

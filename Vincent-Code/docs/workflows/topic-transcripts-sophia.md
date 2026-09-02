@@ -18,7 +18,7 @@ Complementa los pipelines de YouTube/local → Obsidian; este escribe también a
 | Estado SQLite | `cache/video_transcripts/state.sqlite3` → tabla `sophia_content_transcript` |
 | Cache media S3 | `cache/sophia_media/{content_id}/` |
 | Cobertura | `10_Sources/Own_Transcripts/_estado_tema_{id}.json` (+ `.md`) |
-| Contrato API | Sophia `docs/api/transcript-ingest.md` |
+| Contrato API | Sophia [`docs/api/transcript-ingest.md`](https://github.com/Alejoss/Sophia.AI/blob/main/docs/api/transcript-ingest.md) |
 
 ---
 

@@ -41,6 +41,7 @@ scripts\run_notion_due_slack_reminders.bat
 - **Transcripciones YouTube (OAuth):** `scripts\run_youtube_channel_transcripts.bat` — [docs/workflows/youtube-channel-transcripts.md](docs/workflows/youtube-channel-transcripts.md)
 - **Transcripciones locales (Whisper):** `scripts\run_local_videos_transcripts.bat` — [docs/workflows/local-video-transcripts.md](docs/workflows/local-video-transcripts.md)
 - **Podcast MP3:** `python scripts/extract_podcast_mp3.py` — carpeta `VideosParaPodcast/`
+- **Knowledge por tema (Sophia):** transcripts → embeddings OpenAI → Qdrant → ack — [docs/workflows/topic-embeddings.md](docs/workflows/topic-embeddings.md)
 
 ## Logs
 
