@@ -26,7 +26,7 @@ Una fila entra en la ventana si:
 - `tipo` es **Tarea** o **Idea**. Si la propiedad `tipo` existe pero está vacía, la fila **sí** entra. Cualquier otro valor (p. ej. Aprendizaje) se omite.
 - `Estado` no está en la lista excluida (default: Hecho, Terminado, Listo, Done).
 
-**Cloudflare (prioridad):** tareas cuyo título **empieza por** `Cloudflare` y no están en estado excluido generan el aviso *«Tienes un error importante en Cloudflare»* aunque no tengan fecha `Fin`. No se duplican en la sección de vencimientos.
+**Cloudflare (prioridad):** tareas cuyo título **empieza por** `Cloudflare` y no están en estado excluido generan un aviso aunque no tengan fecha `Fin`: *«Tienes un error importante en Cloudflare: {resto del título}»*. El título de Notion es el hallazgo (p. ej. LCP pobre); **no** es un 5xx del Overview. No se duplican en la sección de vencimientos.
 
 Si el script dice *"No tasks to remind"*, puede ser que:
 
@@ -82,7 +82,7 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
 
 Un solo `chat.postMessage` con markdown Slack:
 
-- **Cloudflare:** bloque `:warning: *Cloudflare*` con *«Tienes un error importante en Cloudflare»* (sin depender de `Fin`).
+- **Cloudflare:** bloque `:warning: *Cloudflare*` con *«Tienes un error importante en Cloudflare: …»* más el resto del título de Notion (sin depender de `Fin`).
 - **Recordatorios:** `:speech_balloon: *Recordatorios*` y, si aplica, dos bloques:
   - `*Próximas:*` — `recordatorio_slack` de la nota Obsidian (generado al clasificar). Si falta: `Para YYYY-MM-DD: {resumen}` desde Slack Procesado / notas / título. Último recurso: `¿Avanzaste con: {título}?`.
   - `*Atrasadas (últimos N días):*` — *"Ya deberías haber terminado con: …"* a partir del mismo resumen (N = `--overdue-max-days`).
@@ -140,3 +140,4 @@ Local / Windows: tarea separada del pipeline de ingesta, 1–2 veces al día.
 | Repite el mismo aviso | Verificar que `state/notion_slack_reminders_sent.json` se commitea en GHA; probar con `--dry-run` sin `--force` |
 | Texto genérico (`Para …` / `¿Avanzaste con…`) | Asegurar `OBSIDIAN_VAULT_PATH` y nota `slack-<ts>.md` con `recordatorio_slack` |
 | Cloudflare no avisa | El título debe **empezar** por `Cloudflare`; estado no terminal; dedup 3 días |
+| Aviso Cloudflare sin detalle / Overview sin 5xx | El hallazgo está en el **título de Notion**, no en Overview. Abrir Web Analytics → Core Web Vitals. Tras este cambio el DM incluye el resto del título. |
