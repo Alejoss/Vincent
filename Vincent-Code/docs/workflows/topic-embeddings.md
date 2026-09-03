@@ -107,15 +107,23 @@ Atajo: `.\scripts\run_sync_topic_embeddings_to_qdrant.bat --topic-id N`
 
 ## Query local (RAG)
 
-Retrieval: mismo modelo de embeddings (`text-embedding-3-large` vía OpenAI).  
-Respuesta: OpenAI / Groq / Ollama (`--llm-provider`).
+Alinea el chat de Sophia (`docs/operations/topic-rag-chat.md` en el repo Sophia):
+
+- Retrieval: `text-embedding-3-large` (OpenAI). Aquí sobre SQLite local; en prod sobre Qdrant.
+- Respuesta: `gpt-4o-mini` (`OPENAI_CHAT_MODEL`). `top_k=8`, max 2 chunks por `content_id`, `temperature=0.2`.
+- Mismos `SYSTEM_PROMPT` y `user_prompt` que `acbc_app/content/topic_chat.py` (`Tema:` + `Contexto (fragmentos…)` + `Pregunta del usuario:`).
+- Cada pregunta es independiente (sin memoria de turnos).
 
 ```powershell
-.\venv\Scripts\python.exe scripts\query_topic_embeddings.py --topic-id N --llm-provider openai
+.\venv\Scripts\python.exe scripts\query_topic_embeddings.py --topic-id N
+.\venv\Scripts\python.exe scripts\query_topic_embeddings.py --topic-id N "¿Qué dicen sobre el tamaño de los bloques?"
 .\venv\Scripts\python.exe scripts\query_topic_embeddings.py --topic-id N --retrieve-only "pregunta"
+.\venv\Scripts\python.exe scripts\query_topic_embeddings.py --topic-id N --dump-prompt "pregunta"
 ```
 
-Atajo: `.\scripts\run_query_topic_embeddings.bat --topic-id N --llm-provider openai`
+Atajo: `.\scripts\run_query_topic_embeddings.bat --topic-id N`
+
+Ollama solo si lo pides: `--llm-provider ollama`.
 
 ---
 

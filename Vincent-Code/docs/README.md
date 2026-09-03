@@ -25,6 +25,7 @@ Diagrama y rutina diaria: [workflows/overview.md](workflows/overview.md)
 - [Transcripciones YouTube (canal)](workflows/youtube-channel-transcripts.md) — subtítulos OAuth → Obsidian (backlog OAuth vacío; 57 sin captions → Whisper)
 - [Transcripciones locales (Whisper)](workflows/local-video-transcripts.md) — vídeos en disco → Obsidian
 - [Extracción de conocimiento (Own_Transcripts)](workflows/own-transcript-knowledge.md) — transcripts propios → activos estructurados
+- [Vincent MCP (Cursor)](workflows/vincent-mcp.md) — herramientas locales para buscar y lanzar pipelines
 - [Programador de tareas Windows](operations/windows-scheduler.md)
 
 ## Orden típico en un día

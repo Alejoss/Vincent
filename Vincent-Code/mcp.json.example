@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vincent": {
+      "command": "E:\\Vincent\\Vincent-Code\\venv\\Scripts\\python.exe",
+      "args": ["E:\\Vincent\\Vincent-Code\\scripts\\vincent_mcp.py"]
+    }
+  }
+}
