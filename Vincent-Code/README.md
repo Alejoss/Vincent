@@ -2,12 +2,15 @@
 
 Automatización del segundo cerebro (Obsidian + Notion + Slack).
 
-## Dos pipelines principales
+## Tres pipelines de productividad
 
 | Pipeline | Qué hace | Comando |
 |----------|----------|---------|
 | **1. Entrada** | Slack → Obsidian → LLM → Notion | `scripts\run_productivity_pipeline.bat` |
-| **2. Recordatorios** | Notion (vencimientos) → Slack DM | `scripts\run_notion_due_slack_reminders.bat` |
+| **3. Completadas** | Slack (frase explícita) → Notion `Hecho` | `scripts\run_slack_task_updates.sh` |
+| **2. Recordatorios** | Notion (vencimientos + Cloudflare) → Slack DM | `scripts\run_notion_due_slack_reminders.bat` |
+
+En GitHub Actions el ciclo corre 3×/día a las **8, 14 y 20 UTC** (`:00` → `:40` → `:42` → `:45`). Guía de notificaciones Slack: **[docs/workflows/notion-to-slack-reminders.md](docs/workflows/notion-to-slack-reminders.md)**.
 
 Documentación detallada: **[docs/README.md](docs/README.md)** (diagramas, `.env`, troubleshooting).
 
@@ -46,7 +49,8 @@ scripts\run_notion_due_slack_reminders.bat
 ## Logs
 
 - `logs/productivity_pipeline.log` — pipeline 1
-- `logs/notion_due_slack_reminders.log` — pipeline 2
+- `logs/notion_due_slack_reminders.log` — pipeline 2 (notificaciones Slack)
+- `logs/slack_task_updates.log` — pipeline 3
 - `logs/slack_inbox_sync.log` — solo ingesta Slack
 - `logs/youtube_channel_transcripts_latest.log` — YouTube
 - `logs/local_videos_transcripts_latest.log` — Whisper local

@@ -2,7 +2,7 @@ name: Notion due Slack reminders
 
 on:
   schedule:
-    # 15 min after classify+Notion (8/14/20 UTC)
+    # 3 min after classify+Notion (:42); hours 8/14/20 UTC
     - cron: "45 8,14,20 * * *"
   workflow_dispatch:
 
