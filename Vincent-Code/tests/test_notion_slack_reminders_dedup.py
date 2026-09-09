@@ -6,9 +6,34 @@ import unittest
 from datetime import date
 
 from src.notion_slack_reminders_dedup import (
+    cloudflare_reminder_line,
     effective_dedup_days,
     was_sent_within_dedup_window,
 )
+
+
+class TestCloudflareReminderLine(unittest.TestCase):
+    def test_includes_finding_from_title(self) -> None:
+        title = (
+            "Cloudflare: LCP p75 5214.0 ms (poor) en www.academiablockchain.com "
+            "(14 muestras)"
+        )
+        line = cloudflare_reminder_line(title)
+        self.assertIn("Tienes un error importante en Cloudflare:", line)
+        self.assertIn("LCP p75 5214.0 ms (poor)", line)
+        self.assertIn("www.academiablockchain.com", line)
+
+    def test_prefix_only_stays_generic(self) -> None:
+        self.assertEqual(
+            cloudflare_reminder_line("Cloudflare"),
+            "Tienes un error importante en Cloudflare",
+        )
+
+    def test_empty_title_stays_generic(self) -> None:
+        self.assertEqual(
+            cloudflare_reminder_line(""),
+            "Tienes un error importante en Cloudflare",
+        )
 
 
 class TestEffectiveDedupDays(unittest.TestCase):

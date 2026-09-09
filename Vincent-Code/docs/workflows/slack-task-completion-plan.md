@@ -59,16 +59,16 @@ Pipeline 2 — Recordatorios Notion (vencimientos) → Slack DM
 Script Pipeline 3: `scripts/update_notion_tasks_from_slack_messages.py`  
 Workflow GHA: `.github/workflows/slack-task-updates.yml`
 
-**Orden de ejecución objetivo (por slot, UTC):**
+**Orden de ejecución (desplegado, por slot UTC a las 8/14/20):**
 
 ```text
 :00  Ingesta Slack → Obsidian
-:15  Completadas (con gate estricto)
-:30  Clasificar + sync Notion
+:40  Completadas (con gate estricto)
+:42  Clasificar + sync Notion
 :45  Recordatorios
 ```
 
-Alternativa: un solo workflow secuencial por horario para evitar carreras.
+El borrador `:15` / `:30` de abajo quedó sustituido en Fase 2. Horarios actuales: [overview](overview.md).
 
 ---
 

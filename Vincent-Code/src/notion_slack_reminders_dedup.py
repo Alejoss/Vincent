@@ -1,9 +1,24 @@
-"""Dedup rules for Notion → Slack due-date reminders."""
+"""Dedup rules and Cloudflare Slack copy for Notion → Slack reminders."""
 
 from __future__ import annotations
 
 from datetime import date
 from typing import Dict, Optional
+
+CLOUDFLARE_TITLE_PREFIX = "Cloudflare"
+CLOUDFLARE_REMINDER_PREFIX = "Tienes un error importante en Cloudflare"
+
+
+def cloudflare_reminder_line(title: str) -> str:
+    """Slack bullet: generic Cloudflare prefix plus the rest of the Notion title."""
+    t = (title or "").strip()
+    rest = t
+    if rest.lower().startswith(CLOUDFLARE_TITLE_PREFIX.lower()):
+        rest = rest[len(CLOUDFLARE_TITLE_PREFIX) :].lstrip(" :-—|")
+    rest = rest.strip()
+    if not rest:
+        return CLOUDFLARE_REMINDER_PREFIX
+    return f"{CLOUDFLARE_REMINDER_PREFIX}: {rest}"
 
 
 def parse_iso_date(s: Optional[str]) -> Optional[date]:
