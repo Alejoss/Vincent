@@ -7,7 +7,8 @@ Lee la misma base de tareas que `sync_productivity_obsidian_to_notion.py`, detec
 Ventana por defecto: fecha objetivo entre hoy y hoy+5; vencidas hasta 7 días atrás con texto distinto.
 
 Tareas cuyo título empieza por «Cloudflare»: aviso especial «Tienes un error importante en Cloudflare»
-si el estado no es terminado (p. ej. Hecho); no depende de la fecha Fin. Clave de dedup: `{page_id}|cloudflare`.
+más el resto del título de Notion (el hallazgo concreto). No depende de la fecha Fin.
+Clave de dedup: `{page_id}|cloudflare`.
 
 Dedup: como máximo un aviso por (página Notion, día de vencimiento) cada N días naturales locales,
 guardado en `state/notion_slack_reminders_sent.json` (versionado; GHA hace commit tras cada run).
@@ -50,6 +51,8 @@ sys.path.insert(0, SCRIPTS_DIR)
 sys.path.insert(0, PROJECT_ROOT)
 
 from src.notion_slack_reminders_dedup import (  # noqa: E402
+    CLOUDFLARE_TITLE_PREFIX,
+    cloudflare_reminder_line,
     effective_dedup_days,
     parse_iso_date as _parse_iso_date,
     was_sent_within_dedup_window,
@@ -270,10 +273,6 @@ def _prune_sent_state(state: Dict[str, str], today: date, keep_days: int = 30) -
         if sent_d is not None and sent_d >= cutoff:
             pruned[key] = sent_on
     return pruned
-
-
-CLOUDFLARE_TITLE_PREFIX = "Cloudflare"
-CLOUDFLARE_REMINDER_LINE = "Tienes un error importante en Cloudflare"
 
 
 def _is_cloudflare_task(title: str) -> bool:
@@ -505,7 +504,7 @@ def main() -> int:
             sent_state, state_key, today, args.dedup_days
         ):
             continue
-        cloudflare_candidates.append((pid, state_key, CLOUDFLARE_REMINDER_LINE))
+        cloudflare_candidates.append((pid, state_key, cloudflare_reminder_line(title)))
 
     pages = _query_pages_due_window(client, database_id, ds_id, due_prop, window_start, window_end)
 

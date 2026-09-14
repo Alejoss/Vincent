@@ -43,7 +43,7 @@ Notion: Estado → Hecho + nota Input marcada
 | Entorno | Comando / trigger |
 |---------|-------------------|
 | Local | `bash scripts/run_slack_task_updates.sh` |
-| GHA | `.github/workflows/slack-task-updates.yml` — `:40` UTC |
+| GHA | `.github/workflows/slack-task-updates.yml` — `:40` a las 8/14/20 UTC |
 | Preferido | Clasificar + sync (`productivity-classify-notion.yml` — `:42`) aplica `intencion=completar` |
 
 ## Intención de completar
