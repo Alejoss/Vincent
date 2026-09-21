@@ -26,7 +26,10 @@ from notion_client import Client
 
 load_dotenv(override=True)
 
-TASKS_DB_ID = "20d793a25b644663bca9641d927171ca"
+SCRIPTS_DIR = os.path.dirname(__file__)
+sys.path.insert(0, SCRIPTS_DIR)
+from sync_productivity_obsidian_to_notion import resolve_tasks_db_id  # noqa: E402
+
 LEARNINGS_DB_ID = "8e62295d7d514e17a8f3ea39706692b7"
 
 TYPE_OPTIONS = ["Tarea", "Idea", "Aprendizaje"]
@@ -284,7 +287,7 @@ def main() -> int:
 
     client = Client(auth=token, notion_version="2025-09-03")
     targets = [
-        DbContext(db_id=TASKS_DB_ID, name="Tareas", default_type="Tarea"),
+        DbContext(db_id=resolve_tasks_db_id(), name="Tareas", default_type="Tarea"),
         DbContext(db_id=LEARNINGS_DB_ID, name="Aprendizajes", default_type="Aprendizaje"),
     ]
 

@@ -12,7 +12,7 @@ Requiere LLM accesible (mismo comportamiento que el clasificador):
   OPENAI_API_KEY / GROQ_API_KEY / Ollama local (OLLAMA_URL)
 
   NOTION_API_TOKEN
-  Opcional NOTION_TASKS_DATABASE_ID (default igual que sync)
+  NOTION_TASKS_DATABASE_ID (required; set in .env)
   Opcional LLM_MODEL, OLLAMA_MODEL, OLLAMA_URL, OBSIDIAN_VAULT_PATH
 """
 

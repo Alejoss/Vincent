@@ -22,6 +22,16 @@ LANGUAGE_MODEL_MAP: Dict[str, str] = {
 # Default fallback model
 DEFAULT_MODEL = 'en_core_web_sm'
 
+VTT_MARKUP_RE = re.compile(r"<c[\s>]|captions Language\s*:|<\.\d|Kind:\s*captions", re.I)
+
+
+def normalize_language_code(language_code: Optional[str]) -> str:
+    """Map es-419, en-US, etc. to a spaCy model key (en, es, ...)."""
+    if not language_code:
+        return "en"
+    base = language_code.split("-")[0].lower()
+    return base if base in LANGUAGE_MODEL_MAP else "en"
+
 # Language-specific filler words
 FILLER_WORDS: Dict[str, Set[str]] = {
     'en': {'um', 'uh', 'er', 'ah', 'hmm', 'hm'},
@@ -79,44 +89,25 @@ class TextProcessor:
         Returns:
             spaCy model name
         """
-        return LANGUAGE_MODEL_MAP.get(language_code, DEFAULT_MODEL)
+        return LANGUAGE_MODEL_MAP.get(normalize_language_code(language_code), DEFAULT_MODEL)
     
     def get_filler_words_for_language(self, language_code: str) -> Set[str]:
-        """
-        Get filler words for a given language.
-        
-        Args:
-            language_code: Language code (e.g., 'en', 'es')
-            
-        Returns:
-            Set of filler words
-        """
-        return FILLER_WORDS.get(language_code, FILLER_WORDS.get('en', set()))
+        return FILLER_WORDS.get(
+            normalize_language_code(language_code), FILLER_WORDS.get("en", set())
+        )
     
     def get_filler_phrases_for_language(self, language_code: str) -> Set[str]:
-        """
-        Get filler phrases for a given language.
-        
-        Args:
-            language_code: Language code (e.g., 'en', 'es')
-            
-        Returns:
-            Set of filler phrases
-        """
-        return FILLER_PHRASES.get(language_code, FILLER_PHRASES.get('en', set()))
+        return FILLER_PHRASES.get(
+            normalize_language_code(language_code), FILLER_PHRASES.get("en", set())
+        )
     
     def load_model_for_language(self, language_code: str) -> None:
-        """
-        Load the appropriate spaCy model for a given language code.
-        
-        Args:
-            language_code: Language code (e.g., 'en', 'es')
-        """
-        model_name = self.get_model_for_language(language_code)
-        if self.current_language != language_code:
+        lang = normalize_language_code(language_code)
+        model_name = self.get_model_for_language(lang)
+        if self.current_language != lang:
             self._load_model(model_name)
-            self.current_language = language_code
-            logger.debug(f"Switched to language: {language_code} (model: {model_name})")
+            self.current_language = lang
+            logger.debug(f"Switched to language: {lang} (model: {model_name})")
     
     def clean_transcript(self, text: str, remove_timestamps: bool = True, 
                         remove_speaker_labels: bool = True) -> str:
@@ -132,6 +123,15 @@ class TextProcessor:
             Cleaned text
         """
         cleaned = text
+
+        # YouTube VTT karaoke markup (<c>, <00:01.234>) — strip if it leaked through
+        cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+        cleaned = re.sub(
+            r"^(?:Kind:\s*captions\s*)?(?:Language:\s*\w+\s*|captions Language\s*:\s*\w+\s*)",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
         
         # Remove timestamps (e.g., [00:01:23] or 00:01:23)
         if remove_timestamps:
@@ -141,7 +141,10 @@ class TextProcessor:
         # Remove speaker labels (e.g., "Speaker 1:", "John:")
         if remove_speaker_labels:
             cleaned = re.sub(r'^(?:Speaker\s+\d+|[\w\s]+):\s*', '', cleaned, flags=re.MULTILINE)
-            cleaned = re.sub(r'\[.*?\]', '', cleaned)  # Remove bracketed labels
+            cleaned = re.sub(r'\[Speaker\s+\d+\]', '', cleaned, flags=re.IGNORECASE)
+
+        if VTT_MARKUP_RE.search(cleaned):
+            cleaned = re.sub(r"<[^>]+>", " ", cleaned)
         
         return cleaned.strip()
     
@@ -157,14 +160,15 @@ class TextProcessor:
             Text with filler words removed
         """
         # Ensure correct model is loaded
-        self.load_model_for_language(language_code)
+        lang = normalize_language_code(language_code)
+        self.load_model_for_language(lang)
         
         doc = self.nlp(text)
         filtered_tokens = []
         
         # Get language-specific filler words and phrases
-        filler_words = self.get_filler_words_for_language(language_code)
-        filler_phrases = self.get_filler_phrases_for_language(language_code)
+        filler_words = self.get_filler_words_for_language(lang)
+        filler_phrases = self.get_filler_phrases_for_language(lang)
         
         i = 0
         while i < len(doc):
@@ -187,7 +191,7 @@ class TextProcessor:
                 continue
             
             # Language-specific handling
-            if language_code == 'en':
+            if lang == 'en':
                 # Handle "like" as filler word (but preserve functional uses)
                 if token_lower == 'like':
                     # Check POS tag - if it's a verb, preposition, or subordinating conjunction, keep it
@@ -207,43 +211,17 @@ class TextProcessor:
             filtered_tokens.append(token)
             i += 1
         
-        # Reconstruct text
-        result = ' '.join([t.text for t in filtered_tokens])
-        
-        # Clean up extra spaces
-        result = re.sub(r'\s+', ' ', result)
-        
+        # Preserve original spacing/punctuation between tokens
+        result = "".join(t.text_with_ws for t in filtered_tokens).strip()
+        result = re.sub(r"\s+", " ", result)
         return result.strip()
     
     def format_text(self, text: str, language_code: str = 'en') -> str:
-        """
-        Format text: fix punctuation, normalize spacing, improve sentence structure.
-        
-        Args:
-            text: Text to format
-            language_code: Language code for proper sentence segmentation (default: 'en')
-            
-        Returns:
-            Formatted text
-        """
-        # Ensure correct model is loaded
-        self.load_model_for_language(language_code)
-        
-        # Use spaCy for sentence segmentation
-        doc = self.nlp(text)
-        sentences = [sent.text.strip() for sent in doc.sents]
-        
-        # Join sentences with proper spacing
-        formatted = ' '.join(sentences)
-        
-        # Normalize spacing
-        formatted = re.sub(r'\s+', ' ', formatted)
-        
-        # Ensure proper punctuation at end
-        if formatted and not formatted[-1] in '.!?':
-            formatted += '.'
-        
-        return formatted.strip()
+        """Normalize spacing; add trailing period if missing."""
+        formatted = re.sub(r"\s+", " ", text).strip()
+        if formatted and formatted[-1] not in ".!?":
+            formatted += "."
+        return formatted
     
     def process(self, text: str, remove_timestamps: bool = True, 
                 remove_speaker_labels: bool = True, remove_fillers: bool = True,
@@ -261,18 +239,18 @@ class TextProcessor:
         Returns:
             Processed text
         """
-        # Ensure correct model is loaded
-        self.load_model_for_language(language_code)
+        lang = normalize_language_code(language_code)
+        self.load_model_for_language(lang)
         
         # Step 1: Clean timestamps and speaker labels
         processed = self.clean_transcript(text, remove_timestamps, remove_speaker_labels)
         
         # Step 2: Remove filler words (language-specific)
         if remove_fillers:
-            processed = self.remove_filler_words(processed, language_code)
+            processed = self.remove_filler_words(processed, lang)
         
-        # Step 3: Format text (language-specific)
-        processed = self.format_text(processed, language_code)
+        # Step 3: Normalize spacing / trailing punctuation
+        processed = self.format_text(processed, lang)
         
         return processed
     
