@@ -12,7 +12,7 @@ if not exist "%PY%" (
   exit /b 1
 )
 
-"%PY%" -c "import sys; sys.path.insert(0,'.'); from src.llm_client import needs_local_ollama; sys.exit(1 if needs_local_ollama() else 0)"
+"%PY%" -c "import sys; sys.path.insert(0,'.'); from dotenv import load_dotenv; load_dotenv(); from src.llm_client import needs_local_ollama; sys.exit(1 if needs_local_ollama() else 0)"
 if errorlevel 1 (
   echo [1/2] Checking Ollama server...
   "%PY%" -c "import sys, urllib.request; urllib.request.urlopen('http://127.0.0.1:11434/api/tags', timeout=2); print('Ollama OK')"

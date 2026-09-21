@@ -76,11 +76,16 @@ class MarkdownWriter:
         
         # Determine tags based on source type
         tags = ["transcript", "source"]
-        if source_type.lower() == "youtube":
+        st = source_type.lower()
+        if st == "youtube":
             tags.append("youtube")
-        elif source_type.lower() == "blog":
+        elif st in {"own video", "own_video"}:
+            tags.append("own-video")
+            if "youtube.com" in source_url or "youtu.be" in source_url:
+                tags.append("youtube")
+        elif st == "blog":
             tags.append("blog")
-        elif source_type.lower() == "rss":
+        elif st == "rss":
             tags.append("rss")
         
         # Build frontmatter - only include uploaded_date if we have it

@@ -36,6 +36,15 @@ DEFAULT_GROQ_BASE = "https://api.groq.com/openai/v1"
 DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
 
 
+def _load_env() -> None:
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv(override=True)
+    except ImportError:
+        pass
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     provider: str
@@ -52,6 +61,7 @@ class LLMConfig:
 
 
 def resolve_llm_provider(explicit: Optional[str] = None) -> str:
+    _load_env()
     raw = (explicit or os.getenv("LLM_PROVIDER") or "auto").strip().lower()
     if raw in {"openai", "gpt"}:
         return "openai"
@@ -111,6 +121,7 @@ def build_llm_config(
     model: Optional[str] = None,
     ollama_url: Optional[str] = None,
 ) -> LLMConfig:
+    _load_env()
     resolved = resolve_llm_provider(provider)
     model_name = (model or "").strip() or default_model_for_provider(resolved)
     return LLMConfig(

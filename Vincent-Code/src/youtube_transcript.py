@@ -142,34 +142,42 @@ class YouTubeTranscriptFetcher:
         
         return None
     
-    def get_channel_videos(self, playlist_id: str, max_results: int = 1) -> List[Dict]:
+    def get_channel_videos(
+        self, playlist_id: str, max_results: Optional[int] = None
+    ) -> List[Dict]:
         """
         Get videos from a channel's uploads playlist.
-        
+
         Args:
             playlist_id: Uploads playlist ID
-            max_results: Maximum number of videos to retrieve
-            
+            max_results: Maximum number of videos to retrieve (None = all pages)
+
         Returns:
             List of video dictionaries with id, title, publishedAt
         """
         videos = []
         next_page_token = None
-        
+
         try:
-            while len(videos) < max_results:
+            while max_results is None or len(videos) < max_results:
+                page_size = 50
+                if max_results is not None:
+                    page_size = min(50, max_results - len(videos))
+                    if page_size <= 0:
+                        break
+
                 request = self.youtube.playlistItems().list(
                     part='snippet',
                     playlistId=playlist_id,
-                    maxResults=min(50, max_results - len(videos)),
-                    pageToken=next_page_token
+                    maxResults=page_size,
+                    pageToken=next_page_token,
                     # Note: order parameter is not supported for playlistItems().list()
                     # Playlist items are returned in playlist order (uploads are newest first)
                 )
                 response = request.execute()
-                
+
                 logger.debug(f"YouTube API response: {len(response.get('items', []))} items")
-                
+
                 for item in response.get('items', []):
                     snippet = item['snippet']
                     videos.append({
@@ -177,16 +185,43 @@ class YouTubeTranscriptFetcher:
                         'title': snippet['title'],
                         'publishedAt': snippet['publishedAt']
                     })
-                
+
                 next_page_token = response.get('nextPageToken')
                 if not next_page_token:
                     break
-                    
+
         except Exception as e:
             logger.error(f"Error getting channel videos: {e}")
             import traceback
             logger.debug(f"Full error traceback: {traceback.format_exc()}")
-        
+
+        return videos
+
+    def list_channel_videos(
+        self, channel_url: str, max_results: Optional[int] = None
+    ) -> List[Dict]:
+        """
+        List public uploads for a channel URL (@handle, /channel/UC..., etc.).
+
+        Args:
+            channel_url: YouTube channel URL
+            max_results: Cap on videos returned (None = entire uploads playlist)
+
+        Returns:
+            List of video dicts with id, title, publishedAt
+        """
+        channel_id = self.extract_channel_id(channel_url)
+        if not channel_id:
+            logger.error(f"Could not extract channel ID from {channel_url}")
+            return []
+
+        playlist_id = self.get_channel_uploads_playlist_id(channel_id)
+        if not playlist_id:
+            logger.error(f"Could not get uploads playlist for channel {channel_id}")
+            return []
+
+        videos = self.get_channel_videos(playlist_id, max_results=max_results)
+        logger.info(f"Listed {len(videos)} video(s) from channel {channel_id}")
         return videos
     
     def get_new_videos(self, channel_url: str, processed_video_ids: List[str]) -> List[Dict]:
@@ -210,7 +245,7 @@ class YouTubeTranscriptFetcher:
             logger.error(f"Could not get uploads playlist for channel {channel_id}")
             return []
         
-        all_videos = self.get_channel_videos(playlist_id)
+        all_videos = self.get_channel_videos(playlist_id, max_results=None)
         logger.info(f"Retrieved {len(all_videos)} videos from channel")
         
         if all_videos:

@@ -26,7 +26,7 @@ if not exist "%PY%" (
   exit /b 1
 )
 
-"%PY%" -c "import sys; sys.path.insert(0,'.'); from src.llm_client import needs_local_ollama; sys.exit(1 if needs_local_ollama() else 0)"
+"%PY%" -c "import sys; sys.path.insert(0,'.'); from dotenv import load_dotenv; load_dotenv(); from src.llm_client import needs_local_ollama; sys.exit(1 if needs_local_ollama() else 0)"
 if errorlevel 1 goto :ensure_ollama
 echo [1/4] LLM provider is cloud/API — skipping Ollama startup.>>"%LOG%"
 goto :llm_ready
