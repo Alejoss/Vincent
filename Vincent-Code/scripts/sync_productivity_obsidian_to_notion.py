@@ -6,7 +6,7 @@ Pipeline role
 - Expects notes already classified (`tipo`, `intencion`, …).
 
 Routing rules
-- `Tarea` / `Idea` + `intencion=nueva` -> create/update Tasks DB row (by slack_ts)
+- New notes create Notion rows; existing rows are authoritative and mirror to Obsidian.
 - `Tarea` / `Idea` + `intencion=completar` -> match open task -> Estado Hecho
   (never creates a new row for the completion message)
 - `Aprendizaje` -> Learnings DB
@@ -31,6 +31,7 @@ SCRIPTS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
 sys.path.insert(0, PROJECT_ROOT)
 from src.productivity_dates import anchor_date, clamp_due_iso, infer_due_from_text, safe_date_from_slack_ts
+from src.notion_obsidian_mirror import mirror_page
 from src.notion_task_complete import (
     best_completion_match,
     choose_complete_status,
@@ -137,6 +138,8 @@ class NoteItem:
     fecha_objetivo: str
     body: str
     slack_completo: str
+    notion_page_id: str = ""
+    notion_database_id: str = ""
 
 
 def gather_notes(vault_path: str) -> List[NoteItem]:
@@ -151,7 +154,7 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
             fm, body = parse_frontmatter(raw)
             slack_ts = (fm.get("slack_ts") or "").strip()
             tipo = (fm.get("tipo") or "").strip()
-            if not slack_ts or not tipo:
+            if not slack_ts or (not tipo and not fm.get("notion_page_id")):
                 continue
             if is_task_update_processed(fm.get("task_update_processed", "")):
                 continue
@@ -173,6 +176,8 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
                     fecha_objetivo=(fm.get("fecha_objetivo") or "").strip(),
                     body=body_stripped,
                     slack_completo=slack_completo,
+                    notion_page_id=fm.get("notion_page_id", ""),
+                    notion_database_id=fm.get("notion_database_id", ""),
                 )
             )
     return out
@@ -609,22 +614,25 @@ def upsert_items(
         ):
             skipped += 1
             continue
-        existing = find_page_by_slack_ts(client, database_id, ds_id, prop_map["slack_ts"], item.slack_ts)
-        payload = build_props(prop_map, item, set_default_status=(existing is None))
-        if dry_run:
-            action = "update" if existing else "create"
-            print(f"[dry-run] {action} {item.path.name} -> db {database_id}")
-            if existing:
-                updated += 1
-            else:
-                created += 1
-            continue
+        existing = item.notion_page_id or find_page_by_slack_ts(client, database_id, ds_id, prop_map["slack_ts"], item.slack_ts)
         if existing:
-            client.pages.update(page_id=existing, properties=payload)
-            updated += 1
+            # Never push stale local values over a user's Notion edits. Retrieval
+            # failures propagate rather than creating a replacement row.
+            page = client.pages.retrieve(page_id=existing)
+            changed = mirror_page(item.path, page, prop_map, database_id, dry_run)
+            updated += int(changed)
+            skipped += int(not changed)
+            if dry_run:
+                print(f"[dry-run] Notion -> Obsidian {item.path.name}: changed={changed}")
+            continue
+        payload = build_props(prop_map, item, set_default_status=True)
+        if dry_run:
+            print(f"[dry-run] create {item.path.name} -> db {database_id}")
+            created += 1
             continue
         parent = {"type": "database_id", "database_id": database_id} if ds_id == database_id else {"type": "data_source_id", "data_source_id": ds_id}
-        client.pages.create(parent=parent, properties=payload)
+        page = client.pages.create(parent=parent, properties=payload)
+        mirror_page(item.path, page, prop_map, database_id)
         created += 1
 
     return created, updated, skipped
@@ -644,8 +652,12 @@ def main() -> int:
 
     client = Client(auth=token, notion_version="2025-09-03")
     notes = gather_notes(vault)
-    tasks_items = [n for n in notes if n.tipo in {"Tarea", "Idea"}]
-    learn_items = [n for n in notes if n.tipo == "Aprendizaje"]
+    tasks_id = resolve_tasks_db_id()
+    learnings_id = normalize_id(LEARNINGS_DB_ID)
+    tasks_items = [n for n in notes if normalize_id(n.notion_database_id) == tasks_id
+                   or (not n.notion_database_id and n.tipo in {"Tarea", "Idea"})]
+    learn_items = [n for n in notes if normalize_id(n.notion_database_id) == learnings_id
+                   or (not n.notion_database_id and n.tipo == "Aprendizaje")]
 
     print(f"Local notes ready: tasks/ideas={len(tasks_items)} learnings={len(learn_items)}")
 
@@ -662,9 +674,9 @@ def main() -> int:
 
     print(
         "Done. "
-        f"tasks(created={t_created}, updated={t_updated}, skipped={t_skipped}, "
+        f"tasks(created={t_created}, mirrored={t_updated}, skipped={t_skipped}, "
         f"completed={completed}, unmatched_complete={unmatched}) "
-        f"learnings(created={l_created}, updated={l_updated}, skipped={l_skipped})"
+        f"learnings(created={l_created}, mirrored={l_updated}, skipped={l_skipped})"
     )
     return 0
 

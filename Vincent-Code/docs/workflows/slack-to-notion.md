@@ -8,7 +8,26 @@ Convierte mensajes de tu DM con el bot de Vincent en filas de la base **Tareas I
 |------|--------|----------|
 | 1 | `sync_slack_inbox_to_obsidian.py` | Lee Slack (ventana incremental, p. ej. últimos 3 días) y crea `slack-<ts>.md` en Obsidian |
 | 2 | `classify_slack_input_with_ollama.py` | Clasifica con Ollama: `tipo`, `proyecto`, `titulo_corto`, `fecha_objetivo`, `recordatorio_slack` |
-| 3 | `sync_productivity_obsidian_to_notion.py` | Upsert en Notion por `slack_ts` (crea o actualiza la fila) |
+| 3 | `sync_productivity_obsidian_to_notion.py` | Crea filas nuevas; para filas existentes, copia los valores de Notion a Obsidian |
+
+**Autoridad: Notion.** Una vez creada la fila, la sincronización habitual nunca
+sobrescribe sus propiedades con valores locales. Título, tipo, proyecto, estado,
+Inicio, Fin y referencia temporal se reflejan en la nota correspondiente, incluso
+si se vacían en Notion. Fin tiene prioridad sobre Fecha objetivo. Notas y texto
+procesado se guardan en `notion_notas` y `notion_slack_procesado`; el texto original
+de Slack se conserva como fuente histórica. No se importan bloques del cuerpo de
+la página ni páginas sin una nota local correspondiente.
+
+La nota conserva `notion_page_id` y `notion_database_id` para seguir vinculada
+aunque cambien el tipo o `slack_ts` en Notion. Las notas vinculadas se excluyen de
+reclasificación, incluso con `--reclassify`. Una página vinculada archivada no se
+recrea: se refleja `notion_archived`. Si falla su lectura, el proceso falla sin
+crear una sustituta. Los mensajes explícitos de completar tareas siguen actuando
+sobre Notion; el siguiente sync refleja el estado resultante en la nota original.
+
+Los cambios llegan en la siguiente ejecución programada, no en tiempo real.
+El resumen `mirrored` cuenta notas locales modificadas; `created` cuenta filas
+nuevas en Notion. `--dry-run` permite comprobar el flujo sin modificar notas ni filas.
 
 ## Ejecución recomendada (un solo comando)
 

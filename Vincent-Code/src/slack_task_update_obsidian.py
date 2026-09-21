@@ -38,9 +38,9 @@ def note_intent(fm: Dict[str, str]) -> str:
 
 
 def should_skip_productivity_classify(fm: Dict[str, str], body: str = "") -> bool:
-    """Skip classifier only when a completion update was already applied."""
+    """Linked notes belong to Notion, including during explicit reclassification."""
     del body  # kept for call-site compatibility
-    return is_task_update_processed(fm.get("task_update_processed", ""))
+    return bool(frontmatter_flag(fm.get("notion_page_id", ""))) or is_task_update_processed(fm.get("task_update_processed", ""))
 
 
 def should_skip_notion_create(fm: Dict[str, str], body: str = "") -> bool:
