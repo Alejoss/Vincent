@@ -60,3 +60,9 @@ Vincent-Code/Plan Social N 2
 
 # Archives
 *.zip
+
+# Machine-specific Obsidian session (keep app/plugin settings versioned)
+Cerebro-Vincent/.obsidian/workspace.json
+
+# Local FFmpeg binaries, not project source
+FFmpeg-Audacity/

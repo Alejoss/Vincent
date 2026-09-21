@@ -16,6 +16,10 @@ Guías: [YouTube](../workflows/youtube-channel-transcripts.md) · [Local Whisper
 
 **Iniciar en:** `E:\Vincent\Vincent-Code` (carpeta del proyecto, no la de `scripts`).
 
+Para ejecuciones desatendidas de YouTube también está disponible
+`scripts\run_youtube_channel_transcripts_scheduled.bat`: repara Markdown antes
+de procesar vídeos nuevos y registra la ejecución en `logs\youtube_scheduler_task.log`.
+
 ## Crear una tarea (pasos)
 
 1. `Win+R` → `taskschd.msc`

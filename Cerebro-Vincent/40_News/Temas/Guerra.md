@@ -19,3 +19,17 @@ _Definición pendiente._
 | Robert Kennedy Jr haciendo pelear a la gente, apuntando a la migración                                      | [https://needtoknow.news/2026/04/rfk-jr-says-almost-all-of-the-1-5-million-people-purged-from-taxpayer-healthcare-are-illegal-aliens/](https://needtoknow.news/2026/04/rfk-jr-says-almost-all-of-the-1-5-million-people-purged-from-taxpayer-healthcare-are-illegal-aliens/)         |        |
 | Izaron la bandera de Israel en Argentina                                                                    | [https://www.laarena.com.ar/el-pais/izaron-la-bandera-de-israel-en-el-monumento-a-la-bandera-de-rosario-20264239530](https://www.laarena.com.ar/el-pais/izaron-la-bandera-de-israel-en-el-monumento-a-la-bandera-de-rosario-20264239530)                                             |        |
 |                                                                                                             |                                                                                                                                                                                                                                                                                      |        |
+
+## Notas recuperadas
+
+Profesor de Líbano gobierno infiltrado
+https://needtoknow.news/2026/06/political-analyst-explains-that-lebanons-government-is-helping-israel-destroy-lebanon/?utm_source=aweber&utm_medium=email&utm_campaign=need-to-know-g-edward-griffin-s-news-analysis-2026-june-12
+min 7:30
+
+Migración en Masa utilizada como arma
+https://needtoknow.news/2026/06/former-uk-prime-minister-admits-mass-migration-is-being-weaponized-to-undermine-western-civilization/?utm_source=aweber&utm_medium=email&utm_campaign=need-to-know-g-edward-griffin-s-news-analysis-2026-june-15
+
+Noboa visita Pentágono
+https://www.infobae.com/america/agencias/2026/06/16/noboa-visita-el-pentagono-y-dialoga-con-el-secretario-de-defensa-sobre-seguridad/
+
+Mails Epstein - dueño de Blizzard. Conexión con Call of Duty, predicción de Maduro.

@@ -4,6 +4,7 @@ notion-client>=2.7.0
 # YouTube APIs
 youtube-transcript-api>=0.6.1
 google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.2.0
 
 # Media download (YouTube/Odysee/etc → Whisper fallback)
 yt-dlp>=2024.1.0
@@ -21,3 +22,10 @@ python-dotenv>=1.0.0
 
 # MCP server (Cursor stdio)
 mcp>=2.0.0
+
+# Newsletter UI and rendering (used by the current SMTP2GO implementation)
+streamlit>=1.32.0
+markdown>=3.5.0
+jinja2>=3.1.0
+pyyaml>=6.0.0
+httpx>=0.27.0

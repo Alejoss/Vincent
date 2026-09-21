@@ -116,6 +116,18 @@ def build_editorial_llm_config(
     return build_llm_config(provider=resolved, model=explicit_model)
 
 
+def build_knowledge_llm_config(
+    provider: Optional[str] = None,
+    ollama_url: Optional[str] = None,
+) -> LLMConfig:
+    """Use the knowledge model independently of the task classifier's LLM_MODEL."""
+    _load_env()
+    model = (os.getenv("KNOWLEDGE_EXTRACTION_MODEL") or "").strip()
+    if not model:
+        model = (os.getenv("OPENAI_MODEL") or "gpt-4o").strip()
+    return build_llm_config(provider=provider, model=model, ollama_url=ollama_url)
+
+
 def build_llm_config(
     provider: Optional[str] = None,
     model: Optional[str] = None,
