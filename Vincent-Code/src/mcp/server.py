@@ -12,14 +12,30 @@ from mcp.types import ToolAnnotations
 from src.embeddings.query import default_embeddings_db
 from src.knowledge_engine_state import state_db_path
 from src.mcp import knowledge as knowledge_tools
+from src.mcp import local_video as local_video_tools
 from src.mcp import tasks as task_tools
 from src.mcp import topic as topic_tools
 from src.mcp.jobs import run_productivity_steps
 from src.mcp.paths import PROJECT_ROOT, env_present
+from src.topic_embedding_status import topic_embedding_status as audit_topic_embeddings
 
 INSTRUCTIONS = """
 Vincent local control plane. Search topics (SQLite embeddings), search own-transcript
 knowledge, list/complete Notion tasks, and start existing Vincent pipelines.
+
+For "which files lack embeddings" or coverage questions, use topic_embedding_status
+with topic_id or an approximate topic_name. It compares current Sophia contents,
+local chunks, live Qdrant and Sophia status. Report partial/unknown sources honestly;
+an empty embedding-ingest queue does not establish coverage. No documentation reads
+or map_topic extraction are needed for this audit.
+
+Topic TEXT contents support PDF and EPUB (extracted in resolve_media_text /
+sophia_document_extract). Use map_topic to inventory resolution status, then
+embed_topic / sync_topic / run_topic_pipeline for embeddings and Qdrant.
+
+Local video files (Patreon, disk) use transcribe_local_video (Whisper → Own_Transcripts)
+and extract_local_audio (ffmpeg MP3 → VideosParaPodcast/mp3). Podcast episode covers
+use generate_podcast_covers (OpenAI Images → VideosParaPodcast/covers).
 
 Write tools require confirm=true. Use dry_run=true to preview. Long jobs default to
 background (wait=false) and return a log_path.
@@ -35,6 +51,24 @@ def create_server() -> MCPServer:
 
 
 mcp = create_server()
+
+
+@mcp.tool(
+    title="Topic embedding coverage status",
+    annotations=ToolAnnotations(read_only_hint=True, open_world_hint=True),
+)
+def topic_embedding_status(
+    topic_id: Annotated[Optional[int], Field(description="Sophia topic id; supply this OR topic_name.", ge=1)] = None,
+    topic_name: Annotated[Optional[str], Field(description="Approximate topic title; ambiguous matches return candidates.")] = None,
+    model: str = "text-embedding-3-large",
+) -> dict:
+    """Find missing text, embeddings, uploads and Sophia status gaps. Read-only, no OpenAI calls.
+
+    Returns per-content titles/IDs/reasons, counts and source availability. Unknown
+    source failures are not missing records. Images are excluded; PDF vectors and
+    Sophia transcript status are separate. Checks metadata, not source-text freshness.
+    """
+    return audit_topic_embeddings(PROJECT_ROOT, topic_id=topic_id, topic_name=topic_name, model=model)
 
 
 @mcp.tool(
@@ -190,6 +224,34 @@ def complete_task(
 
 
 @mcp.tool(
+    title="Map topic embeddable text",
+    annotations=ToolAnnotations(read_only_hint=True, open_world_hint=True),
+)
+def map_topic(
+    topic_id: Annotated[int, Field(description="Sophia topic id.", ge=1)],
+    content_id: Annotated[
+        Optional[int],
+        Field(description="Optional: only resolve one Sophia content id."),
+    ] = None,
+    preview_chars: Annotated[
+        int,
+        Field(
+            description="If >0, include a text preview per unit (useful to verify PDF/EPUB extract).",
+            ge=0,
+            le=2000,
+        ),
+    ] = 0,
+) -> dict:
+    """Inventory embeddable text for a topic: VIDEO/AUDIO transcripts + TEXT PDF/EPUB.
+
+    Returns status/source per content (e.g. s3_epub:…, s3_pdf:…). Does not embed or sync.
+    """
+    return topic_tools.map_topic(
+        topic_id, content_id=content_id, preview_chars=preview_chars
+    )
+
+
+@mcp.tool(
     title="Embed a Sophia topic",
     annotations=ToolAnnotations(
         read_only_hint=False,
@@ -205,7 +267,7 @@ def embed_topic(
     force: bool = False,
     wait: Annotated[bool, Field(description="Default false: start and return log_path.")] = False,
 ) -> dict:
-    """Chunk + embed one topic into local SQLite (embed_topic.py)."""
+    """Chunk + embed one topic (VIDEO/AUDIO transcripts + TEXT PDF/EPUB) into local SQLite."""
     return topic_tools.embed_topic(
         topic_id, confirm=confirm, dry_run=dry_run, force=force, wait=wait
     )
@@ -228,7 +290,7 @@ def sync_topic(
     mode: Literal["auto", "queue", "sqlite"] = "queue",
     wait: bool = False,
 ) -> dict:
-    """Push local topic embeddings to Qdrant and ACK Sophia."""
+    """Push topic embeddings to Qdrant (incl. TEXT PDF/EPUB via sqlite extras) and ACK Sophia VIDEO/AUDIO."""
     return topic_tools.sync_topic(
         topic_id,
         confirm=confirm,
@@ -256,7 +318,7 @@ def run_topic_pipeline(
     wait: bool = False,
     skip_map: bool = False,
 ) -> dict:
-    """Transcripts → embed → Qdrant/ack for one topic. Long-running; defaults to background."""
+    """Map → VIDEO/AUDIO transcripts → embed (incl. PDF/EPUB TEXT) → Qdrant/ack. Defaults to background."""
     return topic_tools.run_topic_pipeline(
         topic_id,
         confirm=confirm,
@@ -264,6 +326,132 @@ def run_topic_pipeline(
         force=force,
         wait=wait,
         skip_map=skip_map,
+    )
+
+
+@mcp.tool(
+    title="Transcribe a local video",
+    annotations=ToolAnnotations(
+        read_only_hint=False,
+        destructive_hint=False,
+        idempotent_hint=False,
+        open_world_hint=False,
+    ),
+)
+def transcribe_local_video(
+    video: Annotated[str, Field(description="Absolute path to a local .mp4/.mkv/… file.")],
+    confirm: bool = False,
+    dry_run: bool = False,
+    wait: Annotated[
+        bool,
+        Field(description="Default false: start Whisper and return log_path."),
+    ] = False,
+    retry_failed: bool = False,
+    force: Annotated[
+        bool,
+        Field(description="Re-transcribe even if a transcript already exists."),
+    ] = False,
+    chunk_long_audio: Annotated[
+        bool,
+        Field(description="Split long audio before OpenAI Whisper (default true)."),
+    ] = True,
+) -> dict:
+    """Run transcribe_one_local_video.py (ffmpeg + Whisper → Own_Transcripts). Defaults to background."""
+    return local_video_tools.transcribe_local_video(
+        video,
+        confirm=confirm,
+        dry_run=dry_run,
+        wait=wait,
+        retry_failed=retry_failed,
+        force=force,
+        chunk_long_audio=chunk_long_audio,
+    )
+
+
+@mcp.tool(
+    title="Extract MP3 from a local video",
+    annotations=ToolAnnotations(
+        read_only_hint=False,
+        destructive_hint=False,
+        idempotent_hint=False,
+        open_world_hint=False,
+    ),
+)
+def extract_local_audio(
+    video: Annotated[str, Field(description="Absolute path to a local .mp4/.mkv/… file.")],
+    confirm: bool = False,
+    dry_run: bool = False,
+    wait: Annotated[
+        bool,
+        Field(description="Default false: start ffmpeg and return log_path."),
+    ] = False,
+    force: Annotated[
+        bool,
+        Field(description="Overwrite an existing MP3."),
+    ] = False,
+    output_dir: Annotated[
+        Optional[str],
+        Field(description="MP3 folder. Default: VideosParaPodcast/mp3."),
+    ] = None,
+) -> dict:
+    """Run extract_one_video_audio.py (ffmpeg podcast MP3). Defaults to background."""
+    return local_video_tools.extract_local_audio(
+        video,
+        confirm=confirm,
+        dry_run=dry_run,
+        wait=wait,
+        force=force,
+        output_dir=output_dir,
+    )
+
+
+@mcp.tool(
+    title="Generate podcast episode covers",
+    annotations=ToolAnnotations(
+        read_only_hint=False,
+        destructive_hint=False,
+        idempotent_hint=False,
+        open_world_hint=True,
+    ),
+)
+def generate_podcast_covers(
+    confirm: bool = False,
+    dry_run: bool = False,
+    wait: Annotated[
+        bool,
+        Field(description="Default false: start OpenAI Images and return log_path."),
+    ] = False,
+    episode_id: Annotated[
+        Optional[str],
+        Field(description="podcast_episode.episode_id (video filename). Omit to walk catalog order."),
+    ] = None,
+    limit: Annotated[
+        Optional[int],
+        Field(description="Only the first N published episodes. Omit for the full published queue.", ge=1),
+    ] = None,
+    word: Annotated[
+        Optional[str],
+        Field(description="Override the 1–2 cover words for this run."),
+    ] = None,
+    force: Annotated[
+        bool,
+        Field(description="Regenerate even if a cover file already exists."),
+    ] = False,
+    include_unpublished: Annotated[
+        bool,
+        Field(description="Also generate for episodes that have no rss_title."),
+    ] = False,
+) -> dict:
+    """Run generate_podcast_covers.py (OpenAI Images → VideosParaPodcast/covers). Defaults to background."""
+    return local_video_tools.generate_podcast_covers(
+        episode_id=episode_id,
+        limit=limit,
+        word=word,
+        confirm=confirm,
+        dry_run=dry_run,
+        wait=wait,
+        force=force,
+        include_unpublished=include_unpublished,
     )
 
 

@@ -1,56 +1,65 @@
 ---
-title: "Orden de publicación — podcasts (mp3)"
-folder: "E:\\Vincent\\VideosParaPodcast\\mp3"
-updated_at: "2026-07-01"
-transcripts: "16/16 en Own_Transcripts"
-tags: [podcast, publicacion, mp3]
+title: "Catálogo de podcasts (export)"
+updated_at: "2026-09-15"
+rss: "https://anchor.fm/s/114269ac0/podcast/rss"
+tags: [podcast, publicacion, mp3, rss]
 ---
 
-# Orden sugerido para publicar podcasts
+# Catálogo de podcasts
 
-Episodios en `mp3/`, ordenados del **más antiguo al más reciente** según la **fecha de modificación del `.mp4`** en la carpeta padre (`VideosParaPodcast/`).
+Fuente de verdad (no editar a mano):
+`E:\Vincent\Vincent-Code\cache\video_transcripts\state.sqlite3` · tabla `podcast_episode`
 
-> **Nota:** las fechas de creación de los `.mp3` no sirven para ordenar — casi todos se generaron el **2026-06-24** en un batch de conversión (21:40–21:47). El orden del batch solo refleja el proceso ffmpeg, no la cronología del contenido.
-
-## Tabla
-
-| # | Archivo MP3 | Fecha vídeo (.mp4) | Duración | Transcript | Fuente |
-|---|-------------|-------------------|----------|------------|--------|
-| 1 | `MercadoTrampa2_final.mp3` | 2024-02-13 | ~25 min | `2024-02-13-mercadotrampa2.md` | Whisper |
-| 2 | `guerra_tecnologica_version_publica.mp3` | 2024-04-07 | ~21 min | `2024-04-06-guerra-tecnologica-3.md` | Whisper |
-| 3 | `Bitcoin_no_NSA_final.mp3` | 2024-04-09 | ~18 min | `2024-04-12-bitcoin-fue-creado-por-la-nsa-no-hay-esperanza.md` | YouTube |
-| 4 | `Farsa_Ripple_Satoshi_Emails2.mp3` | 2024-07-23 | ~15 min | `2024-07-23-cambiaron-la-historia-de-bitcoin-emails-de-satoshi-malmi…` | YouTube |
-| 5 | `cripta_vs_ancap_final.mp3` | 2025-02-09 | ~43 min | `2025-02-09-cripta-vs-ancap.md` | Whisper |
-| 6 | `recordemos_falsa_historia_btc6.mp3` | 2025-05-16 | ~13 min | `2025-05-17-se-rindieron-a-cambiar-la-historia-de-bitcoin.md` | **Scraper** |
-| 7 | `noticias_guerra_cripto_final.mp3` | 2025-06-04 | ~12 min | `2025-06-04-noticias-guerra-cripto.md` | Whisper |
-| 8 | `skynet_escenario_final3.mp3` | 2025-06-12 | ~16 min | `2024-08-30-la-inteligencia-artificial-sola-no-va-a-matarte-es-más-sutil.md` | YouTube |
-| 9 | `Jhon McAfee final.mp3` | 2025-08-06 | ~31 min | `2025-08-07-quién-mató-a-john-mcafee.md` | **Scraper** |
-| 10 | `criptoanarquismo_puro_TE_final.mp3` | 2025-10-17 | ~129 min | `2025-10-20-criptoanarquismo-puro-tertuliaermi-te-remaster-audio.md` | **Scraper** |
-| 11 | `china_anuncio_acbc_final.mp3` | 2025-12-03 | ~23 min | `2025-12-06-china-silencia-a-los-influencers-la-historia-oculta-sin-filtros.md` | **Scraper** |
-| 12 | `epstein_files_btc.mp3` | 2026-02-06 | ~26 min | `2026-02-07-por-qué-bitcoin-aparece-cuando-se-destapan-los-epstein-files.md` | **Scraper** |
-| 13 | `Anom Privacidad.mp3` | 2026-03-23 | ~37 min | `2026-03-27-la-privacidad-nunca-existió-reportaje-la-historia-secreta-de-anom.md` | YouTube |
-| 14 | `Debate Derecho Natural.mp3` | 2026-04-10 | ~107 min | `2026-04-10-filosofía-anarquista-para-el-siglo-21-debate-sobre-el-derecho-natural…` | YouTube |
-| 15 | `Marx Armesilla.mp3` | 2026-05-30 | ~54 min | `2026-05-31-marxismo-vs-bitcoin-un-choque-inevitable…` | YouTube |
-| 16 | `ACBC Hechicero_Banco_Dinero_final.mp3` | 2026-06-03 | ~50 min | `2026-06-03-acbc-hechicero-banco-dinero.md` | Whisper |
-
-**Total:** 16 episodios · ~610 min (~10 h)
-
-## Episodios largos
-
-Conviene espaciarlos en el calendario de publicación:
-
-- **#10** `criptoanarquismo_puro_TE_final` (~129 min)
-- **#14** `Debate Derecho Natural` (~107 min)
-
-## Regenerar fechas (PowerShell)
+Este markdown es un **export derivado**. Regenerar:
 
 ```powershell
-Get-ChildItem "E:\Vincent\VideosParaPodcast\mp3" -File | ForEach-Object {
-  $mp4 = Join-Path "E:\Vincent\VideosParaPodcast" ($_.BaseName + ".mp4")
-  $src = Get-Item $mp4 -ErrorAction SilentlyContinue
-  [PSCustomObject]@{
-    MP3 = $_.Name
-    VideoModified = if ($src) { $src.LastWriteTime.ToString('yyyy-MM-dd') } else { '?' }
-  }
-} | Sort-Object VideoModified | Format-Table -AutoSize
+cd E:\Vincent\Vincent-Code
+.\venv\Scripts\python.exe scripts\sync_podcast_rss.py
 ```
+
+RSS: https://anchor.fm/s/114269ac0/podcast/rss
+
+## Publicados en Spotify (19)
+
+| # | Publicado | Título Spotify | MP3 local | Extraído | Duración |
+|---|-----------|----------------|-----------|----------|----------|
+| 1 | 2026-06-08 | Aumentar la PERSPECTIVA: un paso atrás para VER LA GUERRA (Selección de Noticias) | `noticias_guerra_cripto_final.mp3` | 2026-07-19 | 00:12:23 |
+| 2 | 2026-06-10 | Criptoanarquismo vs Anarcocapitalismo (A FONDO) Ideas para Pensar en Anarquía. | `cripta_vs_ancap_final.mp3` | 2026-07-19 | 00:43:28 |
+| 3 | 2026-06-10 | La Inteligencia Artificial sola no va a matarte, es más Sutil. SKYNET | `skynet_escenario_final3.mp3` | 2026-07-19 | 00:16:16 |
+| 4 | 2026-06-12 | Criptoanarquismo Puro & TE | `criptoanarquismo_puro_TE_final.mp3` | 2026-07-19 | 02:08:46 |
+| 5 | 2026-06-26 | 👀 ¿Bitcoin fue creado por la NSA - No hay esperanza? | `Bitcoin_no_NSA_final.mp3` | 2026-07-19 | 00:17:42 |
+| 6 | 2026-07-02 | La HISTORIA OCULTA de la TECNOLOGÍA | `guerra_tecnologica_version_publica.mp3` | 2026-07-19 | 00:20:34 |
+| 7 | 2026-07-05 | Cambiaron la Historia de Bitcoin!! Emails de Satoshi / Malmi + patente de Schwartz son una MENTIRA! | `Farsa_Ripple_Satoshi_Emails2.mp3` | 2026-07-19 | 00:30:55 |
+| 8 | 2026-07-09 | ¿QUIÉN mató a JOHN McAfee? | `Jhon McAfee final.mp3` | 2026-07-19 | 00:31:27 |
+| 9 | 2026-07-17 | ¿Por qué Bitcoin aparece cuando se destapan los Epstein Files? | `epstein_files_btc.mp3` | 2026-07-19 | 00:26:18 |
+| 10 | 2026-07-23 | El Banco de Inglaterra, el HECHICERO y la CONQUISTA del Dinero | `ACBC Hechicero_Banco_Dinero_final.mp3` | 2026-07-19 | 00:50:01 |
+| 11 | 2026-07-25 | Filosofía Anarquista para el siglo 21 - Debate sobre el Derecho Natural y la Propiedad | `Debate Derecho Natural.mp3` | 2026-07-19 | 01:47:23 |
+| 12 | 2026-07-28 | La privacidad NUNCA existió -REPORTAJE- la historia secreta de ANOM | `Anom Privacidad.mp3` | 2026-07-19 | 00:37:04 |
+| 13 | 2026-07-29 | Conversación con Ian de @LaEconomiaP2P ¿Qué pasó en el 2017? CISMA en BTC! ES IMPRESCINDIBLE SABER | `bch_ian_argentina_final.mp3` | 2026-07-29 | 01:12:21 |
+| 14 | 2026-07-30 | Marxismo vs Bitcoin: un choque inevitable. Los más que errores de Santiago Armesilla. | `Marx Armesilla.mp3` | 2026-07-19 | 00:53:41 |
+| 15 | 2026-08-02 | Conversaciones con Hackers #1 \| Hablando de Car Hacking con ReverseEverything | `entrevista_danilo.mp3` | 2026-07-19 | 01:31:30 |
+| 16 | 2026-08-05 | Conoce cómo funciona CARDANO. Entrevista a Sebastian de la Cardano Foundation. @IndividuoDigital | `entrevista_sebastian_cardano.mp3` | 2026-07-29 | 01:08:01 |
+| 17 | 2026-08-06 | La CRIPTOGRAFÍA como NUESTRA DEFENSA. Conversación con Tertulia Ermitaña. (1 PARTE) | `entrevista_tertulia_x_parte_1.mp3` | 2026-07-29 | 00:48:26 |
+| 18 | 2026-08-10 | Conversación con Tertulia Ermitaña. Oposición Controlada y Conspiración | `entrevista_tertulia_x_2da_parte.mp3` | 2026-07-29 | 01:22:13 |
+| 19 | 2026-08-13 | Tenemos que hablar: CENSURA en Bitcoin! / El problema a fondo y la solución / Entrevista a Anhdres | `andres_f2pool_monero_final.mp3` | 2026-07-29 | 00:50:56 |
+
+## Extraídos, aún no en el RSS (16)
+
+| MP3 local | Extraído | Fuente |
+|-----------|----------|--------|
+| `china_anuncio_acbc_final.mp3` | 2026-07-19 | `VideosParaPodcast/` |
+| `MercadoTrampa2_final.mp3` | 2026-07-19 | `VideosParaPodcast/` |
+| `Mundial Exit.mp3` | 2026-07-19 | `VideosParaPodcast/` |
+| `recordemos_falsa_historia_btc6.mp3` | 2026-07-19 | `VideosParaPodcast/` |
+| `Filosofia Politica Profunda Vol 1.mp3` | 2026-09-09 | `E:\Patreon\Filosofia Politica Profunda Vol 1.mp4` |
+| `Direct 10. . La Inmigración como un arma. Datacenters vs China_ Chao Bitcoin. Colombia Tiembla..mp3` | 2026-09-15 | `E:\Academia Blockchain\Direct 10. . La Inmigración como un arma. Datacenters vs China_ Chao Bitcoin. Colombia Tiembla..mp4` |
+| `Directo 1. Leo y comento el Manifesto de Palantir en vivo - Reacción.mp3` | 2026-09-15 | `E:\Academia Blockchain\Directo 1. Leo y comento el Manifesto de Palantir en vivo - Reacción.mp4` |
+| `Directo 3. Anthropic. Las tontas útiles de Klaus Schwab. Bután. Envenenar el cielo. Actualidad..mp3` | 2026-09-15 | `E:\Academia Blockchain\Directo 3. Anthropic. Las tontas útiles de Klaus Schwab. Bután. Envenenar el cielo. Actualidad..mp4` |
+| `Directo 9. Prision sin Barrotes.mp3` | 2026-09-15 | `E:\Academia Blockchain\Directo 9. Prision sin Barrotes.mp4` |
+| `Sam Altman. Explosiones. Como perdimos a Bitcoin_ Actualidad..mp3` | 2026-09-15 | `E:\Academia Blockchain\55_directo_noticias2_sam_refinerias\Sam Altman. Explosiones. Como perdimos a Bitcoin_ Actualidad..mp4` |
+| `Objection.AI . Apple. Cuidado con las bombas nucleares en Irán. El Mago Trump..mp3` | 2026-09-15 | `E:\Academia Blockchain\57_directo_noticias3_objection_ai_trumpepe\Objection.AI . Apple. Cuidado con las bombas nucleares en Irán. El Mago Trump..mp4` |
+| `Larry Ellison. La Ilusión China. Armas Invisibles. Hantavirus y la Pirola.mp3` | 2026-09-15 | `E:\Academia Blockchain\69 Larry Ellison Directo\Larry Ellison. La Ilusión China. Armas Invisibles. Hantavirus y la Pirola.mp4` |
+| `Las Nuevas Redes del Poder _ Peter Thiel, Marie Slaughter y Flock.mp3` | 2026-09-15 | `E:\Academia Blockchain\70 Nuevas Redes Poder Directo\Las Nuevas Redes del Poder _ Peter Thiel, Marie Slaughter y Flock.mp4` |
+| `Directo 7. Videojuegos y educación. Terremotos extraños. Sectas. Thiel y Milei (EN VIVO).mp3` | 2026-09-15 | `E:\Academia Blockchain\71 Directo Terremotos Raros Venezuela\Directo 7. Videojuegos y educación. Terremotos extraños. Sectas. Thiel y Milei (EN VIVO).mp4` |
+| `ACBC Directo Nepal.mp3` | 2026-09-15 | `E:\Academia Blockchain\76 ACBC Directo Nepal\ACBC Directo Nepal.mp4` |
+| `EN VIVO_ Claudia y Claude. Harari, Milei y el destino de las IAs. EL REFLEJO DIGITAL.mp3` | 2026-09-15 | `E:\Vincent\VideosParaPodcast\Directos\EN VIVO_ Claudia y Claude. Harari, Milei y el destino de las IAs. EL REFLEJO DIGITAL.mp4` |

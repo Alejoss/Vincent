@@ -1,7 +1,7 @@
 ---
 title: "Estado — transcripciones locales (resumen)"
-input_dir: "E:\Vincent\Vincent-Code"
-updated_at: "2026-07-24 18:34 UTC"
+input_dir: "E:\Academia Blockchain\ACBC Clips Plataforma"
+updated_at: "2026-09-17 13:07 UTC"
 tags: [transcript, pipeline, own-video, local-video]
 ---
 
@@ -13,19 +13,19 @@ Fuente de verdad (no editar a mano):
 Export derivado con el listado completo:
 [[_estado_videos_local.json]]
 
-Carpeta de vídeos: `E:\Vincent\Vincent-Code`
-Actualizado: 2026-07-24 18:34 UTC
+Carpeta de vídeos: `E:\Academia Blockchain\ACBC Clips Plataforma`
+Actualizado: 2026-09-17 13:07 UTC
 
 ## Conteo
 
 | Estado | Cantidad |
 |--------|----------|
-| done | 45 |
+| done | 52 |
 | pending | 1 |
 | needs_repair | 0 |
 | failed | 0 |
 | skipped | 0 |
-| **total** | **46** |
+| **total** | **53** |
 
 ## Regenerar
 

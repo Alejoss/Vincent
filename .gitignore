@@ -34,6 +34,7 @@ VideosParaPodcast/*.mp4
 VideosParaPodcast/*.mp3
 VideosParaPodcast/*.json
 VideosParaPodcast/mp3/
+VideosParaPodcast/covers/
 VideosParaPodcast/Directos/
 
 # Streamlit local
@@ -49,6 +50,8 @@ Vincent-Code/Plan Social N 2
 
 # IDE / editor
 .cursor/
+!.cursor/rules/
+!.cursor/rules/**
 .vscode/
 .idea/
 *.swp

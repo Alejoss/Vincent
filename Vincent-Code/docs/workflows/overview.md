@@ -78,6 +78,7 @@ Clasificar+sync también aplica `intencion=completar` (cierra la tarea abierta; 
 - Newsletter SMTP2GO: [newsletter-smtp2go.md](newsletter-smtp2go.md)
 - Transcripciones YouTube (OAuth): [youtube-channel-transcripts.md](youtube-channel-transcripts.md)
 - Transcripciones locales (Whisper): [local-video-transcripts.md](local-video-transcripts.md)
+- Podcast MP3 + catálogo Spotify: [podcast-mp3.md](podcast-mp3.md)
 - Extracción de conocimiento: [own-transcript-knowledge.md](own-transcript-knowledge.md)
 - Knowledge por tema (transcripts → embeddings → Qdrant → ack): [topic-embeddings.md](topic-embeddings.md)
 - Transcripts por tema (Sophia): [topic-transcripts-sophia.md](topic-transcripts-sophia.md)

@@ -36,11 +36,13 @@ scripts\run_notion_due_slack_reminders.bat
 
 ## Otros flujos
 
+- **¿Qué archivos de un tema faltan por embeber?** MCP `topic_embedding_status(topic_name="secuestro de Bitcoin")` o `python scripts/topic_embedding_status.py --topic-id 2`. Auditoría de solo lectura: Sophia + SQLite + Qdrant, con faltantes y diferencias de estado. [Uso y límites](docs/workflows/vincent-mcp.md#frequent-coverage-questions).
+
 - **Newsletter / campañas:** `scripts\run_newsletter_app.bat` — pestaña **Generar** + envío SMTP2GO — [docs/workflows/editorial-engine.md](docs/workflows/editorial-engine.md)
 - **Email diario:** `scripts\run_daily_email_send.bat` — [docs/workflows/daily-email.md](docs/workflows/daily-email.md)
 - **Transcripciones YouTube (OAuth):** `scripts\run_youtube_channel_transcripts.bat` — [docs/workflows/youtube-channel-transcripts.md](docs/workflows/youtube-channel-transcripts.md)
 - **Transcripciones locales (Whisper):** `scripts\run_local_videos_transcripts.bat` — [docs/workflows/local-video-transcripts.md](docs/workflows/local-video-transcripts.md)
-- **Podcast MP3:** `python scripts/extract_podcast_mp3.py` — carpeta `VideosParaPodcast/`
+- **Podcast MP3 / portadas:** `extract_local_audio` / `generate_podcast_covers` MCP — [docs/workflows/podcast-mp3.md](docs/workflows/podcast-mp3.md)
 - **Cursor MCP:** `scripts/vincent_mcp.py` — search + pipeline tools — [docs/workflows/vincent-mcp.md](docs/workflows/vincent-mcp.md)
 
 ## Logs

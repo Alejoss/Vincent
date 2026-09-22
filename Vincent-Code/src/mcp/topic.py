@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from src.embeddings.query import search_topic_local
 from src.mcp.confirm import write_gate
 from src.mcp.jobs import run_script
 from src.mcp.paths import PROJECT_ROOT
+from src.sophia_topic_volume import map_topic_volume
 
 
 def search_topic(
@@ -23,6 +24,22 @@ def search_topic(
         project_root=PROJECT_ROOT,
         top_k=int(top_k),
         answer=bool(answer),
+    )
+
+
+def map_topic(
+    topic_id: int,
+    *,
+    content_id: Optional[int] = None,
+    preview_chars: int = 0,
+) -> dict[str, Any]:
+    """Inventory embeddable text (incl. TEXT PDF/EPUB resolution status)."""
+    return map_topic_volume(
+        PROJECT_ROOT,
+        int(topic_id),
+        content_id=int(content_id) if content_id is not None else None,
+        write_reports=False,
+        preview_chars=int(preview_chars),
     )
 
 

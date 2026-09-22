@@ -16,6 +16,12 @@ requests>=2.31.0
 
 # Text processing
 spacy>=3.7.0
+tiktoken>=0.13.0,<1
+
+# Sophia TEXT documents (topic embeddings)
+PyMuPDF>=1.24.0
+ebooklib>=0.18
+beautifulsoup4>=4.12.0
 
 # Configuration
 python-dotenv>=1.0.0

@@ -58,6 +58,23 @@ class SophiaTopicsClient:
     def get_topic(self, topic_id: int) -> dict[str, Any]:
         return self._get(f"content/topics/{int(topic_id)}/")
 
+    def list_topics(self) -> list[dict[str, Any]]:
+        """List public topics; support both array and paginated API responses."""
+        items = []
+        for page in range(1, 101):
+            data = self._get("content/topics/", params={"page": page, "page_size": 100})
+            if isinstance(data, list):
+                return items + data
+            batch = data.get("results", data.get("topics"))
+            if not isinstance(batch, list):
+                raise ValueError("Unrecognized Sophia topic-list response")
+            items.extend(batch)
+            if not (data.get("has_next") or data.get("next")):
+                return items
+            if not batch:
+                raise ValueError("Sophia topic pagination returned an empty intermediate page")
+        raise ValueError("Sophia topic pagination exceeded 100 pages")
+
     def list_content_by_type(
         self,
         topic_id: int,
@@ -73,13 +90,17 @@ class SophiaTopicsClient:
                 f"content/topics/{int(topic_id)}/content/{media_type}/",
                 params={"page": page, "page_size": min(page_size, 100)},
             )
-            batch = list(data.get("results") or data.get("contents") or [])
+            batch = data.get("results", data.get("contents"))
+            if not isinstance(batch, list):
+                raise ValueError("Unrecognized Sophia content-list response")
             items.extend(batch)
-            if not data.get("has_next"):
+            if not (data.get("has_next") or data.get("next")):
                 break
+            if not batch:
+                raise ValueError("Sophia content pagination returned an empty intermediate page")
             page += 1
             if page > 50:
-                break
+                raise RuntimeError("Sophia content pagination exceeded 50 pages")
         return items
 
     def list_topic_contents(

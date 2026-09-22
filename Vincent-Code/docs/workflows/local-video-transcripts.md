@@ -32,6 +32,8 @@ cd E:\Vincent\Vincent-Code
 | Qué | Dónde |
 |-----|--------|
 | Script principal | `scripts/process_local_videos.py` |
+| Un archivo | `scripts/transcribe_one_local_video.py` |
+| MCP | `transcribe_local_video` / `extract_local_audio` / `generate_podcast_covers` (dry_run / confirm; ver [vincent-mcp.md](vincent-mcp.md)) |
 | Atajo Windows | `scripts/run_local_videos_transcripts.bat` |
 | Salida Obsidian | `Cerebro-Vincent/10_Sources/Own_Transcripts/` |
 | Fuente de verdad (estado) | `cache/video_transcripts/state.sqlite3` |
@@ -320,5 +322,5 @@ Para cientos de vídeos largos, valora **`WHISPER_PROVIDER=local`** en horario n
 
 - Código: `src/audio_extract.py`, `src/whisper_client.py`, `src/video_transcript_state.py`
 - Pipeline YouTube: [youtube-channel-transcripts.md](youtube-channel-transcripts.md)
-- Podcast (solo audio, no transcript): `scripts/extract_podcast_mp3.py` → `VideosParaPodcast/mp3/`
+- Podcast (solo audio, no transcript): [podcast-mp3.md](podcast-mp3.md)
 - Slack audio (Whisper reutilizado): [slack-to-notion.md](slack-to-notion.md)

@@ -58,6 +58,70 @@ def _ensure_columns(conn: sqlite3.Connection) -> None:
     )
 
 
+PODCAST_COVER_COLUMNS = (
+    ("cover_path", "TEXT"),
+    ("cover_word", "TEXT"),
+    ("cover_model", "TEXT"),
+    ("cover_status", "TEXT"),
+    ("cover_generated_at", "TEXT"),
+    ("cover_error", "TEXT"),
+    ("cover_prompt", "TEXT"),
+)
+
+
+def _ensure_podcast_cover_columns(conn: sqlite3.Connection) -> None:
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(podcast_episode)")}
+    for name, decl in PODCAST_COVER_COLUMNS:
+        if name not in cols:
+            conn.execute(f"ALTER TABLE podcast_episode ADD COLUMN {name} {decl}")
+
+
+def _ensure_podcast_table(conn: sqlite3.Connection) -> None:
+    """Podcast MP3 + RSS rows. Separate from video_transcript (Whisper), same SQLite file."""
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS podcast_episode (
+            episode_id TEXT PRIMARY KEY,
+            file_title TEXT,
+            video_filename TEXT,
+            source_path TEXT,
+            mp3_filename TEXT,
+            mp3_path TEXT,
+            status TEXT NOT NULL,
+            skipped INTEGER NOT NULL DEFAULT 0,
+            extracted_at TEXT,
+            error TEXT,
+            folder TEXT,
+            rss_guid TEXT,
+            rss_title TEXT,
+            rss_pub_date TEXT,
+            rss_link TEXT,
+            rss_duration TEXT,
+            rss_enclosure_bytes INTEGER,
+            rss_match TEXT,
+            video_id TEXT,
+            cover_path TEXT,
+            cover_word TEXT,
+            cover_model TEXT,
+            cover_status TEXT,
+            cover_generated_at TEXT,
+            cover_error TEXT,
+            cover_prompt TEXT,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS podcast_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+        """
+    )
+    _ensure_podcast_cover_columns(conn)
+
+
 def _init_db(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
@@ -78,6 +142,7 @@ def _init_db(conn: sqlite3.Connection) -> None:
         """
     )
     _ensure_columns(conn)
+    _ensure_podcast_table(conn)
     conn.commit()
 
 

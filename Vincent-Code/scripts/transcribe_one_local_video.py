@@ -36,6 +36,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--retry-failed", action="store_true")
     parser.add_argument("--no-skip-existing", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--chunk-long-audio",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Split long audio before OpenAI Whisper (WHISPER_CHUNK_LONG_AUDIO).",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     return parser.parse_args()
 
@@ -57,14 +64,14 @@ def main() -> int:
         text_processor=TextProcessor(),
         conn=conn,
         whisper_provider=resolve_whisper_provider(None),
-        dry_run=False,
+        dry_run=args.dry_run,
         skip_existing=not args.no_skip_existing,
         retry_failed=args.retry_failed,
         name_suffix="",
-        chunk_long_audio=resolve_chunk_long_audio(None),
+        chunk_long_audio=resolve_chunk_long_audio(args.chunk_long_audio),
     )
     print(f"RESULT: {result}")
-    return 0 if result == "done" else 1
+    return 0 if result in {"done", "dry_run", "skipped"} else 1
 
 
 if __name__ == "__main__":

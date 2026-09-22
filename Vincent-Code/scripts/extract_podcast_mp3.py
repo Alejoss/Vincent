@@ -18,12 +18,9 @@ Examples (from Vincent-Code root):
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REPO_ROOT = PROJECT_ROOT.parent
@@ -31,58 +28,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.audio_extract import extract_audio_podcast, find_ffmpeg
+from src.podcast_catalog import record_item
+from src.video_transcript_state import open_state, state_db_path
 
 DEFAULT_INPUT_DIR = REPO_ROOT / "VideosParaPodcast"
 DEFAULT_OUTPUT_SUBDIR = "mp3"
-STATE_FILENAME = "_estado_podcast.json"
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".mov", ".avi", ".webm", ".m4v", ".flv", ".mpeg", ".mpg"}
-
-
-def state_path(input_dir: Path) -> Path:
-    return input_dir / STATE_FILENAME
-
-
-def load_state(input_dir: Path) -> dict[str, Any]:
-    path = state_path(input_dir)
-    if not path.is_file():
-        return {"updated_at": None, "items": {}}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        logging.getLogger(__name__).warning("No se pudo leer %s: %s", path, exc)
-        return {"updated_at": None, "items": {}}
-    if not isinstance(data.get("items"), dict):
-        data["items"] = {}
-    return data
-
-
-def save_state(input_dir: Path, state: dict[str, Any]) -> None:
-    state["updated_at"] = datetime.now(timezone.utc).isoformat()
-    path = state_path(input_dir)
-    path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
-def record_item(
-    state: dict[str, Any],
-    video: Path,
-    *,
-    status: str,
-    mp3: Path | None = None,
-    error: str | None = None,
-    skipped: bool = False,
-) -> None:
-    key = video.name
-    entry: dict[str, Any] = {
-        "title": video.stem,
-        "video": video.name,
-        "mp3": mp3.name if mp3 else None,
-        "status": status,
-        "skipped": skipped,
-        "processed_at": datetime.now(timezone.utc).isoformat(),
-    }
-    if error:
-        entry["error"] = error
-    state["items"][key] = entry
 
 
 def find_videos(input_dir: Path) -> list[Path]:
@@ -177,44 +128,53 @@ def main() -> int:
         )
         return 0
 
-    state = load_state(input_dir)
+    conn = None
+    if not args.dry_run:
+        conn = open_state(str(PROJECT_ROOT))
+
     processed = 0
     skipped = 0
     failed = 0
 
-    for video in videos:
-        output = output_dir / f"{video.stem}.mp3"
-        if should_skip(video, output, force=args.force):
-            logger.info("Omitido (ya existe): %s", output.name)
-            record_item(
-                state,
-                video,
-                status="done",
-                mp3=output,
-                skipped=True,
-            )
-            skipped += 1
-            continue
+    try:
+        for video in videos:
+            output = output_dir / f"{video.stem}.mp3"
+            if should_skip(video, output, force=args.force):
+                logger.info("Omitido (ya existe): %s", output.name)
+                if conn is not None:
+                    record_item(
+                        conn,
+                        video,
+                        status="done",
+                        mp3=output,
+                        skipped=True,
+                    )
+                skipped += 1
+                continue
 
-        if args.dry_run:
-            logger.info("[dry-run] %s -> %s", video.name, output.name)
-            processed += 1
-            continue
+            if args.dry_run:
+                logger.info("[dry-run] %s -> %s", video.name, output.name)
+                processed += 1
+                continue
 
-        logger.info("Extrayendo: %s", video.name)
-        try:
-            extract_audio_podcast(video, output)
-            logger.info("Listo: %s", output)
-            record_item(state, video, status="done", mp3=output)
-            processed += 1
-        except Exception as exc:
-            logger.error("Error con %s: %s", video.name, exc)
-            record_item(state, video, status="failed", error=str(exc))
-            failed += 1
+            logger.info("Extrayendo: %s", video.name)
+            try:
+                extract_audio_podcast(video, output)
+                logger.info("Listo: %s", output)
+                assert conn is not None
+                record_item(conn, video, status="done", mp3=output)
+                processed += 1
+            except Exception as exc:
+                logger.error("Error con %s: %s", video.name, exc)
+                assert conn is not None
+                record_item(conn, video, status="failed", error=str(exc))
+                failed += 1
+    finally:
+        if conn is not None:
+            conn.close()
 
     if not args.dry_run:
-        save_state(input_dir, state)
-        logger.info("Estado guardado en %s", state_path(input_dir))
+        logger.info("Estado guardado en %s (tabla podcast_episode)", state_db_path(PROJECT_ROOT))
 
     logger.info(
         "Resumen: %d procesados, %d omitidos, %d errores (de %d vídeos)",

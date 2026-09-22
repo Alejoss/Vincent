@@ -17,9 +17,10 @@ Las **IMAGE** se excluyen. TEXT/descripción van a Qdrant vía SQLite local; el 
 | Paso | Script | Rol |
 |------|--------|-----|
 | **All-in-one** | `scripts/run_topic_knowledge_pipeline.py` | Orquesta 0→3 en orden |
-| 0 | `scripts/map_topic_embedding_volume.py` | Inventario de volumen (tokens / missing) |
-| 1 | `scripts/process_topic_transcripts.py` | Transcripts → Sophia + vault |
-| 2 | `scripts/embed_topic.py` | Chunk + embed → SQLite local |
+| 0 | `scripts/map_topic_embedding_volume.py` | Inventario de volumen (tokens / missing); MCP: `map_topic` |
+| **Estado** | `scripts/topic_embedding_status.py` | Auditoría de cobertura en vivo por ID/nombre; MCP: `topic_embedding_status`. Compara Sophia, chunks SQLite y Qdrant, sin generar embeddings |
+| 1 | `scripts/process_topic_transcripts.py` | Transcripts VIDEO/AUDIO → Sophia + vault |
+| 2 | `scripts/embed_topic.py` | Chunk + embed → SQLite local (incl. TEXT PDF/EPUB) |
 | 3 | `scripts/sync_topic_embeddings_to_qdrant.py` | SQLite/cola → Qdrant → ACK Sophia |
 | 4 | `scripts/query_topic_embeddings.py` | RAG local (SQLite + OpenAI/Ollama) |
 
@@ -27,6 +28,9 @@ Las **IMAGE** se excluyen. TEXT/descripción van a Qdrant vía SQLite local; el 
 |-----|--------|
 | Cliente temas | `src/sophia_topics.py` |
 | Resolución de texto | `src/sophia_topic_text.py` |
+| Extractores PDF/EPUB | `src/sophia_document_extract.py` |
+| Inventario de volumen | `src/sophia_topic_volume.py` (`map_topic` MCP) |
+| MCP (Cursor) | [vincent-mcp.md](vincent-mcp.md) |
 | Transcript ingest client | `src/sophia_transcript_ingest.py` |
 | Embedding ingest client | `src/sophia_embedding_ingest.py` |
 | Chunk + OpenAI embed | `src/embeddings/` |
@@ -176,7 +180,14 @@ Para VIDEO/AUDIO:
 3. Nota en vault `sophia-{id}-*.md` o frontmatter `sophia_content_id`  
 4. API `transcript-ingest`  
 
-Para TEXT: PDF público en S3 → PyMuPDF. URLs externas (Medium) quedan `missing` hasta scrapear.
+Para TEXT:
+
+1. Archivo en `file_details.file` / `.url` (o `file_key` vía S3)  
+2. Sniff de formato (extensión, Content-Type, magic bytes) en `sophia_document_extract`  
+3. **PDF** → PyMuPDF · **EPUB** → ebooklib + BeautifulSoup  
+4. El texto resuelto entra al mismo chunk → embed → Qdrant que VIDEO/AUDIO (TEXT va a Qdrant vía `--also-sqlite-extras`; sin ACK Sophia)
+
+URLs externas (Medium, etc.) quedan `missing` hasta scrapear.
 
 ---
 

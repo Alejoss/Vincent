@@ -7,7 +7,7 @@ Priority for VIDEO/AUDIO:
   4) remote transcript-ingest API
 
 TEXT:
-  - PDF from S3/public file URL via PyMuPDF
+  - PDF / EPUB from public file URL (or S3 file_key) via sophia_document_extract
   - external URL (Medium etc.) marked pending (no scrape by default)
 """
 
@@ -16,14 +16,18 @@ from __future__ import annotations
 import logging
 import os
 import re
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlparse
 
-import fitz
 import requests
 
+from src.sophia_document_extract import (
+    UnsupportedDocumentFormat,
+    basename_from_url,
+    extract_document,
+)
 from src.sophia_local_transcript_lookup import find_local_transcript
 from src.sophia_transcript_ingest import SophiaTranscriptIngestClient
 from src.sophia_transcript_state import get_row, open_sophia_state
@@ -196,39 +200,113 @@ def resolve_media_text(
         return base
 
     if media_type == "TEXT":
-        fd = item.get("file_details") or {}
-        file_url = fd.get("file") or fd.get("url") or ""
-        if file_url:
-            try:
-                response = requests.get(file_url, timeout=180)
-                response.raise_for_status()
-                tmp = Path(tempfile.gettempdir()) / f"sophia_text_{content_id}.pdf"
-                tmp.write_bytes(response.content)
-                doc = fitz.open(tmp)
-                parts = [doc[i].get_text("text") or "" for i in range(doc.page_count)]
-                pages = doc.page_count
-                doc.close()
-                text = "\n".join(parts).strip()
-                if text:
-                    base.text = text
-                    base.source = "s3_pdf:" + file_url.rstrip("/").split("/")[-1]
-                    base.status = "ok"
-                    base.notes = f"pages={pages}"
-                    return base
-                base.notes = "pdf_empty_text"
-                return base
-            except Exception as exc:  # noqa: BLE001
-                base.notes = f"pdf_error:{exc}"
-                return base
-        if item.get("url"):
-            base.status = "missing"
-            base.notes = f"external_url_pending:{item['url']}"
-            return base
-        base.notes = "no_file_or_url"
-        return base
+        return _resolve_text_document(base, item=item, project_root=root)
 
     base.status = "skipped"
     base.notes = f"unsupported_media:{media_type}"
+    return base
+
+
+def _resolve_text_document(
+    base: ResolvedText,
+    *,
+    item: dict,
+    project_root: Path,
+) -> ResolvedText:
+    fd = item.get("file_details") or {}
+    file_url = (fd.get("file") or fd.get("url") or "").strip()
+    file_key = (item.get("file_key") or fd.get("file_key") or "").strip()
+    hint = (
+        basename_from_url(file_url)
+        or Path(file_key).name
+        or (item.get("original_title") or "")
+    )
+
+    data: Optional[bytes] = None
+    content_type = ""
+    origin = ""
+
+    if file_url:
+        try:
+            response = requests.get(file_url, timeout=180)
+            response.raise_for_status()
+            data = response.content
+            content_type = response.headers.get("Content-Type") or ""
+            origin = file_url
+        except Exception as exc:  # noqa: BLE001
+            base.notes = f"download_error:{exc}"
+            return base
+    elif file_key:
+        try:
+            from src.sophia_s3 import download_s3_object
+
+            cache_dir = project_root / "cache" / "sophia_media" / "text"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            suffix = Path(file_key).suffix or ""
+            dest = cache_dir / f"{base.content_id}{suffix}"
+            path = download_s3_object(file_key, dest)
+            data = path.read_bytes()
+            origin = file_key
+        except Exception as exc:  # noqa: BLE001
+            base.notes = f"s3_error:{exc}"
+            return base
+
+    if data is not None:
+        try:
+            extracted = extract_document(
+                data,
+                url=origin if origin.startswith("http") else hint,
+                content_type=content_type,
+                hint=hint,
+            )
+        except UnsupportedDocumentFormat as exc:
+            base.notes = str(exc)
+            return base
+        except Exception as exc:  # noqa: BLE001
+            base.notes = f"extract_error:{exc}"
+            return base
+
+        if extracted.text:
+            base.text = extracted.text
+            base.source = extracted.source_label
+            base.status = "ok"
+            base.notes = extracted.notes
+            return base
+        base.notes = f"{extracted.format}_empty_text"
+        return base
+
+    url = (item.get("url") or "").strip()
+    if url:
+        # File-looking URLs without file_details still try document extract.
+        path = urlparse(url).path.lower()
+        if path.endswith((".pdf", ".epub")):
+            try:
+                response = requests.get(url, timeout=180)
+                response.raise_for_status()
+                extracted = extract_document(
+                    response.content,
+                    url=url,
+                    content_type=response.headers.get("Content-Type") or "",
+                )
+            except UnsupportedDocumentFormat as exc:
+                base.notes = str(exc)
+                return base
+            except Exception as exc:  # noqa: BLE001
+                base.notes = f"download_error:{exc}"
+                return base
+            if extracted.text:
+                base.text = extracted.text
+                base.source = extracted.source_label
+                base.status = "ok"
+                base.notes = extracted.notes
+                return base
+            base.notes = f"{extracted.format}_empty_text"
+            return base
+        base.status = "missing"
+        base.notes = f"external_url_pending:{url}"
+        return base
+
+    base.notes = "no_file_or_url"
     return base
 
 
