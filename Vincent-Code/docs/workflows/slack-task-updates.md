@@ -23,7 +23,7 @@ Clasificar (LLM + señales deterministas)
 Sync Obsidian → Notion
 ```
 
-## Flujo Pipeline 3 (Slack directo, :40 UTC)
+## Flujo Pipeline 3 (Slack directo, tras ingesta)
 
 ```text
 Slack DM
@@ -43,8 +43,8 @@ Notion: Estado → Hecho + nota Input marcada
 | Entorno | Comando / trigger |
 |---------|-------------------|
 | Local | `bash scripts/run_slack_task_updates.sh` |
-| GHA | `.github/workflows/slack-task-updates.yml` — `:40` UTC |
-| Preferido | Clasificar + sync (`productivity-classify-notion.yml` — `:42`) aplica `intencion=completar` |
+| GHA | `.github/workflows/slack-task-updates.yml` — tras ingesta exitosa |
+| Preferido | Clasificar + sync (`productivity-classify-notion.yml` — tras completadas) aplica `intencion=completar` |
 
 ## Intención de completar
 

@@ -1,3 +1,5 @@
+> Scheduling update (2026-09-23): the cron timing and Run full pipeline option below describe the historical plan. Current workflows run sequentially after upstream success, with a shared queue. Start Slack inbox sync manually to run the cycle. See [current overview](overview.md).
+
 # Plan: completado de tareas desde Slack
 
 Plan de implementación para corregir el pipeline de **actualización de tareas** (Slack → Notion), separado del Pipeline 1 (ingesta) y Pipeline 2 (recordatorios).
@@ -59,16 +61,16 @@ Pipeline 2 — Recordatorios Notion (vencimientos) → Slack DM
 Script Pipeline 3: `scripts/update_notion_tasks_from_slack_messages.py`  
 Workflow GHA: `.github/workflows/slack-task-updates.yml`
 
-**Orden de ejecución objetivo (por slot, UTC):**
+**Orden de ejecución (desplegado, por slot UTC a las 8/14/20):**
 
 ```text
 :00  Ingesta Slack → Obsidian
-:15  Completadas (con gate estricto)
-:30  Clasificar + sync Notion
+:40  Completadas (con gate estricto)
+:42  Clasificar + sync Notion
 :45  Recordatorios
 ```
 
-Alternativa: un solo workflow secuencial por horario para evitar carreras.
+El borrador `:15` / `:30` de abajo quedó sustituido en Fase 2. Horarios actuales: [overview](overview.md).
 
 ---
 
