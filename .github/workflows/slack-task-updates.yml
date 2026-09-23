@@ -1,16 +1,24 @@
 name: Slack task updates
 
 on:
-  schedule:
-    # After inbox (:00); before classify (:42) and reminders (:45)
-    - cron: "40 8,14,20 * * *"
+  workflow_run:
+    workflows: ["Slack inbox sync"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# All productivity writers share this lock, including manual runs.
+concurrency:
+  group: productivity-vault-main
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   task-updates:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: Ramdau
     defaults:
@@ -23,6 +31,9 @@ jobs:
       LLM_MODEL: gpt-4o-mini
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Resolve main after acquiring the lock, not the triggering commit.
+          ref: main
 
       - uses: actions/setup-python@v5
         with:

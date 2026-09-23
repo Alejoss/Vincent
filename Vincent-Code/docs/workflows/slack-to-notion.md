@@ -155,3 +155,25 @@ python scripts/notion_rename_task_titles_ollama.py
 | `notion_purge_productivity_database.py` | Vaciar base Notion |
 | `notion_rename_task_titles_ollama.py` | Regenerar títulos en Notion |
 | `normalize_notion_productivity_schema.py` | Alinear selects tipo/proyecto en Notion |
+
+## GitHub Actions execution order
+
+Only Slack inbox sync has a schedule: 08:00, 14:00 and 20:00 UTC.
+Successful completion triggers the next workflow:
+
+1. Slack inbox sync
+2. Slack task updates
+3. Productivity classify and Notion sync
+4. Notion due Slack reminders
+
+All four share the `productivity-vault-main` concurrency queue, including manual
+runs. Each checks out the latest `main` after acquiring the lock, so classification
+sees the saved task-update markers. Pending runs queue without canceling active
+work. The chain uses three `workflow_run` levels, GitHub's supported maximum.
+
+Manually start Slack inbox sync to run the whole cycle; the old
+`run_full_pipeline` option is no longer needed. Starting an intermediate workflow
+also triggers its successors on success. Changes must reach `main` to take effect.
+
+Existing Notion properties remain authoritative, including cleared values.
+Explicit Slack completion commands can still update task status.

@@ -11,7 +11,7 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 │    intencion=completar  → cierra tarea existente (Hecho)        │
 │                                                                 │
 │  Script: run_productivity_pipeline.bat (local, todo junto)      │
-│  GHA: workflows escalonados (:00 → :40 → :42 → :45 UTC)         │
+│  GHA: sequential workflows, each after previous success       │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -36,11 +36,11 @@ Vincent-Code tiene **dos pipelines** que forman un ciclo Slack ↔ Notion:
 | Hora UTC | Workflow | Paso |
 |----------|----------|------|
 | `:00` | `productivity-pipeline.yml` | Ingesta Slack → Obsidian |
-| `:40` | `slack-task-updates.yml` | Completadas (intent detector, Slack directo) |
-| `:42` | `productivity-classify-notion.yml` | Clasificar (`intencion`) + sync Notion |
-| `:45` | `notion-reminders.yml` | Recordatorios |
+| After inbox success | `slack-task-updates.yml` | Completadas (intent detector, Slack directo) |
+| After task-update success | `productivity-classify-notion.yml` | Clasificar (`intencion`) + sync Notion |
+| After Notion-sync success | `notion-reminders.yml` | Recordatorios |
 
-Equivalente aprox. Ecuador (UTC−5): 3:00 / 3:40 / 3:42 / 3:45 · 9:00 / 9:40 / 9:42 / 9:45 · 15:00 / 15:40 / 15:42 / 15:45.
+Ecuador (UTC-5): scheduled starts at 03:00, 09:00 and 15:00. Each downstream workflow waits for upstream success and checks out the latest main. All four share a concurrency queue; manual inbox runs start the same chain.
 
 Clasificar+sync también aplica `intencion=completar` (cierra la tarea abierta; no crea duplicado).
 

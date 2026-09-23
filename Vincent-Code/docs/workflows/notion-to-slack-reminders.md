@@ -83,7 +83,7 @@ python scripts/notion_tasks_due_slack_reminders.py --dry-run --include-overdue -
   - **Próximas:** como máximo un aviso por página y día de vencimiento cada **3** días (`--dedup-days`, default 3).
   - **Atrasadas pendientes** (`Por hacer`, vencimiento ≤ ayer): cada **2** días (`--dedup-days-overdue`, default 2).
   - **Hecho / terminal:** no se avisa (excluidas por estado; no entra en dedup).
-- En **GitHub Actions** el workflow corre **3 veces al día** (`:45` UTC ≈ 3:45, 9:45, 15:45 Ecuador); el estado en git evita repetir la misma tarea en runs consecutivos del mismo día.
+GitHub Actions: reminders run after successful classification and Notion sync. The cycle starts at 08:00, 14:00 and 20:00 UTC; downstream steps have no independent schedule. All four workflows share a concurrency queue. See [overview](overview.md).
 - Tras un reset de Notion, conviene borrar este estado (`--clear-reminder-cache` en el script de purge).
 
 ## Relación con Pipeline 1
@@ -97,7 +97,7 @@ Si nunca llegan recordatorios, revisa en Notion que las tareas tengan **Fin** o 
 
 ## Programación
 
-En **GitHub Actions** (3×/día, UTC): ingesta `:00` → completadas `:40` → clasificar+Notion `:42` → recordatorios `:45`. Ver [overview](overview.md).
+GitHub Actions: reminders run after successful classification and Notion sync. The cycle starts at 08:00, 14:00 and 20:00 UTC; downstream steps have no independent schedule. All four workflows share a concurrency queue. See [overview](overview.md).
 
 Local / Windows: tarea separada del pipeline de ingesta, 1–2 veces al día.
 

@@ -1,16 +1,24 @@
 name: Productivity classify and Notion sync
 
 on:
-  schedule:
-    # After task updates (:40); before reminders (:45)
-    - cron: "42 8,14,20 * * *"
+  workflow_run:
+    workflows: ["Slack task updates"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# All productivity writers share this lock, including manual runs.
+concurrency:
+  group: productivity-vault-main
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   classify-notion:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: Ramdau
     defaults:
@@ -24,6 +32,9 @@ jobs:
       PIPELINE_RECLASSIFY: "0"
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Resolve main after acquiring the lock, not the triggering commit.
+          ref: main
 
       - uses: actions/setup-python@v5
         with:

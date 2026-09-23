@@ -1,16 +1,24 @@
 name: Notion due Slack reminders
 
 on:
-  schedule:
-    # 15 min after classify+Notion (8/14/20 UTC)
-    - cron: "45 8,14,20 * * *"
+  workflow_run:
+    workflows: ["Productivity classify and Notion sync"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# All productivity writers share this lock, including manual runs.
+concurrency:
+  group: productivity-vault-main
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   reminders:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: Ramdau
     defaults:
@@ -20,6 +28,9 @@ jobs:
       OBSIDIAN_VAULT_PATH: ${{ github.workspace }}/Cerebro-Vincent
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Resolve main after acquiring the lock, not the triggering commit.
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
