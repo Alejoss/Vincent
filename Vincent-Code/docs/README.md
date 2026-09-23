@@ -27,6 +27,8 @@ Diagrama y rutina diaria: [workflows/overview.md](workflows/overview.md)
 - [Podcast MP3 + catálogo Spotify](workflows/podcast-mp3.md) — ffmpeg → `VideosParaPodcast/mp3/` · estado SQLite `podcast_episode`
 - [Extracción de conocimiento (Own_Transcripts)](workflows/own-transcript-knowledge.md) — transcripts propios → activos estructurados
 - [Vincent MCP (Cursor)](workflows/vincent-mcp.md) — herramientas locales para buscar y lanzar pipelines
+- [Transcripts por tema (Sophia)](workflows/topic-transcripts-sophia.md) — VIDEO/AUDIO → `transcript-ingest`
+- [Knowledge por tema (embeddings → Qdrant)](workflows/topic-embeddings.md) — Vincent embebe y sube vectores; Sophia ACK + RAG. Estado: `scripts/report_topic_embedding_status.py`
 - [Programador de tareas Windows](operations/windows-scheduler.md)
 
 ## Orden típico en un día

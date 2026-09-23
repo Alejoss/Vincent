@@ -44,6 +44,7 @@ scripts\run_notion_due_slack_reminders.bat
 - **Transcripciones locales (Whisper):** `scripts\run_local_videos_transcripts.bat` — [docs/workflows/local-video-transcripts.md](docs/workflows/local-video-transcripts.md)
 - **Podcast MP3 / portadas:** `extract_local_audio` / `generate_podcast_covers` MCP — [docs/workflows/podcast-mp3.md](docs/workflows/podcast-mp3.md)
 - **Cursor MCP:** `scripts/vincent_mcp.py` — search + pipeline tools — [docs/workflows/vincent-mcp.md](docs/workflows/vincent-mcp.md)
+- **Knowledge por tema (Sophia):** transcripts → embeddings OpenAI → Qdrant → ack — [docs/workflows/topic-embeddings.md](docs/workflows/topic-embeddings.md)
 
 ## Logs
 
