@@ -472,7 +472,7 @@ def build_prop_map(props: Dict[str, Any]) -> Dict[str, str]:
                         break
             if not chosen:
                 for n in names:
-                    if n.lower() in {"por hacer", "todo", "to do"}:
+                    if n.lower() in {"por hacer", "todo", "to do", "sin empezar", "not started"}:
                         chosen = n
                         break
         if chosen:

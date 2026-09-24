@@ -75,6 +75,17 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(client.pages.create.call_args.kwargs["properties"]["Fin"]["date"]["start"], "2026-07-20")
         self.assertIn('notion_page_id: "page-1"', self.path.read_text(encoding="utf-8"))
 
+    def test_new_database_spanish_default_status(self):
+        props = {
+            "Tarea": {"type": "title"}, "tipo": {"type": "select"},
+            "Proyecto": {"type": "select"}, "slack_ts": {"type": "rich_text"},
+            "Estado": {"type": "status", "status": {"options": [
+                {"name": "Sin empezar"}, {"name": "En progreso"}, {"name": "Listo"}]}}
+        }
+        mapping = sync.build_prop_map(props)
+        payload = sync.build_props(mapping, self.item, set_default_status=True)
+        self.assertEqual(payload["Estado"], {"status": {"name": "Sin empezar"}})
+
     def test_link_survives_archiving_and_does_not_recreate(self):
         self.item.notion_page_id = "page-1"
         self.page["archived"] = True
