@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
 from notion_client import Client
+from notion_client.errors import APIErrorCode, APIResponseError
 
 load_dotenv(override=True)
 
@@ -140,6 +141,8 @@ class NoteItem:
     slack_completo: str
     notion_page_id: str = ""
     notion_database_id: str = ""
+    notion_archived: bool = False
+    notion_missing: bool = False
 
 
 def gather_notes(vault_path: str) -> List[NoteItem]:
@@ -178,9 +181,85 @@ def gather_notes(vault_path: str) -> List[NoteItem]:
                     slack_completo=slack_completo,
                     notion_page_id=fm.get("notion_page_id", ""),
                     notion_database_id=fm.get("notion_database_id", ""),
+                    notion_archived=_frontmatter_bool(fm.get("notion_archived", "")),
+                    notion_missing=_frontmatter_bool(fm.get("notion_missing", "")),
                 )
             )
     return out
+
+
+def _frontmatter_bool(value: str) -> bool:
+    return (value or "").strip().strip('"').lower() == "true"
+
+
+def _is_missing_page(exc: BaseException) -> bool:
+    return isinstance(exc, APIResponseError) and (
+        exc.status == 404 or exc.code in {APIErrorCode.ObjectNotFound, APIErrorCode.ObjectNotFound.value}
+    )
+
+
+def mark_notion_link_missing(path: Path, dry_run: bool) -> bool:
+    """Record that the stored Notion page is gone. Keep notion_page_id so sync does not create a new row."""
+    raw = path.read_text(encoding="utf-8")
+    if not raw.startswith("---\n") or "\n---\n" not in raw[4:]:
+        raise ValueError(f"Missing note frontmatter: {path}")
+    header, body = raw[4:].split("\n---\n", 1)
+    lines = header.splitlines()
+    replacement = "notion_missing: true"
+    for i, line in enumerate(lines):
+        if line.startswith("notion_missing:"):
+            if line == replacement:
+                return False
+            lines[i] = replacement
+            break
+    else:
+        lines.append(replacement)
+    updated = "---\n" + "\n".join(lines) + "\n---\n" + body
+    if updated == raw:
+        return False
+    if not dry_run:
+        path.write_text(updated, encoding="utf-8", newline="\n")
+    return True
+
+
+def _load_linked_page(
+    client: Client,
+    database_id: str,
+    ds_id: str,
+    slack_prop: str,
+    item: NoteItem,
+    existing: str,
+    dry_run: bool,
+) -> Optional[Dict[str, Any]]:
+    """Return the Notion page for a note.
+
+    An archived note whose stored page is gone, and which has no live row for its
+    Slack timestamp, is marked missing and skipped. Other retrieval failures propagate.
+    """
+    try:
+        return client.pages.retrieve(page_id=existing)
+    except APIResponseError as exc:
+        if not _is_missing_page(exc):
+            raise
+        live_id = None
+        if item.notion_page_id and item.slack_ts and slack_prop:
+            live_id = find_page_by_slack_ts(
+                client, database_id, ds_id, slack_prop, item.slack_ts
+            )
+            if live_id == existing:
+                live_id = None
+        if live_id:
+            try:
+                return client.pages.retrieve(page_id=live_id)
+            except APIResponseError as live_exc:
+                if not _is_missing_page(live_exc):
+                    raise
+                exc = live_exc
+        if item.notion_archived:
+            mark_notion_link_missing(item.path, dry_run)
+            print(f"[skip] archived Notion page missing for {item.path.name}; kept notion_page_id")
+            return None
+        raise exc
 
 
 def get_ds_and_props(client: Client, database_id: str) -> Tuple[str, Dict[str, Any]]:
@@ -614,11 +693,20 @@ def upsert_items(
         ):
             skipped += 1
             continue
+        if item.notion_missing:
+            skipped += 1
+            continue
         existing = item.notion_page_id or find_page_by_slack_ts(client, database_id, ds_id, prop_map["slack_ts"], item.slack_ts)
         if existing:
-            # Never push stale local values over a user's Notion edits. Retrieval
+            # Never push stale local values over a user's Notion edits. A missing
+            # archived page is skipped with its page id kept. Other retrieval
             # failures propagate rather than creating a replacement row.
-            page = client.pages.retrieve(page_id=existing)
+            page = _load_linked_page(
+                client, database_id, ds_id, prop_map["slack_ts"], item, existing, dry_run
+            )
+            if page is None:
+                skipped += 1
+                continue
             changed = mirror_page(item.path, page, prop_map, database_id, dry_run)
             updated += int(changed)
             skipped += int(not changed)

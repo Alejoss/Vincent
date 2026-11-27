@@ -5,10 +5,23 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import httpx
+from notion_client.errors import APIErrorCode, APIResponseError
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import sync_productivity_obsidian_to_notion as sync
 from src.notion_obsidian_mirror import mirror_page
 from src.slack_task_update_obsidian import should_skip_productivity_classify
+
+
+def _api_error(code, status):
+    return APIResponseError(
+        code=code,
+        status=status,
+        message="notion error",
+        headers=httpx.Headers(),
+        raw_body_text="{}",
+    )
 
 
 class AuthorityTests(unittest.TestCase):
@@ -96,6 +109,22 @@ class AuthorityTests(unittest.TestCase):
     def test_linked_notes_skip_reclassification(self):
         self.assertTrue(should_skip_productivity_classify({"notion_page_id": '"page-1"'}))
 
+    def test_gather_reads_archived_and_missing_flags(self):
+        folder = Path(self.temp.name) / "0_Diario_Productividad" / "Tareas-Ideas"
+        folder.mkdir(parents=True)
+        note = folder / "slack-123.md"
+        note.write_text(
+            '---\nslack_ts: "123"\ntipo: "Tarea"\nnotion_page_id: "gone-page"\n'
+            'notion_archived: true\nnotion_missing: true\n---\n\n'
+            '## Contenido completo (Slack)\nKeep this task closed.\n',
+            encoding="utf-8",
+        )
+        notes = sync.gather_notes(self.temp.name)
+        self.assertEqual(len(notes), 1)
+        self.assertTrue(notes[0].notion_archived)
+        self.assertTrue(notes[0].notion_missing)
+        self.assertEqual(notes[0].notion_page_id, "gone-page")
+
     def test_cleared_type_still_gathered(self):
         folder = Path(self.temp.name) / "0_Diario_Productividad" / "Tareas-Ideas"
         folder.mkdir(parents=True)
@@ -131,6 +160,105 @@ class AuthorityTests(unittest.TestCase):
         client.pages.create.assert_not_called()
         client.pages.update.assert_not_called()
         self.assertEqual(self.path.read_text(encoding="utf-8"), self.original)
+
+    def _note(self, name, slack_ts, **flags):
+        path = Path(self.temp.name) / name
+        path.write_text(self.original, encoding="utf-8")
+        item = sync.NoteItem(
+            path, slack_ts, "2026-06-26", "", "Tarea", "nueva",
+            "General", "Old", "July 20", "2026-07-20", "Old", "Original",
+        )
+        for key, value in flags.items():
+            setattr(item, key, value)
+        return path, item
+
+    def test_missing_archived_page_keeps_id_and_sync_continues(self):
+        path, gone = self._note(
+            "slack-gone.md", "1791409831.065509",
+            notion_page_id="gone-page", notion_archived=True,
+        )
+        path.write_text(
+            self.original.replace(
+                'fecha_objetivo: "2026-07-20"\n',
+                'fecha_objetivo: "2026-07-20"\nnotion_page_id: "gone-page"\nnotion_archived: true\n',
+            ),
+            encoding="utf-8",
+        )
+        _, nxt = self._note("slack-next.md", "456")
+        client = Mock()
+        client.pages.retrieve.side_effect = _api_error(APIErrorCode.ObjectNotFound, 404)
+        client.pages.create.return_value = self.page
+        with patch.object(sync, "get_ds_and_props", return_value=("db", {"slack_ts": {"type": "rich_text"}})), \
+             patch.object(sync, "build_prop_map", return_value=self.map), \
+             patch.object(sync, "find_page_by_slack_ts", return_value=None):
+            result = sync.upsert_items(client, "db", [gone, nxt], False)
+        self.assertEqual(result, (1, 0, 1))
+        text = path.read_text(encoding="utf-8")
+        self.assertIn('notion_page_id: "gone-page"', text)
+        self.assertIn("notion_missing: true", text)
+        self.assertIn('notion_page_id: "page-1"', nxt.path.read_text(encoding="utf-8"))
+
+    def test_missing_archived_page_dry_run_does_not_write(self):
+        path, gone = self._note(
+            "slack-gone.md", "1791409831.065509",
+            notion_page_id="gone-page", notion_archived=True,
+        )
+        before = path.read_text(encoding="utf-8")
+        client = Mock()
+        client.pages.retrieve.side_effect = _api_error(APIErrorCode.ObjectNotFound, 404)
+        with patch.object(sync, "get_ds_and_props", return_value=("db", {"slack_ts": {"type": "rich_text"}})), \
+             patch.object(sync, "build_prop_map", return_value=self.map), \
+             patch.object(sync, "find_page_by_slack_ts", return_value=None):
+            result = sync.upsert_items(client, "db", [gone], True)
+        self.assertEqual(result, (0, 0, 1))
+        client.pages.create.assert_not_called()
+        self.assertEqual(path.read_text(encoding="utf-8"), before)
+
+    def test_missing_page_without_archive_still_fails(self):
+        path, item = self._note("slack-open.md", "123", notion_page_id="gone-page")
+        before = path.read_text(encoding="utf-8")
+        client = Mock()
+        client.pages.retrieve.side_effect = _api_error(APIErrorCode.ObjectNotFound, 404)
+        with patch.object(sync, "get_ds_and_props", return_value=("db", {"slack_ts": {"type": "rich_text"}})), \
+             patch.object(sync, "build_prop_map", return_value=self.map), \
+             patch.object(sync, "find_page_by_slack_ts", return_value=None):
+            with self.assertRaises(APIResponseError):
+                sync.upsert_items(client, "db", [item], False)
+        client.pages.create.assert_not_called()
+        self.assertEqual(path.read_text(encoding="utf-8"), before)
+
+    def test_archived_note_follows_live_slack_row(self):
+        path, item = self._note(
+            "slack-moved.md", "123",
+            notion_page_id="gone-page", notion_archived=True,
+        )
+        client = Mock()
+
+        def retrieve(page_id):
+            if page_id == "gone-page":
+                raise _api_error(APIErrorCode.ObjectNotFound, 404)
+            return self.page
+
+        client.pages.retrieve.side_effect = retrieve
+        with patch.object(sync, "get_ds_and_props", return_value=("db", {"slack_ts": {"type": "rich_text"}})), \
+             patch.object(sync, "build_prop_map", return_value=self.map), \
+             patch.object(sync, "find_page_by_slack_ts", return_value="page-1"):
+            result = sync.upsert_items(client, "db", [item], False)
+        self.assertEqual(result, (0, 1, 0))
+        client.pages.create.assert_not_called()
+        text = path.read_text(encoding="utf-8")
+        self.assertIn('notion_page_id: "page-1"', text)
+        self.assertNotIn("notion_missing:", text)
+
+    def test_recorded_missing_link_skips_retrieve(self):
+        _, item = self._note("slack-gone.md", "123", notion_page_id="gone-page", notion_missing=True)
+        client = Mock()
+        with patch.object(sync, "get_ds_and_props", return_value=("db", {"slack_ts": {"type": "rich_text"}})), \
+             patch.object(sync, "build_prop_map", return_value=self.map):
+            result = sync.upsert_items(client, "db", [item], False)
+        self.assertEqual(result, (0, 0, 1))
+        client.pages.retrieve.assert_not_called()
+        client.pages.create.assert_not_called()
 
 
 if __name__ == "__main__":
